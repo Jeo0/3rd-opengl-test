@@ -1,4 +1,26 @@
 
+// https://docs.google.com/spreadsheets/d/1zJyXv94MFD7IR9agFAzWmw3_cmge6CDwsUQ2P-K-bjk/edit?usp=sharing
+// https://drive.google.com/drive/folders/1UMsSN-CSXIbWKanc4ryfAqTwIto89cHD?usp=sharing
+/*
+ *--------- part 1
+[check]  2 mobile processors
+[ ] desktop processor
+[ ] server processor
+
+---------- part 2.1
+[check] datasheet ng ipad?? wala ako makita, pero eto meron https://www.cpu-world.com/CPUs/A5/Apple-A5%20(iPad).html
+[d ko sure kung meron man etong ipad] heat sinks / cooling solutions for each processor
+
+----------- part 2.2
+[ ] datasheet ng phone ni kobi
+[ ] heat sinks / cooling solution nung processor
+
+
+-------------- part 3
+[ ] antistaticwriststrap
+[check] thermal paste
+*/
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -39,12 +61,15 @@ int main()
 
 
 	// OPENGL
-	// a buffer
-	//GLfloat vertices[] = {
-
-	//};
+	// a buffer for the triangle
+	GLfloat vertices[] = {
+		-0.4,	-0.1,	0.,
+		0.5,	-0.5,	0.,
+		-0.5,	.5,		0.
+	};
 
 	// object initialization 
+	// window
 	GLFWwindow* window = glfwCreateWindow(800,800, "titlebar", NULL, NULL);
 	if(window == NULL){
 		std::cerr << "fail to create glfw window" << std::endl;
@@ -77,6 +102,49 @@ int main()
 	// -- from	0,0 	:	bot-left window
 	// -- to 	800,100	:	top-right window
 	glViewport(0,0, 800, 800);
+
+
+
+
+	// vertex and fragment shader objects
+	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertexShader, 1, &vertShaderSrc, NULL);
+	glCompileShader(vertexShader);
+
+	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShader, 1, &fragShaderSrc, NULL);
+	glCompileShader(fragmentShader);
+
+
+	// "wrap the vertex and fragment shader objects up"
+	// using shader program
+	GLuint shaderProgram = glCreateProgram();
+
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+
+	// wrap them up by linking
+	glLinkProgram(shaderProgram);
+
+
+
+	// we can now safely delete the shader objects
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+	
+
+
+
+
+
+
+	///////////////////////////////////////////////////////////
+	///
+	///
+	/// render proper
+	///
+	///
+	///////////////////////////////////////////////////////////
 
 	// tell opengl to render static (r,g,b,a) 
 	glClearColor(0.01f, 0.24f, 0.45f, 1.0f);
