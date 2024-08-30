@@ -63,9 +63,18 @@ int main()
 	// OPENGL
 	// a buffer for the triangle
 	GLfloat vertices[] = {
-		-0.4,	-0.1,	0.,
-		0.5,	-0.5,	0.,
-		-0.5,	.5,		0.
+		-0.0,	0.5,	0.,			// top mid
+		0.5,	-0.5,	0.,			// top left
+		-0.5,	.5,		0.,			// bot right
+		0.3,	0.8,	0.			// top right
+	};
+
+	// reduce redundancy with element buffer objects
+	GLfloat indices[] = {
+		0,1,2,		// left triangle
+		0,2,3		// right triangle
+
+
 	};
 
 	// object initialization 
@@ -169,10 +178,13 @@ int main()
 	// it also allows for quicker switching of different VBOs.
 	// also generate VAOs first before VBOs
 	//
-	GLuint VAO, VBO;			// array of references
+	//
+	// Index buffer = element 
+	GLuint VAO, VBO, EBO;			// array of references
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
 
 	// binding
 	glBindVertexArray(VAO);
@@ -180,6 +192,8 @@ int main()
 	
 	// storing the vertices to the current binded object (VBO)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, EBO);												//////////////////////// flag error https://youtu.be/KG9ZXKaJWwY?list=PLPaoO-vpZnumdcb4tZc4x5Q-v7CkrQ6M-&t=147
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	// configuration: let opengl know how to read VBO
 	// a vertex attribute pointer allows the ability 
@@ -190,6 +204,7 @@ int main()
 	// unbind the buffer to be safe from accidental changes (for good practice)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 
 
@@ -216,7 +231,8 @@ int main()
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);				// not necessary since we only have 1 object & 1 vao
 											// (it it the usual practice everytime regardless)
-		glDrawArrays(GL_TRIANGLES, 0, 3);	// specify the primitives (triangles)
+		//glDrawArrays(GL_TRIANGLES, 0, 3);	// specify the primitives (triangles)
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glfwSwapBuffers(window);
 
 		// determine when to descend and ascend
@@ -261,6 +277,7 @@ int main()
 	// cleaning 
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
 
 	glfwDestroyWindow(window);
 	glfwTerminate();
