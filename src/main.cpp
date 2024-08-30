@@ -157,6 +157,44 @@ int main()
 	glfwSwapBuffers(window);
 
 
+	// processing vertices
+	// telling opengl what to do with the specified vertices
+	// transferring data in buffers
+	//
+	//
+	// VAOs
+	// why: opengl does not know where the buffer data is located
+	// it stores pointers to VBOs
+	// and it tells opengl how to interpret them
+	// it also allows for quicker switching of different VBOs.
+	// also generate VAOs first before VBOs
+	//
+	GLuint VAO, VBO;			// array of references
+
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+
+	// binding
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);	// make an object the current data to be processed
+	
+	// storing the vertices to the current binded object (VBO)
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	// configuration: let opengl know how to read VBO
+	// a vertex attribute pointer allows the ability 
+	// to communicate with a vertex shader from the outside
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);		// position @ 0 
+	glEnableVertexAttribArray(0);													// position @ 0
+	
+	// unbind the buffer to be safe from accidental changes (for good practice)
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+
+
+
+
 
 	
 	double array[4] = {0,0,0,0};
