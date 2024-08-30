@@ -197,19 +197,26 @@ int main()
 
 
 	
+	// for the window (background) flashing BW
 	double array[4] = {0,0,0,0};
 	double indexer = 0.001;
 	bool state = true;			// true = ascend;	false = descend
 
 	while(!glfwWindowShouldClose(window)){
-		// let glfw handle window events (resize, close, minimize, move)
-		glfwPollEvents();
 
 		//////////////////////////////////////////
 		// make white to black to white transition
 		//////////////////////////////////////////
 		glClearColor(array[0], array[1], array[2], array[3]);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		//////////////////////////////////////////
+		/// triangle
+		//////////////////////////////////////////
+		glUseProgram(shaderProgram);
+		glBindVertexArray(VAO);				// not necessary since we only have 1 object & 1 vao
+											// (it it the usual practice everytime regardless)
+		glDrawArrays(GL_TRIANGLES, 0, 3);	// specify the primitives (triangles)
 		glfwSwapBuffers(window);
 
 		// determine when to descend and ascend
@@ -241,8 +248,19 @@ int main()
 			std::cout << array[iii] << ", ";
 		}
 		std::cout << "}" << std::endl;
+
+
+
+
+		// let glfw handle window events (resize, close, minimize, move)
+		glfwPollEvents();
 		
 	}
+
+
+	// cleaning 
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
 
 	glfwDestroyWindow(window);
 	glfwTerminate();
