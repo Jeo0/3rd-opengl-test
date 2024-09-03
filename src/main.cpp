@@ -41,6 +41,7 @@ constexpr auto fragShaderSrc = R"(#version 330 core
     	FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
 	})";
 
+
 int main()
 {
 
@@ -64,18 +65,39 @@ int main()
 	// a buffer for the triangle
 	GLfloat vertices[] = {
 		-0.0,	0.5,	0.,			// top mid
-		0.5,	-0.5,	0.,			// top left
-		-0.5,	.5,		0.,			// bot right
+		0.5,	-0.5,	0.,			// bot right
+		-0.5,	.5,		0.,			// top left 
 		0.3,	0.8,	0.			// top right
+	};
+
+	// reduce redundancy with element buffer objects
+	GLuint indices[] = {
+		0,1,2,		// left triangle
+		0,1,3		// right triangle
+
+
+	};
+
+	/*
+	// OPENGL
+	// a buffer for the triangle
+	GLfloat vertices[] = {
+		-0.0,	0.5,	0.,			// top mid
+		0.5,	-0.5,	0.,			// bot right
+		-0.5,	.5,		0.,			// top left 
+		0.3,	0.8,	0.			// top right
+		0.8,	0.,		0.			// rightmost
 	};
 
 	// reduce redundancy with element buffer objects
 	GLfloat indices[] = {
 		0,1,2,		// left triangle
-		0,2,3		// right triangle
+		0,1,3		// right triangle
+		1,4,3
 
 
 	};
+	*/
 
 	// object initialization 
 	// window
@@ -190,10 +212,13 @@ int main()
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);	// make an object the current data to be processed
 	
-	// storing the vertices to the current binded object (VBO)
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, EBO);												//////////////////////// flag error https://youtu.be/KG9ZXKaJWwY?list=PLPaoO-vpZnumdcb4tZc4x5Q-v7CkrQ6M-&t=147
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	// storing the vertices to the current binded object (VBO and EBO)
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);			// VBO
+																						//
+	
+	// same happens for the EBO
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);												
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);	// EBO
 
 	// configuration: let opengl know how to read VBO
 	// a vertex attribute pointer allows the ability 
