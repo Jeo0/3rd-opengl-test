@@ -1,1 +1,2 @@
--I/D:/dev/gui/5-opengl/git/include
+-target=x86_64-w64-mingw32
+-I include

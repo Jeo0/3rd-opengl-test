@@ -1,25 +1,6 @@
 
 // https://docs.google.com/spreadsheets/d/1zJyXv94MFD7IR9agFAzWmw3_cmge6CDwsUQ2P-K-bjk/edit?usp=sharing
 // https://drive.google.com/drive/folders/1UMsSN-CSXIbWKanc4ryfAqTwIto89cHD?usp=sharing
-/*
- *--------- part 1
-[check]  2 mobile processors
-[ ] desktop processor
-[ ] server processor
-
----------- part 2.1
-[check] datasheet ng ipad?? wala ako makita, pero eto meron https://www.cpu-world.com/CPUs/A5/Apple-A5%20(iPad).html
-[d ko sure kung meron man etong ipad] heat sinks / cooling solutions for each processor
-
------------ part 2.2
-[ ] datasheet ng phone ni kobi
-[ ] heat sinks / cooling solution nung processor
-
-
--------------- part 3
-[ ] antistaticwriststrap
-[check] thermal paste
-*/
 
 #include <iostream>
 #include <fstream>
