@@ -7,6 +7,7 @@
 #include <vector>
 #include "GLAD/glad.h"
 #include "GLFW/glfw3.h"
+#include "shaderClass.h"
 
 // vertex and shader source
 constexpr auto vertShaderSrc = R"(#version 330 core
@@ -117,32 +118,24 @@ int main()
 
 
 
-
-	// vertex and fragment shader objects
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertShaderSrc, NULL);
-	glCompileShader(vertexShader);
-
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragShaderSrc, NULL);
-	glCompileShader(fragmentShader);
-
-
-	// "wrap the vertex and fragment shader objects up"
-	// using shader program
-	GLuint shaderProgram = glCreateProgram();
-
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-
-	// wrap them up by linking
-	glLinkProgram(shaderProgram);
+	///////////////////////////////////////////////////////////
+	///	location AA1
+	///
+	/// this gets reduced using shaderclass 
+	/// from create shader
+	/// - shader source (vert, frag)
+	/// - compile (vert, frag)
+	/// - create program
+	/// - attach program (vert, frag)
+	/// - link program
+	/// - delete shader (vert, frag)
+	/// 
+	///
+	///////////////////////////////////////////////////////////
 
 
-
-	// we can now safely delete the shader objects
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+	// always refer to shaderProgram with its ID
+	Shader shaderProgram("resource/Shaders/default.vert", "resource/Shaders/default.frag");
 	
 
 
@@ -234,7 +227,7 @@ int main()
 		//////////////////////////////////////////
 		/// triangle
 		//////////////////////////////////////////
-		glUseProgram(shaderProgram);
+		glUseProgram(shaderProgram.ID);
 		glBindVertexArray(VAO);				// not necessary since we only have 1 object & 1 vao
 											// (it it the usual practice everytime regardless)
 		//glDrawArrays(GL_TRIANGLES, 0, 3);	// specify the primitives (triangles)
@@ -264,12 +257,12 @@ int main()
 		}
 
 
-		// print
-		std::cout << "array[iii] {";
-		for(int iii = 0; iii<4; iii++){
-			std::cout << array[iii] << ", ";
-		}
-		std::cout << "}" << std::endl;
+		// // print
+		// std::cout << "array[iii] {";
+		// for(int iii = 0; iii<4; iii++){
+		// 	std::cout << array[iii] << ", ";
+		// }
+		// std::cout << "}" << std::endl;
 
 
 
@@ -284,6 +277,7 @@ int main()
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
+	glDeleteProgram(shaderProgram.ID);
 
 	glfwDestroyWindow(window);
 	glfwTerminate();
