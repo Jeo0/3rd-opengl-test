@@ -8,20 +8,7 @@
 #include "GLAD/glad.h"
 #include "GLFW/glfw3.h"
 #include "shaderClass.h"
-
-// vertex and shader source
-constexpr auto vertShaderSrc = R"(#version 330 core
-    layout (location = 0) in vec3 aPos;
-    void main()
-    {
-       gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-    })";
-
-constexpr auto fragShaderSrc = R"(#version 330 core
-	out vec4 FragColor;
-	void main() {
-    	FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
-	})";
+#include "VBO.h"
 
 
 int main()
@@ -136,6 +123,7 @@ int main()
 
 	// always refer to shaderProgram with its ID
 	Shader shaderProgram("resource/Shaders/default.vert", "resource/Shaders/default.frag");
+	//Shader shaderProgram("default.vert", "default.frag");
 	
 
 
@@ -176,18 +164,19 @@ int main()
 	//
 	//
 	// Index buffer = element 
-	GLuint VAO, VBO, EBO;			// array of references
+	GLuint VAO, EBO;			// array of references
+	VBO VBO(vertices, sizeof(vertices));
 
 	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
+	// glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
 
 	// binding
 	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);	// make an object the current data to be processed
+	// glBindBuffer(GL_ARRAY_BUFFER, VBO);	// make an object the current data to be processed
 	
 	// storing the vertices to the current binded object (VBO and EBO)
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);			// VBO
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);			// VBO	
 																						//
 	
 	// same happens for the EBO
@@ -201,9 +190,9 @@ int main()
 	glEnableVertexAttribArray(0);													// position @ 0
 	
 	// unbind the buffer to be safe from accidental changes (for good practice)
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);			// VBO
 	glBindVertexArray(0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);	// EBO
 
 
 
@@ -275,7 +264,7 @@ int main()
 
 	// cleaning 
 	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
+	//glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
 	glDeleteProgram(shaderProgram.ID);
 
