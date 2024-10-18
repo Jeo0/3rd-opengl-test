@@ -9,6 +9,8 @@
 #include "GLFW/glfw3.h"
 #include "shaderClass.h"
 #include "VBO.h"
+#include "VAO.h"
+#include "EBO.h"
 
 
 int main()
@@ -164,35 +166,48 @@ int main()
 	//
 	//
 	// Index buffer = element 
-	GLuint VAO, EBO;			// array of references
-	VBO VBO(vertices, sizeof(vertices));
+	VAO VAO1;
+	VAO1.Bind();		// instead put it here; remember the constructor for VBO and EBO already has bind function
+	VBO VBO1(vertices, sizeof(vertices));
+	EBO EBO1(indices, sizeof(indices));			// array of references
 
-	glGenVertexArrays(1, &VAO);
-	// glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
+	// glGenVertexArrays(1, &VAO);														// VAO
+	// glGenBuffers(1, &VBO);															// VAO
+	// glGenBuffers(1, &EBO);															// EBO
 
 	// binding
-	glBindVertexArray(VAO);
-	// glBindBuffer(GL_ARRAY_BUFFER, VBO);	// make an object the current data to be processed
-	
+	// glBindVertexArray(VAO);															// VAO
+	// glBindBuffer(GL_ARRAY_BUFFER, VBO);	// make an object the current data to be processed	// VBO
+
+	////////////////////////////////////////////// why VBO and EBO arent binded? /////////////////////
+	// jokes, it was already binded at instantiation time
+	/* do not put it here, you would want it before any VBO and EBO
+	VAO1.Bind();
+	VBO1.Bind();*/
+
+
 	// storing the vertices to the current binded object (VBO and EBO)
 	//glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);			// VBO	
-																						//
 	
 	// same happens for the EBO
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);												
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);	// EBO
+	// glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);										// EBO
+	// glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);	// EBO
 
 	// configuration: let opengl know how to read VBO
 	// a vertex attribute pointer allows the ability 
 	// to communicate with a vertex shader from the outside
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);		// position @ 0 
-	glEnableVertexAttribArray(0);													// position @ 0
+	// linking 
+	// glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);		// position @ 0 	// VBO
+	// glEnableVertexAttribArray(0);													// position @ 0		// VBO
+	VAO1.LinkVBO(VBO1, 0);
+	VAO1.Unbind();
+	VBO1.Unbind();
+	EBO1.Unbind();
 	
 	// unbind the buffer to be safe from accidental changes (for good practice)
 	//glBindBuffer(GL_ARRAY_BUFFER, 0);			// VBO
-	glBindVertexArray(0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);	// EBO
+	// glBindVertexArray(0);					// VAO
+	// glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);	// EBO
 
 
 
@@ -216,8 +231,10 @@ int main()
 		//////////////////////////////////////////
 		/// triangle
 		//////////////////////////////////////////
-		glUseProgram(shaderProgram.ID);
-		glBindVertexArray(VAO);				// not necessary since we only have 1 object & 1 vao
+		shaderProgram.Activate();
+		VAO1.Bind();
+		// glUseProgram(shaderProgram.ID);
+		// glBindVertexArray(VAO.ID);				// not necessary since we only have 1 object & 1 vao
 											// (it it the usual practice everytime regardless)
 		//glDrawArrays(GL_TRIANGLES, 0, 3);	// specify the primitives (triangles)
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -263,10 +280,14 @@ int main()
 
 
 	// cleaning 
-	glDeleteVertexArrays(1, &VAO);
-	//glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &EBO);
-	glDeleteProgram(shaderProgram.ID);
+	// glDeleteVertexArrays(1, &VAO);	// VAO
+	// glDeleteBuffers(1, &VBO);			// VBO
+	// glDeleteBuffers(1, &EBO);		// EBO
+	// glDeleteProgram(shaderProgram.ID);	// shader
+	VAO1.Delete();
+	VBO1.Delete();
+	EBO1.Delete();
+	shaderProgram.Delete();
 
 	glfwDestroyWindow(window);
 	glfwTerminate();
