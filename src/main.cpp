@@ -11,6 +11,7 @@
 #include "VBO.h"
 #include "VAO.h"
 #include "EBO.h"
+#include "glfwClass.h"
 
 
 int main()
@@ -35,10 +36,11 @@ int main()
 	// OPENGL
 	// a buffer for the triangle
 	GLfloat vertices[] = {
-		-0.0,	0.5,	0.,			// top mid
-		0.5,	-0.5,	0.,			// bot right
-		-0.5,	.5,		0.,			// top left 
-		0.3,	0.8,	0.			// top right
+		// vertex 3;			color 3
+		-0.0,	0.5,	0.,		.8f,	.1f,	.1f,			// top mid
+		0.5,	-0.5,	0.,		.2f,	.8f,	.1f,			// bot right
+		-0.5,	.5,		0.,		.2f,	.14f,	.8f,			// top left 
+		0.3,	0.8,	0.,		.9f,	.5f,	1.f			// top right
 	};
 
 	// reduce redundancy with element buffer objects
@@ -49,41 +51,16 @@ int main()
 
 	};
 
-	/*
-	// OPENGL
-	// a buffer for the triangle
-	GLfloat vertices[] = {
-		-0.0,	0.5,	0.,			// top mid
-		0.5,	-0.5,	0.,			// bot right
-		-0.5,	.5,		0.,			// top left 
-		0.3,	0.8,	0.			// top right
-		0.8,	0.,		0.			// rightmost
-	};
-
-	// reduce redundancy with element buffer objects
-	GLfloat indices[] = {
-		0,1,2,		// left triangle
-		0,1,3		// right triangle
-		1,4,3
-
-
-	};
-	*/
 
 	// object initialization 
 	// window
-	GLFWwindow* window = glfwCreateWindow(800,800, "titlebar", NULL, NULL);
-	if(window == NULL){
-		std::cerr << "fail to create glfw window" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
+	GLFW window(800,800, "titlebar", NULL, NULL);
 
 	// use the initialized window object
 	// context is probably equal to an object that holds the whole of opengl
 	// but it is a bit more abstract than that
 	// as it can hold and do many things
-	glfwMakeContextCurrent(window);
+	glfwMakeContextCurrent(window.ID);
 
 
 
@@ -149,7 +126,7 @@ int main()
 
 	// tell the window to swap the processed opengl buffer (the above) 
 	// with the front buffer which is just empty white screen
-	glfwSwapBuffers(window);
+	glfwSwapBuffers(window.ID);
 
 
 	// processing vertices
@@ -168,46 +145,21 @@ int main()
 	// Index buffer = element 
 	VAO VAO1;
 	VAO1.Bind();		// instead put it here; remember the constructor for VBO and EBO already has bind function
-	VBO VBO1(vertices, sizeof(vertices));
-	EBO EBO1(indices, sizeof(indices));			// array of references
+	VBO VBO1(vertices, sizeof(vertices));		// generate, bind, and link it to vertices
+	EBO EBO1(indices, sizeof(indices));			// generate, bind, and link to indices
 
-	// glGenVertexArrays(1, &VAO);														// VAO
-	// glGenBuffers(1, &VBO);															// VAO
-	// glGenBuffers(1, &EBO);															// EBO
-
-	// binding
-	// glBindVertexArray(VAO);															// VAO
-	// glBindBuffer(GL_ARRAY_BUFFER, VBO);	// make an object the current data to be processed	// VBO
-
-	////////////////////////////////////////////// why VBO and EBO arent binded? /////////////////////
-	// jokes, it was already binded at instantiation time
-	/* do not put it here, you would want it before any VBO and EBO
-	VAO1.Bind();
-	VBO1.Bind();*/
-
-
-	// storing the vertices to the current binded object (VBO and EBO)
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);			// VBO	
-	
-	// same happens for the EBO
-	// glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);										// EBO
-	// glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);	// EBO
-
-	// configuration: let opengl know how to read VBO
-	// a vertex attribute pointer allows the ability 
-	// to communicate with a vertex shader from the outside
 	// linking 
 	// glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);		// position @ 0 	// VBO
 	// glEnableVertexAttribArray(0);													// position @ 0		// VBO
-	VAO1.LinkVBO(VBO1, 0);
+	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
+	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)) );
 	VAO1.Unbind();
 	VBO1.Unbind();
 	EBO1.Unbind();
 	
-	// unbind the buffer to be safe from accidental changes (for good practice)
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);			// VBO
-	// glBindVertexArray(0);					// VAO
-	// glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);	// EBO
+	// we can access uniforms here	
+	// scale is being accessed here
+	GLuint uniformID = glGetUniformLocation(shaderProgram.ID, "scale");
 
 
 
@@ -217,10 +169,9 @@ int main()
 	
 	// for the window (background) flashing BW
 	double array[4] = {0,0,0,0};
-	double indexer = 0.001;
-	bool state = true;			// true = ascend;	false = descend
+	float indexer = 0.001;
 
-	while(!glfwWindowShouldClose(window)){
+	while(!glfwWindowShouldClose(window.ID)){
 
 		//////////////////////////////////////////
 		// make white to black to white transition
@@ -231,36 +182,37 @@ int main()
 		//////////////////////////////////////////
 		/// triangle
 		//////////////////////////////////////////
-		shaderProgram.Activate();
+		shaderProgram.Activate();		// when accessing a uniform, make sure its after the shader program compilation
+		// assign some value for the uniform we accessed named "scale"
+
+
+
 		VAO1.Bind();
 		// glUseProgram(shaderProgram.ID);
 		// glBindVertexArray(VAO.ID);				// not necessary since we only have 1 object & 1 vao
 											// (it it the usual practice everytime regardless)
 		//glDrawArrays(GL_TRIANGLES, 0, 3);	// specify the primitives (triangles)
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glfwSwapBuffers(window);
+		glfwSwapBuffers(window.ID);
+
 
 		// determine when to descend and ascend
-		if(state == false){
-			for(int iii = 0; iii<4; iii++){
-				array[iii] -= indexer;
-			}
+		for(int iii = 0; iii<4; iii++){
+			array[iii] += indexer;
+		}
 
-		}
-		else if(state == true){ 
-			for(int iii = 0; iii<4; iii++){
-				array[iii] += indexer;
-			}
-		}
 
 
 		// set state
-		if(array[0] >= 1.0f){
-			state = false;
-		}
-		else if(array[0] <= 0.0f){
-			state = true;
-		}
+		if(array[0] >= 1.0f)
+			indexer *= -1.0f;
+		if (array[0] <= 0.0f)
+			indexer *= -1.f;
+
+
+		glUniform1f(uniformID, array[0]);		// only 1 float
+		// also it's 150% bigger
+	
 
 
 		// // print
@@ -289,6 +241,6 @@ int main()
 	EBO1.Delete();
 	shaderProgram.Delete();
 
-	glfwDestroyWindow(window);
+	glfwDestroyWindow(window.ID);
 	glfwTerminate();
 }
