@@ -55,12 +55,13 @@ int main()
 	// object initialization 
 	// window
 	GLFW window(800,800, "titlebar", NULL, NULL);
+	GLFWwindow* windowObj = window.ID;
 
 	// use the initialized window object
 	// context is probably equal to an object that holds the whole of opengl
 	// but it is a bit more abstract than that
 	// as it can hold and do many things
-	glfwMakeContextCurrent(window.ID);
+	glfwMakeContextCurrent(windowObj);
 
 
 
@@ -126,7 +127,7 @@ int main()
 
 	// tell the window to swap the processed opengl buffer (the above) 
 	// with the front buffer which is just empty white screen
-	glfwSwapBuffers(window.ID);
+	glfwSwapBuffers(windowObj);
 
 
 	// processing vertices
@@ -171,7 +172,7 @@ int main()
 	double array[4] = {0,0,0,0};
 	float indexer = 0.001;
 
-	while(!glfwWindowShouldClose(window.ID)){
+	while(!glfwWindowShouldClose(windowObj)){
 
 		//////////////////////////////////////////
 		// make white to black to white transition
@@ -184,45 +185,26 @@ int main()
 		//////////////////////////////////////////
 		shaderProgram.Activate();		// when accessing a uniform, make sure its after the shader program compilation
 		// assign some value for the uniform we accessed named "scale"
+		glUniform1f(uniformID, array[0]);		// only 1 float
+		// also it's 150% bigger
+	
 
 
 
 		VAO1.Bind();
-		// glUseProgram(shaderProgram.ID);
-		// glBindVertexArray(VAO.ID);				// not necessary since we only have 1 object & 1 vao
-											// (it it the usual practice everytime regardless)
-		//glDrawArrays(GL_TRIANGLES, 0, 3);	// specify the primitives (triangles)
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glfwSwapBuffers(window.ID);
+		glfwSwapBuffers(windowObj);
 
 
 		// determine when to descend and ascend
 		for(int iii = 0; iii<4; iii++){
 			array[iii] += indexer;
 		}
-
-
-
 		// set state
 		if(array[0] >= 1.0f)
 			indexer *= -1.0f;
-		if (array[0] <= 0.0f)
+		else if (array[0] <= 0.0f)
 			indexer *= -1.f;
-
-
-		glUniform1f(uniformID, array[0]);		// only 1 float
-		// also it's 150% bigger
-	
-
-
-		// // print
-		// std::cout << "array[iii] {";
-		// for(int iii = 0; iii<4; iii++){
-		// 	std::cout << array[iii] << ", ";
-		// }
-		// std::cout << "}" << std::endl;
-
-
 
 
 		// let glfw handle window events (resize, close, minimize, move)
@@ -232,15 +214,11 @@ int main()
 
 
 	// cleaning 
-	// glDeleteVertexArrays(1, &VAO);	// VAO
-	// glDeleteBuffers(1, &VBO);			// VBO
-	// glDeleteBuffers(1, &EBO);		// EBO
-	// glDeleteProgram(shaderProgram.ID);	// shader
 	VAO1.Delete();
 	VBO1.Delete();
 	EBO1.Delete();
 	shaderProgram.Delete();
 
-	glfwDestroyWindow(window.ID);
+	glfwDestroyWindow(windowObj);
 	glfwTerminate();
 }
