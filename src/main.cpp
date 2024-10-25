@@ -5,8 +5,10 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include "stb/stb_image.h"
 #include "GLAD/glad.h"
 #include "GLFW/glfw3.h"
+
 #include "shaderClass.h"
 #include "VBO.h"
 #include "VAO.h"
@@ -62,6 +64,7 @@ int main()
 	// but it is a bit more abstract than that
 	// as it can hold and do many things
 	glfwMakeContextCurrent(windowObj);
+
 
 
 
