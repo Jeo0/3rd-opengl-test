@@ -19,10 +19,10 @@ std::string get_file_contents(const char* filename){
 }        
 
 
-Shader::Shader(const char* vertFile, const char* fragFile){
+Shader::Shader(const char* vertFilename, const char* fragFilename){
     // get those in a string
-    std::string vertexSrcCode = get_file_contents(vertFile);
-    std::string fragmentSrcCode = get_file_contents(fragFile);      
+    std::string vertexSrcCode = get_file_contents(vertFilename);
+    std::string fragmentSrcCode = get_file_contents(fragFilename);      
 
     // however, we want it to be charater arrays
     const char* vertexSource = vertexSrcCode.c_str();
