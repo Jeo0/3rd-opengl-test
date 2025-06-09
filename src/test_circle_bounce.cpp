@@ -9,8 +9,8 @@ GLFWwindow *StartGLFW();
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInputs(GLFWwindow *window);
 
-float screenWidth = 800.0f;
-float screenHeight = 600.0f;
+constexpr float screenWidth = 800.0f;
+constexpr float screenHeight = 600.0f;
 
 int main() {
   GLFWwindow *window = StartGLFW();
