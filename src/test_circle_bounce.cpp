@@ -4,10 +4,13 @@
 #include "GLFW/glfw3.h"
 #include <cmath>
 #include <iostream>
+#include <vector>
 
 GLFWwindow *StartGLFW();
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInputs(GLFWwindow *window);
+std::vector<float> GenerateCircleVertices(float centerX, float centerY,
+                                          float radius, int circleResolution);
 
 constexpr float screenWidth = 800.0f;
 constexpr float screenHeight = 600.0f;
@@ -25,39 +28,15 @@ int main() {
   int circleResolution = 100;
 
   while (!glfwWindowShouldClose(window)) {
+
+    processInputs(window); // inputs
+
     glClear(GL_COLOR_BUFFER_BIT);
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // set to some bluish green
-
-    // circle rendering proper
-    glBegin(GL_TRIANGLE_FAN);
-    // glBegin(GL_TRIANGLES);
-    // glVertex2d(centerX, centerY);
-
-    float centerXNDC = (centerX / screenWidth) * 2.0 - 1.0;
-    float centerYNDC = (centerY / screenHeight) * 2.0 - 1.0;
-    glVertex2f(centerXNDC, centerYNDC); // center of the fan
-
-    for (int iii = 0; iii <= circleResolution; iii++) {
-      // float angle = 2.0 * 3.141592653589 * ((float)iii / circleResolution);
-      float angle =
-          2.0f * 3.141592653589 * (static_cast<float>(iii) / circleResolution);
-      float x = centerX + cos(angle) * radius;
-      float y = centerY + sin(angle) * radius;
-
-      // Normalize to NDC
-      float xNDC = (x / screenWidth) * 2.0f - 1.0f;
-      float yNDC = (y / screenHeight) * 2.0f - 1.0f;
-
-      // glVertex2f(x, y);
-      glVertex2f(xNDC, yNDC);
-    }
-
-    glEnd();
 
     glfwSwapBuffers(
         window); // present the processed things to the buffer for the next loop
     glfwPollEvents(); // inputs
-    processInputs(window);
   }
 }
 
@@ -69,8 +48,8 @@ GLFWwindow *StartGLFW() {
   }
 
   // set the settings
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
   // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 
@@ -100,4 +79,30 @@ void processInputs(GLFWwindow *window) {
   // get out of loop once we press escape key
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     glfwSetWindowShouldClose(window, true);
+}
+
+std::vector<float> GenerateCircleVertices(float centerX, float centerY,
+                                          float radius, int circleResolution) {
+  std::vector<float> vertices{centerX, centerY};
+  float centerXNDC = (centerX / screenWidth) * 2.0 - 1.0;
+  float centerYNDC = (centerY / screenHeight) * 2.0 - 1.0;
+
+  for (int iii = 0; iii <= circleResolution; iii++) {
+    // float angle = 2.0 * 3.141592653589 * ((float)iii / circleResolution);
+    float angle =
+        2.0f * 3.141592653589 * (static_cast<float>(iii) / circleResolution);
+    float x = centerX + cos(angle) * radius;
+    float y = centerY + sin(angle) * radius;
+
+    // Normalize to NDC
+    float xNDC = (x / screenWidth) * 2.0f - 1.0f;
+    float yNDC = (y / screenHeight) * 2.0f - 1.0f;
+
+    // glVertex2f(x, y);
+    // glVertex2f(xNDC, yNDC);
+    vertices.push_back(xNDC);
+    vertices.push_back(yNDC);
+  }
+
+  return vertices;
 }
