@@ -5,12 +5,15 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
+#include <fstream>
+#include <sstream>
 
 GLFWwindow *StartGLFW();
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInputs(GLFWwindow *window);
 std::vector<float> GenerateCircleVertices(float centerX, float centerY,
                                           float radius, int circleResolution);
+std::string LoadShaderSource(const char* filePath);
 
 constexpr float screenWidth = 800.0f;
 constexpr float screenHeight = 600.0f;
@@ -26,6 +29,11 @@ int main() {
   float centerY = screenHeight / 2.0f;
   float radius = 123.0f;
   int circleResolution = 100;
+
+  // shader sources
+  // debug
+  std::cout << "SHADER SOURCES:" << std::endl;
+  auto vertSrc = LoadShaderSource("resource/Shaders/default.vert");
 
   while (!glfwWindowShouldClose(window)) {
 
@@ -90,7 +98,7 @@ std::vector<float> GenerateCircleVertices(float centerX, float centerY,
   for (int iii = 0; iii <= circleResolution; iii++) {
     // float angle = 2.0 * 3.141592653589 * ((float)iii / circleResolution);
     float angle =
-        2.0f * 3.141592653589 * (static_cast<float>(iii) / circleResolution);
+      2.0f * 3.141592653589 * (static_cast<float>(iii) / circleResolution);
     float x = centerX + cos(angle) * radius;
     float y = centerY + sin(angle) * radius;
 
@@ -105,4 +113,16 @@ std::vector<float> GenerateCircleVertices(float centerX, float centerY,
   }
 
   return vertices;
+}
+
+std::string LoadShaderSource(const char* filePath){
+  std::ifstream file(filePath);           // Open file
+  std::stringstream buffer;
+  buffer << file.rdbuf();                 // Read all content into buffer
+
+  // debug
+  std::cout << "LOADSHADERSOURCE:" << std::endl;
+  std::cout << "buffer.str() = " << buffer.str() << std::endl;
+
+  return buffer.str();                    // Return as std::string
 }
