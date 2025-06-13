@@ -71,9 +71,14 @@ int main() {
     // generate the vertices of the circle
     float centerX = screenWidth / 2.0f;
     float centerY = screenHeight / 2.0f;
-    float radius = 123.0f;
-    int circleResolution = 100;
+    float radius = 10.0f;
+    int circleResolution = 10;
     std::vector<float> verticesOfTheCircle = GenerateCircleVertices(centerX, centerY, radius, circleResolution); 
+
+    ////////////////////////////////// debug
+    for (size_t i = 0; i < verticesOfTheCircle.size(); i += 2)
+        std::cout << verticesOfTheCircle[i] << ", " << verticesOfTheCircle[i+1] << std::endl;
+    //////////////////////////////////
 
     // we put the vertices on the gpu's memory
     // make sure the vertices are normalized before entering the vbo
@@ -89,8 +94,8 @@ int main() {
     // let openGL know what to do with the vertices
 
     constexpr int stride = 2;
-    GLboolean normalizeTheVertices = GL_FALSE;
-    // GLboolean normalizeTheVertices = GL_TRUE;
+    // GLboolean normalizeTheVertices = GL_FALSE;
+    GLboolean normalizeTheVertices = GL_TRUE;
     glVertexAttribPointer(0, stride, GL_FLOAT, normalizeTheVertices, stride * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
@@ -171,10 +176,10 @@ void processInputs(GLFWwindow *window) {
 std::vector<float> GenerateCircleVertices(float centerX, float centerY,
                                           float radius, int circleResolution) {
     std::vector<float> vertices{};
-    vertices.push_back(centerX);
-    vertices.push_back(centerY);
-    // float centerXNDC = (centerX / screenWidth) * 2.0 - 1.0;
-    // float centerYNDC = (centerY / screenHeight) * 2.0 - 1.0;
+    float centerXNDC = (centerX / screenWidth) * 2.0 - 1.0;
+    float centerYNDC = (centerY / screenHeight) * 2.0 - 1.0;
+    vertices.push_back(centerXNDC);
+    vertices.push_back(centerYNDC);
 
     for (int iii = 0; iii <= circleResolution; iii++) {
         // float angle = 2.0 * 3.141592653589 * ((float)iii / circleResolution);
@@ -184,16 +189,28 @@ std::vector<float> GenerateCircleVertices(float centerX, float centerY,
         float y = centerY + sin(angle) * radius;
 
         // Normalize to NDC
-        // float xNDC = (x / screenWidth) * 2.0f - 1.0f;
-        // float yNDC = (y / screenHeight) * 2.0f - 1.0f;
+        float xNDC = (x / screenWidth) * 2.0f - 1.0f;
+        float yNDC = (y / screenHeight) * 2.0f - 1.0f;
 
         // glVertex2f(x, y);
         // glVertex2f(xNDC, yNDC);
-        // vertices.push_back(xNDC);
-        // vertices.push_back(yNDC);
-        vertices.push_back(x);
-        vertices.push_back(y);
+        vertices.push_back(xNDC);
+        vertices.push_back(yNDC);
+        // vertices.push_back(x);
+        // vertices.push_back(y);
     }
+
+    ////////////////////////////////////////////
+    /// debug 
+    std::cout << "The vertices contains: " << std::endl;
+    bool flip = 0;
+    for(auto iii: vertices){
+        if(!flip)
+            std::cout << std::endl;
+        std::cout << iii << " ";
+        flip = !flip;
+    }
+
 
     return vertices;
 }
