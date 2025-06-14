@@ -2,6 +2,7 @@
 
 #include "GLAD/glad.h"
 #include "GLFW/glfw3.h"
+#include <GL/gl.h>
 #include <cmath>
 #include <iostream>
 #include <vector>
@@ -71,22 +72,22 @@ int main() {
     // generate the vertices of the circle
     float centerX = screenWidth / 2.0f;
     float centerY = screenHeight / 2.0f;
-    float radius = 10.0f;
-    int circleResolution = 10;
+    float radius = 40.0f;
+    int circleResolution = 30;
     std::vector<float> verticesOfTheCircle = GenerateCircleVertices(centerX, centerY, radius, circleResolution); 
 
     ////////////////////////////////// debug
-    for (size_t i = 0; i < verticesOfTheCircle.size(); i += 2)
-        std::cout << verticesOfTheCircle[i] << ", " << verticesOfTheCircle[i+1] << std::endl;
+    // for (size_t i = 0; i < verticesOfTheCircle.size(); i += 2)
+        // std::cout << verticesOfTheCircle[i] << ", " << verticesOfTheCircle[i+1] << std::endl;
     //////////////////////////////////
 
     // we put the vertices on the gpu's memory
     // make sure the vertices are normalized before entering the vbo
     GLuint VBO, VAO;
-    glGenVertexArrays(1, &VAO);
+    glGenVertexArrays(1, &VAO);               //////////////////////////////// VAO
     glGenBuffers(1, &VBO);
 
-    glBindVertexArray(VAO);
+    glBindVertexArray(VAO);                   //////////////////////////////// VAO
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, verticesOfTheCircle.size() * sizeof(float), verticesOfTheCircle.data(), GL_STATIC_DRAW);
     // .data = vector<float> ----------> float array []
@@ -94,33 +95,33 @@ int main() {
     // let openGL know what to do with the vertices
 
     constexpr int stride = 2;
-    // GLboolean normalizeTheVertices = GL_FALSE;
-    GLboolean normalizeTheVertices = GL_TRUE;
+    GLboolean normalizeTheVertices = GL_FALSE;
+    // GLboolean normalizeTheVertices = GL_TRUE;
     glVertexAttribPointer(0, stride, GL_FLOAT, normalizeTheVertices, stride * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // glBindBuffer(GL_ARRAY_BUFFER, 0);
+    // glBindBuffer(GL_ARRAY_BUFFER, 0);    // wtf
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     
 
 
 
+
     while (!glfwWindowShouldClose(window)) {
 
-        processInputs(window); // inputs
+        processInputs(window);    // inputs
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // set to some bluish green
         glClear(GL_COLOR_BUFFER_BIT);
 
         // now draw the circle
         glUseProgram(shaderProgram);
-        glBindVertexArray(VAO);
-        // glDrawArrays(GL_TRIANGLES, 0, verticesOfTheCircle.size() * sizeof(float));
-        // glDrawArrays(GL_TRIANGLE_FAN, 0, verticesOfTheCircle.size());
+        glBindVertexArray(VAO);            ////////////////////////////// VAO
         glDrawArrays(GL_TRIANGLE_FAN, 0, static_cast<GLsizei>(verticesOfTheCircle.size() / 2));
 
-        glfwSwapBuffers(window); // present the processed things to the buffer for the next loop
-        glfwPollEvents(); // inputs
+        glfwSwapBuffers(window);  // present the processed things to the buffer for the next loop
+        glfwPollEvents();         // inputs
     }
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
@@ -202,14 +203,14 @@ std::vector<float> GenerateCircleVertices(float centerX, float centerY,
 
     ////////////////////////////////////////////
     /// debug 
-    std::cout << "The vertices contains: " << std::endl;
-    bool flip = 0;
-    for(auto iii: vertices){
-        if(!flip)
-            std::cout << std::endl;
-        std::cout << iii << " ";
-        flip = !flip;
-    }
+    // std::cout << "The vertices contains: " << std::endl;
+    // bool flip = 0;
+    // for(auto iii: vertices){
+    //     if(!flip)
+    //         std::cout << std::endl;
+    //     std::cout << iii << " ";
+    //     flip = !flip;
+    // }
 
 
     return vertices;
