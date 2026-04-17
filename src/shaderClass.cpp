@@ -1,10 +1,11 @@
 #include "shaderClass.h"
 
 
+
 std::string get_file_contents(const char* filename){
     std::ifstream in(filename, std::ios::binary);
     if (!in){
-        std::cerr << "unable to open file " <<  filename << std::endl;
+        std::cerr << "ERROR in get_file_contents: unable to open file " <<  filename << std::endl;
         throw(errno);
     }
     else{
@@ -86,7 +87,13 @@ void Shader::Delete(){
 }
 
 
-void Shader::compileErrors(unsigned int shader, const char* type){
+// src/shaderClass.cpp: In member function ‘void Shader::compileErrors(unsigned int, const char*)’:
+// src/shaderClass.cpp:92:17: warning: comparison with string literal results in unspecified behavior [-Waddress]
+//    92 |         if(type != "PROGRAM"){  // compilation
+//       |            ~~~~~^~~~~~~~~~~~
+
+
+void Shader::compileErrors(unsigned int shader, std::string type){
 	GLint hasCompiled;
 	char infoLog[1024];
 	if(type != "PROGRAM"){	// compilation

@@ -13,7 +13,7 @@
 #include "VBO.h"
 #include "VAO.h"
 #include "EBO.h"
-#include "glfwClass.h"
+#include "window.h"
 
 
 int main()

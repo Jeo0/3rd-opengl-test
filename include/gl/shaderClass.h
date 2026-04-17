@@ -19,5 +19,5 @@ public:
     void Delete();
 
 private:
-    void compileErrors(unsigned int shader, const char* type);
+    void compileErrors(unsigned int shader, std::string type);
 };
