@@ -3,7 +3,9 @@
 #include <cerrno>
 #include <iostream>
 
-Window::Window(int mheight, int mlength, const char* mtitlebar, GLFWmonitor* mmonitor, GLFWwindow* mshare){
+// struct 
+
+Window::Window(int mheight, int mlength, const char* mtitlebar, GLFWmonitor* mmonitor, GLFWwindow* mshare, std::array <GLfloat, 4> mstdBgColor){
     // 1 settings 
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -35,7 +37,7 @@ Window::Window(int mheight, int mlength, const char* mtitlebar, GLFWmonitor* mmo
     glViewport(0,0, mheight, mlength);
 
 	// tell opengl to render static (r,g,b,a) 
-	glClearColor(0.01f, 0.24f, 0.45f, 1.0f);
+    glClearColor(mstdBgColor[0], mstdBgColor[1], mstdBgColor[2], mstdBgColor[3]);
 
 	// specify that we want to use the command on the color buffer
 	glClear(GL_COLOR_BUFFER_BIT);

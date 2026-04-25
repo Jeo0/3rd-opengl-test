@@ -1,4 +1,4 @@
-#version 330 core
+#version 460 core
 // remember vertices in main contains 6 columns and 4 rows (6 data, for 4 points)
 layout (location = 0) in vec3 aPos;         // in the array, every 3 contiguous elements are of position data being inputted
 layout (location = 1) in vec3 aColor;       // same goes here. Except its for color
