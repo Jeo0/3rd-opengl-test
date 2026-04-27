@@ -87,10 +87,6 @@ void Shader::Delete(){
 }
 
 
-// src/shaderClass.cpp: In member function ‘void Shader::compileErrors(unsigned int, const char*)’:
-// src/shaderClass.cpp:92:17: warning: comparison with string literal results in unspecified behavior [-Waddress]
-//    92 |         if(type != "PROGRAM"){  // compilation
-//       |            ~~~~~^~~~~~~~~~~~
 
 
 void Shader::compileErrors(unsigned int shader, std::string type){

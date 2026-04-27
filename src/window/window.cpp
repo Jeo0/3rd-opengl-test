@@ -3,8 +3,15 @@
 #include <cerrno>
 #include <iostream>
 
-// struct 
 
+// private 
+// ++++=========================== goback here
+Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    if (key == GLFW_KEY_E && action == GLFW_PRESS)
+        //
+}
+
+// public
 Window::Window(int mheight, int mlength, const char* mtitlebar, GLFWmonitor* mmonitor, GLFWwindow* mshare, std::array <GLfloat, 4> mstdBgColor){
     // 1 settings 
     glfwInit();
@@ -53,3 +60,7 @@ Window::~Window() {
     glfwTerminate();
 }
 
+// ++++===================== goback here
+Window::HandleMouseInput(){
+    glfwSetKeyCallback(ID, key_callback);
+}

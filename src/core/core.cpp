@@ -19,19 +19,18 @@ void Core::Run() {
     // The Main Game/Render Loop
     while (!glfwWindowShouldClose(windowObj.ID)) {
         Update();
-        Render();
-        glfwPollEvents();
+        Render(); // buffer swap
+        glfwPollEvents(); // polling is a must after buffer swap
     }
 }
 
 void Core::Init() {
-    // Linking Attributes
     VAO1.Bind();
     VBO1.Bind();
     EBO1.Bind();
-
-    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
-    VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+                // buffer data containing vertices, layout, 
+    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);     // from globals: vertices
+    VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float))); // from globals: colors
     
     VAO1.Unbind();
     VBO1.Unbind();
@@ -42,7 +41,12 @@ void Core::Init() {
 }
 
 void Core::Update() {
-    // Handle all logic and state changes here (separate from drawing)
+/*  LOGIC TINGS */
+    // mouse input ++++============================== goback here
+    windowObj.HandleMouseInput();
+
+
+    // make cursor scale up and down ting 
     for (int i = 0; i < 4; i++) {
         bgColor[i] += indexer;
     }
@@ -53,13 +57,14 @@ void Core::Update() {
 }
 
 void Core::Render() {
-    // Handle all OpenGL drawing commands here
+/*  RENDER TINGS */
     glClearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]);
     glClear(GL_COLOR_BUFFER_BIT);
 
     shaderProgram.Activate();
-    glUniform1f(uniformID, bgColor[0]);
+    glUniform1f(uniformID, bgColor[0]); // tanggalin to; the 'scale' depends on the bgcolor[0]'s value
 
+    // reset 
     VAO1.Bind();
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 

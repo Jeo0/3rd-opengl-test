@@ -27,7 +27,7 @@ private:
     GLuint uniformID;
 
     // 2. Core State
-    double bgColor[4] = {0.0, 0.0, 0.0, 0.0};
+    double bgColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
     float indexer = 0.001f;
 
     // behaviours

@@ -1,0 +1,9 @@
+{
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/mnt/wdblue/DD/dev/gui/5-opengl/git/build",
+            "binaryPath": "/mnt/wdblue/DD/dev/gui/5-opengl/git/build/example_glfw_opengl3",
+            "binaryArgs": []
+        }
+    ]
+}
