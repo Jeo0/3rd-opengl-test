@@ -1,0 +1,181 @@
+[
+  {
+    "file": "src/core/core.cpp",
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-I./include",
+      "-I./include/gl",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-c",
+      "-o",
+      "build/objects/./src/core/core.o",
+      "src/core/core.cpp"
+    ],
+    "directory": "/mnt/wdblue/DD/dev/gui/5-opengl/git",
+    "output": "build/objects/./src/core/core.o"
+  },
+  {
+    "file": "src/core/globals.cpp",
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-I./include",
+      "-I./include/gl",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-c",
+      "-o",
+      "build/objects/./src/core/globals.o",
+      "src/core/globals.cpp"
+    ],
+    "directory": "/mnt/wdblue/DD/dev/gui/5-opengl/git",
+    "output": "build/objects/./src/core/globals.o"
+  },
+  {
+    "file": "src/gl/EBO.cpp",
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-I./include",
+      "-I./include/gl",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-c",
+      "-o",
+      "build/objects/./src/gl/EBO.o",
+      "src/gl/EBO.cpp"
+    ],
+    "directory": "/mnt/wdblue/DD/dev/gui/5-opengl/git",
+    "output": "build/objects/./src/gl/EBO.o"
+  },
+  {
+    "file": "src/gl/stb.cpp",
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-I./include",
+      "-I./include/gl",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-c",
+      "-o",
+      "build/objects/./src/gl/stb.o",
+      "src/gl/stb.cpp"
+    ],
+    "directory": "/mnt/wdblue/DD/dev/gui/5-opengl/git",
+    "output": "build/objects/./src/gl/stb.o"
+  },
+  {
+    "file": "src/gl/VAO.cpp",
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-I./include",
+      "-I./include/gl",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-c",
+      "-o",
+      "build/objects/./src/gl/VAO.o",
+      "src/gl/VAO.cpp"
+    ],
+    "directory": "/mnt/wdblue/DD/dev/gui/5-opengl/git",
+    "output": "build/objects/./src/gl/VAO.o"
+  },
+  {
+    "file": "src/gl/VBO.cpp",
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-I./include",
+      "-I./include/gl",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-c",
+      "-o",
+      "build/objects/./src/gl/VBO.o",
+      "src/gl/VBO.cpp"
+    ],
+    "directory": "/mnt/wdblue/DD/dev/gui/5-opengl/git",
+    "output": "build/objects/./src/gl/VBO.o"
+  },
+  {
+    "file": "src/main.cpp",
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-I./include",
+      "-I./include/gl",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-c",
+      "-o",
+      "build/objects/./src/main.o",
+      "src/main.cpp"
+    ],
+    "directory": "/mnt/wdblue/DD/dev/gui/5-opengl/git",
+    "output": "build/objects/./src/main.o"
+  },
+  {
+    "file": "src/shaderClass.cpp",
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-I./include",
+      "-I./include/gl",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-c",
+      "-o",
+      "build/objects/./src/shaderClass.o",
+      "src/shaderClass.cpp"
+    ],
+    "directory": "/mnt/wdblue/DD/dev/gui/5-opengl/git",
+    "output": "build/objects/./src/shaderClass.o"
+  },
+  {
+    "file": "src/window/window.cpp",
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-I./include",
+      "-I./include/gl",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-c",
+      "-o",
+      "build/objects/./src/window/window.o",
+      "src/window/window.cpp"
+    ],
+    "directory": "/mnt/wdblue/DD/dev/gui/5-opengl/git",
+    "output": "build/objects/./src/window/window.o"
+  },
+  {
+    "file": "src/glad.c",
+    "arguments": [
+      "/usr/bin/gcc",
+      "-I./include",
+      "-I./include/gl",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-c",
+      "-o",
+      "build/objects/./src/glad.o",
+      "src/glad.c"
+    ],
+    "directory": "/mnt/wdblue/DD/dev/gui/5-opengl/git",
+    "output": "build/objects/./src/glad.o"
+  }
+]

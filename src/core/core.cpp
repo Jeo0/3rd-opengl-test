@@ -29,15 +29,46 @@ void Core::Init() {
     VBO1.Bind();
     EBO1.Bind();
                 // buffer data containing vertices, layout, 
-    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);     // from globals: vertices
-    VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float))); // from globals: colors
+    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);     // from globals: vertices
+    VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float))); // from globals: colors
+    VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float))); // from globals: textures
     
     VAO1.Unbind();
     VBO1.Unbind();
     EBO1.Unbind();
 
-    // Get uniforms
+    // uniforms
     uniformID = glGetUniformLocation(shaderProgram.ID, "scale");
+
+
+    // textures
+    std::string textureFile = "resource/Textures/gadem.jpg";
+    int xxx, yyy, nnn;
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char* bytes = stbi_load(textureFile.c_str(), &xxx, &yyy, &nnn, 0);
+
+    glGenTextures(1, &texture);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glTextureSubImage2D(GL_TEXTURE_2D, 0, GL_RGBA, xxx, yyy, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+
+    stbi_image_free(bytes);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+
+
+    GLuint tex0Uniform = glGetUniformLocation(shaderProgram.ID, "tex0");
+    shaderProgram.Activate();
+    glUniform1i(tex0Uniform, 0);
 }
 
 void Core::Update() {
@@ -63,6 +94,7 @@ void Core::Render() {
 
     shaderProgram.Activate();
     glUniform1f(uniformID, bgColor[0]); // tanggalin to; the 'scale' depends on the bgcolor[0]'s value
+    glBindTexture(GL_TEXTURE_2D, texture);
 
     // reset 
     VAO1.Bind();
@@ -72,9 +104,11 @@ void Core::Render() {
 }
 
 void Core::Cleanup() {
+
     VAO1.Delete();
     VBO1.Delete();
     EBO1.Delete();
+    glDeleteTextures(1, &texture);
     shaderProgram.Delete();
     
     glfwDestroyWindow(windowObj.ID);

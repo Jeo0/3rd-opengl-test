@@ -6,8 +6,8 @@
 
 // private 
 // ++++=========================== goback here
-Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    if (key == GLFW_KEY_E && action == GLFW_PRESS)
+void Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    // if (key == GLFW_KEY_E && action == GLFW_PRESS)
         //
 }
 
@@ -61,6 +61,6 @@ Window::~Window() {
 }
 
 // ++++===================== goback here
-Window::HandleMouseInput(){
-    glfwSetKeyCallback(ID, key_callback);
+void Window::HandleMouseInput(){
+    //glfwSetKeyCallback(ID, key_callback);
 }

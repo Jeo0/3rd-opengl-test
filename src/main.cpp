@@ -1,5 +1,5 @@
 #include "core/core.h"
-#include "core/globals.h"
+// #include "core/globals.h"
 
 
 int main()

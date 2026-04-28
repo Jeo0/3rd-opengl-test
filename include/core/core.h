@@ -25,6 +25,7 @@ private:
     VBO VBO1;
     EBO EBO1;
     GLuint uniformID;
+    GLuint texture; 
 
     // 2. Core State
     double bgColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
