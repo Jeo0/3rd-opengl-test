@@ -25,10 +25,11 @@ private:
     VBO VBO1;
     EBO EBO1;
     GLuint uniformID;
-    GLuint texture; 
+    GLuint textureID; 
 
     // 2. Core State
-    double bgColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+    // double bgColor[4] = {1.0f, 0.4f, 1.0f, 1.0f};
+    double bgColor[4] = {0.0f, 0.4f, 1.0f, 1.0f};
     float indexer = 0.001f;
 
     // behaviours
