@@ -11,6 +11,9 @@ public:
     Window(int mheight, int mlength, const char* mtitlebar, GLFWmonitor* mmonitor, GLFWwindow* mshare, std::array <GLfloat, 4> mstdBgColor);
     ~Window();
 
+
+    int Height = 0, Width = 0;
+
     void HandleMouseInput();
 };
 

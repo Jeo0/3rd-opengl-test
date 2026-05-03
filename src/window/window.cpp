@@ -41,7 +41,9 @@ Window::Window(int mheight, int mlength, const char* mtitlebar, GLFWmonitor* mmo
     // tell opengl that we want to set the viewport (where opengl will render in)
     // -- from	0,0 	:	bot-left window
     // -- to 	800,800	:	top-right window
-    glViewport(0,0, mheight, mlength);
+    Height = mheight;
+    Width = mlength;
+    glViewport(0,0, Height, Width);
 
 	// tell opengl to render static (r,g,b,a) 
     glClearColor(mstdBgColor[0], mstdBgColor[1], mstdBgColor[2], mstdBgColor[3]);

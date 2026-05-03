@@ -9,10 +9,16 @@ out vec2 textureCoordinates;
 
 uniform float scale;
 
+// 3d tings 
+uniform mat4 Umodel;
+uniform mat4 Uview;
+uniform mat4 Uprojection;
 
 void main()
 {
-    gl_Position = vec4( aPos.x * (1 + scale), 
+    gl_Position = Uprojection * Uview * Umodel
+                // * vec4(aPos, 1.0f);
+                * vec4( aPos.x * (1 + scale), 
                         aPos.y * (1 + scale), 
                         aPos.z * (1 + scale), 1.0);
     cololor = aColor;

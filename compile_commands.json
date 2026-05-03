@@ -36,6 +36,24 @@
     "output": "build/objects/./src/core/globals.o"
   },
   {
+    "file": "src/core/Texture.cpp",
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-I./include",
+      "-I./include/gl",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-c",
+      "-o",
+      "build/objects/./src/core/Texture.o",
+      "src/core/Texture.cpp"
+    ],
+    "directory": "/mnt/wdblue/DD/dev/gui/5-opengl/git",
+    "output": "build/objects/./src/core/Texture.o"
+  },
+  {
     "file": "src/gl/EBO.cpp",
     "arguments": [
       "/usr/bin/g++",

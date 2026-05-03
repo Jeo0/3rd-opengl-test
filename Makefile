@@ -40,7 +40,6 @@ ifeq ($(OS), Windows_NT)
     CXXFLAGS += `pkg-config --cflags glfw3`
     CFLAGS += `pkg-config --cflags glfw3`
     EXE = $(EXE_BASE).exe
-    # Note: Ensure Windows users have a way to run mkdir -p, otherwise use powershell New-Item
     CLEAN_CMD = Remove-Item -Path '$(EXE)', '$(OBJ_DIR)' -Recurse -Force -ErrorAction SilentlyContinue
 else
     UNAME_S := $(shell uname -s)

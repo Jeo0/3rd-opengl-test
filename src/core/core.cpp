@@ -3,6 +3,17 @@
 #include "core/globals.h"
 #include <filesystem>
 #include <iostream>
+#include <string_view>
+
+// 3d#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
+// #include "glm/ext/matrix_clip_space.hpp"
+#include <glm/ext/matrix_clip_space.hpp>
+#include "glm/ext/matrix_float4x4.hpp"
+#include "glm/ext/matrix_transform.hpp"
+#include "glm/ext/vector_float3.hpp"
+#include "glm/trigonometric.hpp"
 
 
 Core::Core() 
@@ -40,10 +51,12 @@ void Core::Init() {
     VBO1.Unbind();
     EBO1.Unbind();
 
+    // ============================
     // uniforms
     uniformID = glGetUniformLocation(shaderProgram.ID, "scale");
 
 
+    // ============================
     // textures
     std::string parentDir = (std::filesystem::current_path().std::filesystem::path::parent_path()).string();
     std::string textureFile = "/git/resource/Textures/gadem.jpg";
@@ -61,6 +74,26 @@ void Core::Update() {
 /*  LOGIC TINGS */
     // mouse input ++++============================== goback here
     windowObj.HandleMouseInput();
+    
+    shaderProgram.Activate();
+
+
+    // 3d tings 
+    glm::mat4 model = glm::mat4(1.0);
+    glm::mat4 view = glm::mat4(1.0);
+    glm::mat4 proj = glm::mat4(1.0);
+    view = glm::translate(view, glm::vec3(0.0, -0.5, -2.0));
+
+    proj = glm::perspective((float)(glm::radians(45.0)), (float)(windowObj.Height / windowObj.Width), 0.1f, 100.0f);
+    
+    int modelLoc = glGetUniformLocation(shaderProgram.ID, "Umodel");
+    int viewLoc = glGetUniformLocation(shaderProgram.ID, "Uview");
+    int projLoc = glGetUniformLocation(shaderProgram.ID, "Uprojection");
+
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+
 
 
     // make cursor scale up and down ting 
@@ -85,7 +118,8 @@ void Core::Render() {
 
     // reset 
     VAO1.Bind();
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    // glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(indices[0]), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(int), GL_UNSIGNED_INT, 0);
 
     glfwSwapBuffers(windowObj.ID);
 }
