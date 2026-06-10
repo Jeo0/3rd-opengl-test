@@ -16,7 +16,6 @@
 
 class Core {
 private:
-    // 1. Core Objects
     // Note: Declaration order matters! Window must be initialized first 
     // to establish the OpenGL context before VAO/VBO/Shaders are created.
     Window windowObj;
@@ -27,10 +26,13 @@ private:
     GLuint uniformID;
     GLuint textureID; 
 
-    // 2. Core State
-    // double bgColor[4] = {1.0f, 0.4f, 1.0f, 1.0f};
     double bgColor[4] = {0.0f, 0.4f, 1.0f, 1.0f};
     float indexer = 0.001f;
+
+    // start of TEMP 
+    float i_rotation = 0.0;
+    double prevTime = glfwGetTime();
+    // end of TEMP 
 
     // behaviours
     void Init();

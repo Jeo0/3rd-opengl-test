@@ -17,10 +17,11 @@ uniform mat4 Uprojection;
 void main()
 {
     gl_Position = Uprojection * Uview * Umodel
-                // * vec4(aPos, 1.0f);
-                * vec4( aPos.x * (1 + scale), 
-                        aPos.y * (1 + scale), 
-                        aPos.z * (1 + scale), 1.0);
+                * vec4(aPos, 1.0f);
+                // * vec4(aPos * (1 + scale), 1.0f);
+                // * vec4( aPos.x * (1 + scale), 
+                //         aPos.y * (1 + scale), 
+                //         aPos.z * (1 + scale), 1.0);
     cololor = aColor;
     textureCoordinates = aTex;
 }

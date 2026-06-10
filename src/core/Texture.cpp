@@ -11,12 +11,16 @@ Texture::Texture(std::string& p_parentDir,
                     GLenum p_imageFormat,
                     GLenum p_imageType
                     ){
+    // loading texture
     int widthImg, heightImg, numColChann;
-    unsigned char* bytes = stbi_load((p_parentDir + p_textureFile).c_str(), &widthImg, &heightImg, &numColChann, 4);
+    unsigned char* bytes = stbi_load((p_parentDir + p_textureFile).c_str(), &widthImg, &heightImg, &numColChann, 4); // actual image texture
     if(!bytes){
         std::cout << "Failed to load texture: " << stbi_failure_reason() << std::endl;
+        return;
     }   
 
+    // openGL functions
+    // generating texture
     stbi_set_flip_vertically_on_load(true);
     glGenTextures(1, &p_textureID);               // generate opengl texture obj
     glActiveTexture(p_activeTexture);               // assign texture to a texture unit
@@ -29,8 +33,8 @@ Texture::Texture(std::string& p_parentDir,
     glTexParameteri(p_targetParam, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
     glTexParameteri(p_targetParam, GL_TEXTURE_MAG_FILTER, i_filter);
 
-    glTexParameteri(p_targetParam, GL_TEXTURE_WRAP_S, GL_REPEAT);   // repeat texture
-    glTexParameteri(p_targetParam, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(p_targetParam, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);   // repeat texture
+    glTexParameteri(p_targetParam, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 
     // glTextureSubImage2D(GL_TEXTURE_2D, 0, GL_RGBA, xxx, yyy, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
     // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, xxx, yyy, 0, GL_RGB, GL_UNSIGNED_BYTE, bytes);       // jpg

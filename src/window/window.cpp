@@ -49,7 +49,7 @@ Window::Window(int mheight, int mlength, const char* mtitlebar, GLFWmonitor* mmo
     glClearColor(mstdBgColor[0], mstdBgColor[1], mstdBgColor[2], mstdBgColor[3]);
 
 	// specify that we want to use the command on the color buffer
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT );
 
 	// tell the window to swap the processed opengl buffer (the above) 
 	// with the front buffer which is just empty white screen

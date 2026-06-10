@@ -27,8 +27,9 @@ CC = gcc
 INCLUDES = -I$(INC_DIR) \
 		   -I$(INC_DIR)/gl
 
-CXXFLAGS = -std=c++17 $(INCLUDES) -g -Wall -Wformat
-CFLAGS = $(INCLUDES) -g -Wall -Wformat
+CXXFLAGS = -std=c++17 $(INCLUDES)  -g -Wall -Wformat 
+CFLAGS = $(INCLUDES)  -g -Wall -Wformat 
+# EACH_OBJECT_FLAGS = -fsanitize=address
 LIBS =
 
 # ---------------------------------------------------------------------

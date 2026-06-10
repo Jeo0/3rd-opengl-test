@@ -1,4 +1,5 @@
 #include "core/core.h"
+#include "GLFW/glfw3.h"
 #include "core/Texture.h"
 #include "core/globals.h"
 #include <filesystem>
@@ -47,6 +48,9 @@ void Core::Init() {
     VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float))); // from globals: colors
     VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float))); // from globals: textures
     
+    // void VAO::LinkAttrib(VBO& p_VBO, GLuint p_layout, GLuint p_numComponents, GLenum p_type, GLsizeiptr p_stride, void* p_offset){
+	// glVertexAttribPointer(p_layout, p_numComponents, p_type, GL_FALSE, p_stride, p_offset);		// position @ 0 	// VBO
+
     VAO1.Unbind();
     VBO1.Unbind();
     EBO1.Unbind();
@@ -62,12 +66,18 @@ void Core::Init() {
     std::string textureFile = "/git/resource/Textures/gadem.jpg";
     // std::string textureFile = "/git/resource/Textures/popcat.png";
     // std::string textureFile = "/git/resource/Textures/pak.jpg";
-    std::cout << "opening dis ting -> " << parentDir << textureFile << std::endl;
+    // std::cout << "USERINFO: opening dis ting -> " << parentDir << textureFile << std::endl;
 
     // usage of textures
     Texture simpleSquare(parentDir, textureFile, textureID, GL_TEXTURE0, 
                             GL_TEXTURE_2D, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);
     simpleSquare.TexUnit(shaderProgram, "tex0", 0);   // usage with uniform and whatever
+
+
+
+    // ============================
+    // open gl opengl settings 
+    glEnable(GL_DEPTH_TEST);
 }
 
 void Core::Update() {
@@ -82,8 +92,19 @@ void Core::Update() {
     glm::mat4 model = glm::mat4(1.0);
     glm::mat4 view = glm::mat4(1.0);
     glm::mat4 proj = glm::mat4(1.0);
-    view = glm::translate(view, glm::vec3(0.0, -0.5, -2.0));
 
+    // start of TEMP 
+    // to rotate: 
+    double currTime = glfwGetTime();
+    if(currTime - prevTime >= (1 / 60)){
+        // i_rotation += 0.004;
+        i_rotation += 0.1;
+        prevTime = currTime;
+    }
+    model = glm::rotate(model, glm::radians(i_rotation), glm::vec3(0.0, 1.0, 0.0)); // rotate on up axis
+    // end of TEMP TO ROTATE
+
+    view = glm::translate(view, glm::vec3(0.0, -0.5, -2.0));
     proj = glm::perspective((float)(glm::radians(45.0)), (float)(windowObj.Height / windowObj.Width), 0.1f, 100.0f);
     
     int modelLoc = glGetUniformLocation(shaderProgram.ID, "Umodel");
@@ -109,7 +130,7 @@ void Core::Update() {
 void Core::Render() {
 /*  RENDER TINGS */
     glClearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]); // tanggalin to 
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     shaderProgram.Activate();
     glUniform1f(uniformID, bgColor[0]); // tanggalin to; the 'uniform scale' depends on the bgcolor[0]'s value which changes overtime
