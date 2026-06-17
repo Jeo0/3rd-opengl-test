@@ -14,14 +14,17 @@ uniform mat4 Umodel;
 uniform mat4 Uview;
 uniform mat4 Uprojection;
 
+uniform mat4 camMatrix;
+
 void main()
 {
-    gl_Position = Uprojection * Uview * Umodel
-                * vec4(aPos, 1.0f);
+    // gl_Position = Uprojection * Uview * Umodel
+    //             * vec4(aPos, 1.0f);
                 // * vec4(aPos * (1 + scale), 1.0f);
                 // * vec4( aPos.x * (1 + scale), 
                 //         aPos.y * (1 + scale), 
                 //         aPos.z * (1 + scale), 1.0);
+    gl_Position = camMatrix * vec4(aPos, 1.0);
     cololor = aColor;
     textureCoordinates = aTex;
 }

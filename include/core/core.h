@@ -2,10 +2,14 @@
 #include <iostream>
 #include <array>
 #include <fstream>
+#include <memory>
 #include <vector>
 #include "stb/stb_image.h"
 #include "GLAD/glad.h"
 #include "GLFW/glfw3.h"
+
+// possible things
+#include "Camera.h"
 
 #include "shaderClass.h"
 #include "VBO.h"
@@ -29,10 +33,9 @@ private:
     double bgColor[4] = {0.0f, 0.4f, 1.0f, 1.0f};
     float indexer = 0.001f;
 
-    // start of TEMP 
-    float i_rotation = 0.0;
-    double prevTime = glfwGetTime();
-    // end of TEMP 
+    // possible tings 
+    // Camera* camcam = nullptr;
+    std::unique_ptr<Camera> camcam;
 
     // behaviours
     void Init();

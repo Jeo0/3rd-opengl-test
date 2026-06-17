@@ -4,6 +4,7 @@
 #include "core/globals.h"
 #include <filesystem>
 #include <iostream>
+#include <memory>
 #include <string_view>
 
 // 3d#include "glm/glm.hpp"
@@ -15,6 +16,8 @@
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/vector_float3.hpp"
 #include "glm/trigonometric.hpp"
+
+#include "Camera.h"
 
 
 Core::Core() 
@@ -78,14 +81,25 @@ void Core::Init() {
     // ============================
     // open gl opengl settings 
     glEnable(GL_DEPTH_TEST);
+
+
+    // ============================
+    // object instantiations
+    camcam = std::make_unique<Camera>(windowObj.Height, windowObj.Width, glm::vec3(0.0f, 0.0f, 2.0f));
 }
 
 void Core::Update() {
 /*  LOGIC TINGS */
     // mouse input ++++============================== goback here
     windowObj.HandleMouseInput();
+    camcam->HandleInputs(windowObj.ID); // goback here  
+    // try have a pointer in the core class pointing to a camera object
+    // so we can use camcam
+    camcam->Matrix(90.0, 0.1, 100.0, shaderProgram, "camMatrix");
+
     
     shaderProgram.Activate();
+
 
 
     // 3d tings 
@@ -93,16 +107,6 @@ void Core::Update() {
     glm::mat4 view = glm::mat4(1.0);
     glm::mat4 proj = glm::mat4(1.0);
 
-    // start of TEMP 
-    // to rotate: 
-    double currTime = glfwGetTime();
-    if(currTime - prevTime >= (1 / 60)){
-        // i_rotation += 0.004;
-        i_rotation += 0.1;
-        prevTime = currTime;
-    }
-    model = glm::rotate(model, glm::radians(i_rotation), glm::vec3(0.0, 1.0, 0.0)); // rotate on up axis
-    // end of TEMP TO ROTATE
 
     view = glm::translate(view, glm::vec3(0.0, -0.5, -2.0));
     proj = glm::perspective((float)(glm::radians(45.0)), (float)(windowObj.Height / windowObj.Width), 0.1f, 100.0f);
