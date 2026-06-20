@@ -16,7 +16,6 @@
 Camera::Camera(int pHeight, int pWidth, glm::vec3 pPosition) {
     cHeight = pHeight;
     cWidth = pWidth;
-    cPosition = pPosition;
 }
 
 Camera::~Camera() {}
@@ -36,42 +35,43 @@ void Camera::Matrix(float pFOVdeg, float pNearPlane, float pFarPlane, Shader& pS
 }
 
 
-void Camera::HandleInputs(GLFWwindow* pWindowID, double pDeltaTime){
+void Camera::HandleInputs(GLFWwindow* pWindowID, float deltaTime){
 
 	// Handles key inputs
 	if (glfwGetKey(pWindowID, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		cPosition += cSpeed * static_cast<float>(pDeltaTime) * cOrientation;
+		cPosition += cSpeed * deltaTime * cOrientation;
 	}
 	if (glfwGetKey(pWindowID, GLFW_KEY_A) == GLFW_PRESS)
 	{
-		cPosition += cSpeed * -glm::normalize(glm::cross(cOrientation, cUp)) * static_cast<float>(pDeltaTime);
+		cPosition += cSpeed * deltaTime * -glm::normalize(glm::cross(cOrientation, cUp));
 	}
 	if (glfwGetKey(pWindowID, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		cPosition += cSpeed * -cOrientation * static_cast<float>(pDeltaTime);
+		cPosition += cSpeed * deltaTime * -cOrientation;
 	}
 	if (glfwGetKey(pWindowID, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		cPosition += cSpeed * glm::normalize(glm::cross(cOrientation, cUp)) * static_cast<float>(pDeltaTime);
+		cPosition += cSpeed * deltaTime * glm::normalize(glm::cross(cOrientation, cUp));
 	}
 	if (glfwGetKey(pWindowID, GLFW_KEY_SPACE) == GLFW_PRESS)
 	{
-		cPosition += cSpeed * cUp * static_cast<float>(pDeltaTime);
+		cPosition += cSpeed * deltaTime * cUp;
 	}
 	if (glfwGetKey(pWindowID, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
 	{
-		cPosition += cSpeed * -cUp * static_cast<float>(pDeltaTime);
+		cPosition += cSpeed * deltaTime * -cUp;
 	}
 	if (glfwGetKey(pWindowID, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 	{
-		// cSpeed = 0.1f;
-		cSpeed = 100.0f * pDeltaTime;
+		// previously a flat tiny constant to fake-compensate for the missing
+		// deltaTime scaling above; now that movement is genuinely per-second,
+		// sprint is just a multiplier on the base speed.
+		cSpeed = 4.0f;
 	}
 	else if (glfwGetKey(pWindowID, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
 	{
-		// cSpeed = 0.04f;
-		cSpeed = 20.0f * pDeltaTime;
+		cSpeed = 2.0f;
 	}
 
 

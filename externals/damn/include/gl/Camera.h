@@ -7,14 +7,13 @@
 class Camera {
 public:
     glm::vec3 cPosition;
-    // glm::vec3 cOrientation {glm::vec3(0.0, 0.0, -1.0)};
-    // glm::vec3 cUp {glm::vec3(0.0, 1.0, 0.0)};
-    glm::vec3 cOrientation {glm::vec3((double)0.0, (double)0.0, (double)-1.0)};
-    glm::vec3 cUp {glm::vec3((double)0.0, (double)1.0, (double)0.0)};
+    glm::vec3 cOrientation {glm::vec3(0.0, 0.0, -1.0)};
+    glm::vec3 cUp {glm::vec3(0.0, 1.0, 0.0)};
 
     bool cFirstClick {true};
     float cSensitivity {50.0};
-    float cSpeed {100.0};
+    float cSpeed {2.0};
+    float cDelta {0.0};
 
     int cHeight, cWidth;
 
@@ -22,6 +21,6 @@ public:
     ~Camera();
 
     // ====================
-    void HandleInputs(GLFWwindow* pWindowID, double pDeltaTime);
+    void HandleInputs(GLFWwindow* pWindowID, float deltaTime);
     void Matrix(float pFOVdeg, float pNearPlane, float pFarPlane, Shader& pShader, const char* pUniform);
 };

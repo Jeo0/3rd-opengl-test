@@ -1,0 +1,22 @@
+#pragma once
+#include "GLFW/glfw3.h"
+#include <array>
+
+class Window {
+private:
+    void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+
+public:
+    GLFWwindow* ID;
+    Window(int mheight, int mlength, const char* mtitlebar, GLFWmonitor* mmonitor, GLFWwindow* mshare, std::array <GLfloat, 4> mstdBgColor);
+    ~Window();
+
+
+    int Height = 0, Width = 0;
+
+    void HandleMouseInput();
+    void SetVSync(bool enabled); // glfwSwapInterval wrapper; independent of FrameLimiter's cap
+};
+
+
+

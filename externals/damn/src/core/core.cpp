@@ -36,12 +36,13 @@ Core::~Core() {
 void Core::Run() {
     // The Main Game/Render Loop
     while (!glfwWindowShouldClose(windowObj.ID)) {
-        float mDeltaTime = cLimiter.StartFrame();
-        Update(mDeltaTime);
+        float deltaTime = limiter.BeginFrame();
+
+        Update(deltaTime);
         Render(); // buffer swap
         glfwPollEvents(); // polling is a must after buffer swap
-        
-        cLimiter.EndFrame();
+
+        limiter.EndFrame(); // sleeps off whatever's left of this frame's budget
     }
 }
 
@@ -89,22 +90,20 @@ void Core::Init() {
     // ============================
     // object instantiations
     camcam = std::make_unique<Camera>(windowObj.Height, windowObj.Width, glm::vec3(0.0f, 0.0f, 2.0f));
-
 }
 
-void Core::Update(double pDeltaTime) {
+void Core::Update(float deltaTime) {
 /*  LOGIC TINGS */
     // mouse input ++++============================== goback here
     windowObj.HandleMouseInput();
-    camcam->HandleInputs(windowObj.ID, pDeltaTime); // goback here  
+    camcam->HandleInputs(windowObj.ID, deltaTime); // goback here  
     // try have a pointer in the core class pointing to a camera object
     // so we can use camcam
     camcam->Matrix(90.0, 0.1, 100.0, shaderProgram, "camMatrix");
 
-    // debug ===================== REMOVE 
-    std::cout << "FPS: " << (1.0/pDeltaTime) << '\n'; 
     
     shaderProgram.Activate();
+
 
 
     // 3d tings 
@@ -125,7 +124,6 @@ void Core::Update(double pDeltaTime) {
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 
 
-    // timing 
 
     // make cursor scale up and down ting 
     // for (int i = 0; i < 4; i++) {

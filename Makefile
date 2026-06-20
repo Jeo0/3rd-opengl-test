@@ -2,7 +2,7 @@ EXE_BASE = build/example_glfw_opengl3
 
 INC_DIR = ./include
 SRC_DIR = ./src
-OBJ_DIR = build/objects
+OBJ_DIR = ./build/objects
 
 # ---------------------------------------------------------------------
 # automatically searches all subdirectories for matching files.
@@ -41,7 +41,7 @@ ifeq ($(OS), Windows_NT)
     CXXFLAGS += `pkg-config --cflags glfw3`
     CFLAGS += `pkg-config --cflags glfw3`
     EXE = $(EXE_BASE).exe
-    CLEAN_CMD = Remove-Item -Path '$(EXE)', '$(OBJ_DIR)' -Recurse -Force -ErrorAction SilentlyContinue
+	CLEAN_CMD = rm -rf $(EXE) $(OBJ_DIR)
 else
     UNAME_S := $(shell uname -s)
     ifeq ($(UNAME_S), Linux)
@@ -80,6 +80,10 @@ $(OBJ_DIR)/%.o: %.c
 $(EXE): $(OBJS)
 	@mkdir -p $(dir $@)
 	$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS)
+
+# zipping the whole project
+zip: 
+	zip -r daym.zip src/ include/
 
 clean:
 	$(CLEAN_CMD)

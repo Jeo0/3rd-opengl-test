@@ -4,13 +4,13 @@
 #include <fstream>
 #include <memory>
 #include <vector>
-#include "core/FrameLimit.h"
 #include "stb/stb_image.h"
 #include "GLAD/glad.h"
 #include "GLFW/glfw3.h"
 
 // possible things
 #include "Camera.h"
+#include "FrameLimiter.h"
 
 #include "shaderClass.h"
 #include "VBO.h"
@@ -21,7 +21,7 @@
 
 class Core {
 private:
-    // declaration order matters! Window must be initialized first 
+    // Note: Declaration order matters! Window must be initialized first 
     // to establish the OpenGL context before VAO/VBO/Shaders are created.
     Window windowObj;
     Shader shaderProgram;
@@ -34,19 +34,19 @@ private:
     double bgColor[4] = {0.0f, 0.4f, 1.0f, 1.0f};
     float indexer = 0.001f;
 
-    // timing 
-    FrameLimit cLimiter {49.0};     // fps cap
-
     // possible tings 
     // Camera* camcam = nullptr;
     std::unique_ptr<Camera> camcam;
+
+    // owns deltaTime + explicit fps capping; vsync is separate, see Window
+    FrameLimiter limiter{60.0}; // 0.0 = uncapped
 
     // behaviours
     void Init();
         // Linking Attributes
         // Get uniforms
 
-    void Update(double pDeltaTime);
+    void Update(float deltaTime);
         // Handle all logic and state changes here (separate from drawing)
 
     void Render();
