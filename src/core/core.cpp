@@ -89,11 +89,14 @@ void Core::Init() {
     // ============================
     // object instantiations
     camcam = std::make_unique<Camera>(windowObj.Height, windowObj.Width, glm::vec3(0.0f, 0.0f, 2.0f));
-
+    setset = std::make_unique<Settings>(cLimiter);
 }
 
 void Core::Update(double pDeltaTime) {
 /*  LOGIC TINGS */
+    // settings 
+    setset->LoadSettings(cLimiter);
+
     // mouse input ++++============================== goback here
     windowObj.HandleMouseInput();
     camcam->HandleInputs(windowObj.ID, pDeltaTime); // goback here  

@@ -83,7 +83,7 @@ $(EXE): $(OBJS)
 
 # zipping the whole project
 zip: 
-	zip -r daym.zip src/ include/
+	zip -r daym.zip src/ include/ resource/
 
 clean:
 	$(CLEAN_CMD)

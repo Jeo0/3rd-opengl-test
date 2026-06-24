@@ -9,8 +9,9 @@
 #include "GLAD/glad.h"
 #include "GLFW/glfw3.h"
 
-// possible things
+// heap allocated objects
 #include "Camera.h"
+#include "core/Settings.h"
 
 #include "shaderClass.h"
 #include "VBO.h"
@@ -35,11 +36,14 @@ private:
     float indexer = 0.001f;
 
     // timing 
-    FrameLimit cLimiter {49.0};     // fps cap
+    FrameLimit cLimiter {67.0};     // fps cap
 
     // possible tings 
     // Camera* camcam = nullptr;
+    // by initial, no objects exists 
+    // unless instantiated
     std::unique_ptr<Camera> camcam;
+    std::unique_ptr<Settings> setset;
 
     // behaviours
     void Init();

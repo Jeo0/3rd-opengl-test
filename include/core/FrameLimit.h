@@ -1,9 +1,11 @@
 #pragma once 
+// https://stackoverflow.com/questions/14968857/controlling-the-fps-limit-in-an-opengl-application
+
 
 class FrameLimit {
 public:
-    double cTargetFrameTime;
-    double cFrameStart;
+    double c_targetFrameTime;
+    double c_frameStart;
 
 
     FrameLimit(float pTargetFPS);
