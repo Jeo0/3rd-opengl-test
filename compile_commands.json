@@ -18,6 +18,24 @@
     "output": "build/objects/./src/core/core.o"
   },
   {
+    "file": "src/core/FrameLimit.cpp",
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-I./include",
+      "-I./include/gl",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-c",
+      "-o",
+      "build/objects/./src/core/FrameLimit.o",
+      "src/core/FrameLimit.cpp"
+    ],
+    "directory": "/mnt/wdblue/DD/dev/gui/5-opengl/git",
+    "output": "build/objects/./src/core/FrameLimit.o"
+  },
+  {
     "file": "src/core/globals.cpp",
     "arguments": [
       "/usr/bin/g++",
@@ -34,6 +52,42 @@
     ],
     "directory": "/mnt/wdblue/DD/dev/gui/5-opengl/git",
     "output": "build/objects/./src/core/globals.o"
+  },
+  {
+    "file": "src/core/Settings.cpp",
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-I./include",
+      "-I./include/gl",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-c",
+      "-o",
+      "build/objects/./src/core/Settings.o",
+      "src/core/Settings.cpp"
+    ],
+    "directory": "/mnt/wdblue/DD/dev/gui/5-opengl/git",
+    "output": "build/objects/./src/core/Settings.o"
+  },
+  {
+    "file": "src/core/simdjson.cpp",
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-I./include",
+      "-I./include/gl",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-c",
+      "-o",
+      "build/objects/./src/core/simdjson.o",
+      "src/core/simdjson.cpp"
+    ],
+    "directory": "/mnt/wdblue/DD/dev/gui/5-opengl/git",
+    "output": "build/objects/./src/core/simdjson.o"
   },
   {
     "file": "src/core/Texture.cpp",
@@ -54,6 +108,24 @@
     "output": "build/objects/./src/core/Texture.o"
   },
   {
+    "file": "src/gl/Camera.cpp",
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-I./include",
+      "-I./include/gl",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-c",
+      "-o",
+      "build/objects/./src/gl/Camera.o",
+      "src/gl/Camera.cpp"
+    ],
+    "directory": "/mnt/wdblue/DD/dev/gui/5-opengl/git",
+    "output": "build/objects/./src/gl/Camera.o"
+  },
+  {
     "file": "src/gl/EBO.cpp",
     "arguments": [
       "/usr/bin/g++",
@@ -70,6 +142,42 @@
     ],
     "directory": "/mnt/wdblue/DD/dev/gui/5-opengl/git",
     "output": "build/objects/./src/gl/EBO.o"
+  },
+  {
+    "file": "src/gl/Mesh.cpp",
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-I./include",
+      "-I./include/gl",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-c",
+      "-o",
+      "build/objects/./src/gl/Mesh.o",
+      "src/gl/Mesh.cpp"
+    ],
+    "directory": "/mnt/wdblue/DD/dev/gui/5-opengl/git",
+    "output": "build/objects/./src/gl/Mesh.o"
+  },
+  {
+    "file": "src/gl/shaderClass.cpp",
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-I./include",
+      "-I./include/gl",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-c",
+      "-o",
+      "build/objects/./src/gl/shaderClass.o",
+      "src/gl/shaderClass.cpp"
+    ],
+    "directory": "/mnt/wdblue/DD/dev/gui/5-opengl/git",
+    "output": "build/objects/./src/gl/shaderClass.o"
   },
   {
     "file": "src/gl/stb.cpp",
@@ -142,24 +250,6 @@
     ],
     "directory": "/mnt/wdblue/DD/dev/gui/5-opengl/git",
     "output": "build/objects/./src/main.o"
-  },
-  {
-    "file": "src/shaderClass.cpp",
-    "arguments": [
-      "/usr/bin/g++",
-      "-std=c++17",
-      "-I./include",
-      "-I./include/gl",
-      "-g",
-      "-Wall",
-      "-Wformat",
-      "-c",
-      "-o",
-      "build/objects/./src/shaderClass.o",
-      "src/shaderClass.cpp"
-    ],
-    "directory": "/mnt/wdblue/DD/dev/gui/5-opengl/git",
-    "output": "build/objects/./src/shaderClass.o"
   },
   {
     "file": "src/window/window.cpp",

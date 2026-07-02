@@ -11,161 +11,167 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 // #include "glm/ext/matrix_clip_space.hpp"
-#include <glm/ext/matrix_clip_space.hpp>
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/vector_float3.hpp"
 #include "glm/trigonometric.hpp"
+#include <glm/ext/matrix_clip_space.hpp>
 
 #include "Camera.h"
 
-
-Core::Core() 
-    : windowObj(800, 800, "gademNoice", NULL, NULL, {0.01f, 0.24f, 0.45f, 1.0f}),
-      shaderProgram("resource/Shaders/default.vert", "resource/Shaders/default.frag"),
-      VBO1(vertices, sizeof(vertices)),
-      EBO1(indices, sizeof(indices)) 
-{
-    Init();
+Core::Core()
+    : windowObj(800, 800, "gademNoice", NULL, NULL,
+                {0.01f, 0.24f, 0.45f, 1.0f}),
+      shaderProgram("resource/Shaders/default.vert",
+                    "resource/Shaders/default.frag"),
+      VBO1(vertices), EBO1(indices) {
+  Init();
 }
 
-Core::~Core() {
-        Cleanup();
-    }
+Core::~Core() { Cleanup(); }
 
 void Core::Run() {
-    // The Main Game/Render Loop
-    while (!glfwWindowShouldClose(windowObj.ID)) {
-        float mDeltaTime = cLimiter.StartFrame();
-        Update(mDeltaTime);
-        Render(); // buffer swap
-        glfwPollEvents(); // polling is a must after buffer swap
-        
-        cLimiter.EndFrame();
-    }
+  // The Main Game/Render Loop
+  while (!glfwWindowShouldClose(windowObj.ID)) {
+    float mDeltaTime = cLimiter.StartFrame();
+    Update(mDeltaTime);
+    Render();         // buffer swap
+    glfwPollEvents(); // polling is a must after buffer swap
+
+    cLimiter.EndFrame();
+  }
 }
 
 void Core::Init() {
-    VAO1.Bind();
-    VBO1.Bind();
-    EBO1.Bind();
-                // buffer data containing vertices, layout, 
-    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);     // from globals: vertices
-    VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float))); // from globals: colors
-    VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float))); // from globals: textures
-    
-    // void VAO::LinkAttrib(VBO& p_VBO, GLuint p_layout, GLuint p_numComponents, GLenum p_type, GLsizeiptr p_stride, void* p_offset){
-	// glVertexAttribPointer(p_layout, p_numComponents, p_type, GL_FALSE, p_stride, p_offset);		// position @ 0 	// VBO
+  VAO1.Bind();
+  VBO1.Bind();
+  EBO1.Bind();
+  // buffer data containing vertices, layout,
+  VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 8 * sizeof(float),
+                  (void *)0); // from globals: vertices
+  VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 8 * sizeof(float),
+                  (void *)(3 * sizeof(float))); // from globals: colors
+  VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 8 * sizeof(float),
+                  (void *)(6 * sizeof(float))); // from globals: textures
 
-    VAO1.Unbind();
-    VBO1.Unbind();
-    EBO1.Unbind();
+  // void VAO::LinkAttrib(VBO& p_VBO, GLuint p_layout, GLuint p_numComponents,
+  // GLenum p_type, GLsizeiptr p_stride, void* p_offset){
+  // glVertexAttribPointer(p_layout, p_numComponents, p_type, GL_FALSE,
+  // p_stride, p_offset);		// position @ 0 	// VBO
 
-    // ============================
-    // uniforms
-    uniformID = glGetUniformLocation(shaderProgram.ID, "scale");
+  VAO1.Unbind();
+  VBO1.Unbind();
+  EBO1.Unbind();
 
+  // ============================
+  // uniforms
+  uniformID = glGetUniformLocation(shaderProgram.ID, "scale");
 
-    // ============================
-    // textures
-    std::string parentDir = (std::filesystem::current_path().std::filesystem::path::parent_path()).string();
-    std::string textureFile = "/git/resource/Textures/gadem.jpg";
-    // std::string textureFile = "/git/resource/Textures/popcat.png";
-    // std::string textureFile = "/git/resource/Textures/pak.jpg";
-    // std::cout << "USERINFO: opening dis ting -> " << parentDir << textureFile << std::endl;
+  // ============================
+  // textures
+  std::string parentDir =
+      (std::filesystem::current_path().std::filesystem::path::parent_path())
+          .string();
+  std::string textureFile = "/git/resource/Textures/gadem.jpg";
+  // std::string textureFile = "/git/resource/Textures/popcat.png";
+  // std::string textureFile = "/git/resource/Textures/pak.jpg";
+  // std::cout << "USERINFO: opening dis ting -> " << parentDir << textureFile
+  // << std::endl;
 
-    // usage of textures
-    Texture simpleSquare(parentDir, textureFile, textureID, GL_TEXTURE0, 
-                            GL_TEXTURE_2D, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);
-    simpleSquare.TexUnit(shaderProgram, "tex0", 0);   // usage with uniform and whatever
+  // usage of textures
+  Texture simpleSquare(parentDir, textureFile, textureID, GL_TEXTURE0,
+                       GL_TEXTURE_2D, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);
+  simpleSquare.TexUnit(shaderProgram, "tex0",
+                       0); // usage with uniform and whatever
 
+  // ============================
+  // open gl opengl settings
+  glEnable(GL_DEPTH_TEST);
 
-
-    // ============================
-    // open gl opengl settings 
-    glEnable(GL_DEPTH_TEST);
-
-
-    // ============================
-    // object instantiations
-    camcam = std::make_unique<Camera>(windowObj.Height, windowObj.Width, glm::vec3(0.0f, 0.0f, 2.0f));
-    setset = std::make_unique<Settings>(cLimiter);
+  // ============================
+  // object instantiations
+  camcam = std::make_unique<Camera>(windowObj.Height, windowObj.Width,
+                                    glm::vec3(0.0f, 0.0f, 2.0f));
+  setset = std::make_unique<Settings>(cLimiter);
 }
 
 void Core::Update(double pDeltaTime) {
-/*  LOGIC TINGS */
-    // settings 
-    setset->LoadSettings(cLimiter);
+  /*  LOGIC TINGS */
+  // settings
+  setset->LoadSettings(cLimiter);
 
-    // mouse input ++++============================== goback here
-    windowObj.HandleMouseInput();
-    camcam->HandleInputs(windowObj.ID, pDeltaTime); // goback here  
-    // try have a pointer in the core class pointing to a camera object
-    // so we can use camcam
-    camcam->Matrix(90.0, 0.1, 100.0, shaderProgram, "camMatrix");
+  // mouse input ++++============================== goback here
+  windowObj.HandleMouseInput();
+  camcam->HandleInputs(windowObj.ID, pDeltaTime); // goback here
+  // try have a pointer in the core class pointing to a camera object
+  // so we can use camcam
+  camcam->Matrix(90.0, 0.1, 100.0, shaderProgram, "camMatrix");
 
-    // debug ===================== REMOVE 
-    std::cout << "FPS: " << (1.0/pDeltaTime) << '\n'; 
-    
-    shaderProgram.Activate();
+  // debug ===================== REMOVE
+  std::cout << "FPS: " << (1.0 / pDeltaTime) << '\n';
 
+  shaderProgram.Activate();
 
-    // 3d tings 
-    glm::mat4 model = glm::mat4(1.0);
-    glm::mat4 view = glm::mat4(1.0);
-    glm::mat4 proj = glm::mat4(1.0);
+  // 3d tings
+  glm::mat4 model = glm::mat4(1.0);
+  glm::mat4 view = glm::mat4(1.0);
+  glm::mat4 proj = glm::mat4(1.0);
 
+  view = glm::translate(view, glm::vec3(0.0, -0.5, -2.0));
+  proj = glm::perspective((float)(glm::radians(45.0)),
+                          (float)(windowObj.Height / windowObj.Width), 0.1f,
+                          100.0f);
 
-    view = glm::translate(view, glm::vec3(0.0, -0.5, -2.0));
-    proj = glm::perspective((float)(glm::radians(45.0)), (float)(windowObj.Height / windowObj.Width), 0.1f, 100.0f);
-    
-    int modelLoc = glGetUniformLocation(shaderProgram.ID, "Umodel");
-    int viewLoc = glGetUniformLocation(shaderProgram.ID, "Uview");
-    int projLoc = glGetUniformLocation(shaderProgram.ID, "Uprojection");
+  int modelLoc = glGetUniformLocation(shaderProgram.ID, "Umodel");
+  int viewLoc = glGetUniformLocation(shaderProgram.ID, "Uview");
+  int projLoc = glGetUniformLocation(shaderProgram.ID, "Uprojection");
 
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+  glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+  glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 
+  // timing
 
-    // timing 
-
-    // make cursor scale up and down ting 
-    // for (int i = 0; i < 4; i++) {
-    //     bgColor[i] += indexer;
-    // }
-    //
-    // if (bgColor[0] >= 1.0f || bgColor[0] <= 0.0f) {
-    //     indexer *= -1.0f;
-    // }
+  // make cursor scale up and down ting
+  // for (int i = 0; i < 4; i++) {
+  //     bgColor[i] += indexer;
+  // }
+  //
+  // if (bgColor[0] >= 1.0f || bgColor[0] <= 0.0f) {
+  //     indexer *= -1.0f;
+  // }
 }
 
 void Core::Render() {
-/*  RENDER TINGS */
-    glClearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]); // tanggalin to 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  /*  RENDER TINGS */
+  glClearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]); // tanggalin to
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    shaderProgram.Activate();
-    glUniform1f(uniformID, bgColor[0]); // tanggalin to; the 'uniform scale' depends on the bgcolor[0]'s value which changes overtime
-    
-    glBindTexture(GL_TEXTURE_2D, textureID); // texture.Bind()
+  shaderProgram.Activate();
+  glUniform1f(uniformID,
+              bgColor[0]); // tanggalin to; the 'uniform scale' depends on the
+                           // bgcolor[0]'s value which changes overtime
 
-    // reset 
-    VAO1.Bind();
-    // glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(indices[0]), GL_UNSIGNED_INT, 0);
-    glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(int), GL_UNSIGNED_INT, 0);
+  glBindTexture(GL_TEXTURE_2D, textureID); // texture.Bind()
 
-    glfwSwapBuffers(windowObj.ID);
+  // reset
+  VAO1.Bind();
+  // glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(indices[0]),
+  // GL_UNSIGNED_INT, 0);
+  glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT,
+                 0);
+
+  glfwSwapBuffers(windowObj.ID);
 }
 
 void Core::Cleanup() {
 
-    VAO1.Delete();
-    VBO1.Delete();
-    EBO1.Delete();
-    glDeleteTextures(1, &textureID);
-    shaderProgram.Delete();
-    
-    glfwDestroyWindow(windowObj.ID);
-    glfwTerminate();
+  VAO1.Delete();
+  VBO1.Delete();
+  EBO1.Delete();
+  glDeleteTextures(1, &textureID);
+  shaderProgram.Delete();
+
+  glfwDestroyWindow(windowObj.ID);
+  glfwTerminate();
 }
