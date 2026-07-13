@@ -6,12 +6,14 @@ std::string get_file_contents(const char* filename){
     std::ifstream in(filename, std::ios::binary);
     if (!in){
         std::cerr << "ERROR in get_file_contents: unable to open file " <<  filename << std::endl;
-        throw(errno);
+        throw std::runtime_error(std::string("unable to open file ") + filename);       
     }
     else{
         std::string contents;
         in.seekg(0, std::ios::end);
         contents.resize(in.tellg());
+
+        // read
         in.seekg(0,std::ios::beg);
         in.read(&contents[0], contents.size());
         in.close();

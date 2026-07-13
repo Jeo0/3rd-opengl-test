@@ -43,25 +43,6 @@ void Core::Run() {
 }
 
 void Core::Init() {
-  VAO1.Bind();
-  VBO1.Bind();
-  EBO1.Bind();
-  // buffer data containing vertices, layout,
-  VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 8 * sizeof(float),
-                  (void *)0); // from globals: vertices
-  VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 8 * sizeof(float),
-                  (void *)(3 * sizeof(float))); // from globals: colors
-  VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 8 * sizeof(float),
-                  (void *)(6 * sizeof(float))); // from globals: textures
-
-  // void VAO::LinkAttrib(VBO& p_VBO, GLuint p_layout, GLuint p_numComponents,
-  // GLenum p_type, GLsizeiptr p_stride, void* p_offset){
-  // glVertexAttribPointer(p_layout, p_numComponents, p_type, GL_FALSE,
-  // p_stride, p_offset);		// position @ 0 	// VBO
-
-  VAO1.Unbind();
-  VBO1.Unbind();
-  EBO1.Unbind();
 
   // ============================
   // uniforms
@@ -79,8 +60,10 @@ void Core::Init() {
   // << std::endl;
 
   // usage of textures
-  Texture simpleSquare(parentDir, textureFile, textureID, GL_TEXTURE0,
-                       GL_TEXTURE_2D, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);
+    Texture textextures[] {
+        Texture(parentDir, textureFile, textureID, GL_TEXTURE0,
+                       GL_RGBA, GL_UNSIGNED_BYTE);
+    };
   simpleSquare.TexUnit(shaderProgram, "tex0",
                        0); // usage with uniform and whatever
 
@@ -93,6 +76,8 @@ void Core::Init() {
   camcam = std::make_unique<Camera>(windowObj.Height, windowObj.Width,
                                     glm::vec3(0.0f, 0.0f, 2.0f));
   setset = std::make_unique<Settings>(cLimiter);
+
+    cube_thing = std::make_unique<Mesh>(vertices, indices, textextures);
 }
 
 void Core::Update(double pDeltaTime) {
@@ -130,16 +115,7 @@ void Core::Update(double pDeltaTime) {
   glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
   glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 
-  // timing
 
-  // make cursor scale up and down ting
-  // for (int i = 0; i < 4; i++) {
-  //     bgColor[i] += indexer;
-  // }
-  //
-  // if (bgColor[0] >= 1.0f || bgColor[0] <= 0.0f) {
-  //     indexer *= -1.0f;
-  // }
 }
 
 void Core::Render() {

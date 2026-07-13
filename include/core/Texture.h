@@ -6,6 +6,7 @@
 
 class Texture {
 private:
+    const string c_type;
 
 public:
     Texture(std::string& p_parentDir,

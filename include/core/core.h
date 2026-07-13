@@ -12,6 +12,7 @@
 // heap allocated objects
 #include "Camera.h"
 #include "core/Settings.h"
+#include "Mesh.h"
 
 #include "shaderClass.h"
 #include "VBO.h"
@@ -26,10 +27,6 @@ private:
     // to establish the OpenGL context before VAO/VBO/Shaders are created.
     Window windowObj;
     Shader shaderProgram;
-    VAO VAO1;
-    VBO VBO1;
-    EBO EBO1;
-    GLuint uniformID;
     GLuint textureID; 
 
     double bgColor[4] = {0.0f, 0.4f, 1.0f, 1.0f};
@@ -44,10 +41,11 @@ private:
     // unless instantiated
     std::unique_ptr<Camera> camcam;
     std::unique_ptr<Settings> setset;
+    std::unique_ptr<Mesh> cube_thing;
 
     // behaviours
     void Init();
-        // Linking Attributes
+        // Linking Attributes   // VAO VBO EBO
         // Get uniforms
 
     void Update(double pDeltaTime);

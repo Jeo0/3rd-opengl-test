@@ -66,7 +66,7 @@
 // =========================================
 // pyramid
 // =========================================
-std::vector<GLfloat> vertices{
+std::vector<Vertex> vertices{
     //              vertex 3;			    color 3                    normals                          texture
     Vertex{glm::vec3(0.0,  0.5,  0.0),  glm::vec3(0.8f, .1f, .1f),  glm::vec3(0.0, 0.0, 0.0),   glm::vec2(2.5f, 5.0f)}, // top
     Vertex{glm::vec3(-0.5, 0.0,  -0.3), glm::vec3(.2f, .8f, .1f),   glm::vec3(0.0, 0.0, 0.0),   glm::vec2(0.0f, 0.0f)}, // front left
@@ -95,3 +95,4 @@ std::vector<GLuint> indices{
       // 2, 3, 4,
       // 3, 0, 4
 };
+

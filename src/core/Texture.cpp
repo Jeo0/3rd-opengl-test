@@ -1,4 +1,5 @@
 #include "core/Texture.h"
+#include "core/globals.h"
 #include "stb/stb_image.h"
 
 Texture::Texture(std::string& p_parentDir,
@@ -6,13 +7,21 @@ Texture::Texture(std::string& p_parentDir,
                     GLuint& p_textureID,
                     GLenum p_activeTexture,
 
-                    GLenum p_targetParam,
-                    GLint p_internalImageFormat,
-                    GLenum p_imageFormat,
+                    GLuint p_slot,  // add  this to the header  // goback here ============
+                    GLenum p_imageFormat,   
                     GLenum p_imageType
                     ){
+
+// from the tutorial
+// Texture::Texture(const char* image, 
+//                  const char* texType, 
+//                  GLuint slot, 
+//                  GLenum format, 
+//                  GLenum pixelType)
+
     // loading texture
     int widthImg, heightImg, numColChann;
+
     unsigned char* bytes = stbi_load((p_parentDir + p_textureFile).c_str(), &widthImg, &heightImg, &numColChann, 4); // actual image texture
     if(!bytes){
         std::cout << "Failed to load texture: " << stbi_failure_reason() << std::endl;
@@ -21,32 +30,36 @@ Texture::Texture(std::string& p_parentDir,
 
     // openGL functions
     // generating texture
+    // control this ting
     stbi_set_flip_vertically_on_load(true);
     glGenTextures(1, &p_textureID);               // generate opengl texture obj
-    glActiveTexture(p_activeTexture);               // assign texture to a texture unit
+
+
+    glActiveTexture(GL_TEXTURE0 + p_slot);               // assign texture to a texture unit
     glBindTexture(GL_TEXTURE_2D, p_textureID);
     
+
 
     auto i_filter = GL_NEAREST;
     // auto i_filter = GL_LINEAR;
     // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, i_filter); // configures the type of algorithm that is used to make the image smaller or bigger
-    glTexParameteri(p_targetParam, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-    glTexParameteri(p_targetParam, GL_TEXTURE_MAG_FILTER, i_filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, i_filter);
 
-    glTexParameteri(p_targetParam, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);   // repeat texture
-    glTexParameteri(p_targetParam, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);   // repeat texture
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 
     // glTextureSubImage2D(GL_TEXTURE_2D, 0, GL_RGBA, xxx, yyy, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
     // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, xxx, yyy, 0, GL_RGB, GL_UNSIGNED_BYTE, bytes);       // jpg
-    // glTexImage2D(p_targetParam, 0, GL_RGBA, widthImg, heightImg, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);   // jpg png square
-    glTexImage2D(p_targetParam, 0, p_internalImageFormat, widthImg, heightImg, 0, p_imageFormat, p_imageType, bytes);   // jpg png square
-    glGenerateMipmap(p_targetParam);
+    // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, widthImg, heightImg, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);   // jpg png square
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, widthImg, heightImg, 0, p_imageFormat, p_imageType, bytes);   // jpg png square
+    glGenerateMipmap(GL_TEXTURE_2D);
     // ++++===================== goback here
 
     // glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     stbi_image_free(bytes);
-    glBindTexture(p_targetParam, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
 
 }
