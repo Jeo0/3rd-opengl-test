@@ -8,10 +8,10 @@ public:
     double c_frameStart;
 
 
-    FrameLimit(float pTargetFPS);
+    FrameLimit(float p_targetFPS);
     ~FrameLimit();
 
-    void SetTargetFPS(float pTargetFPS);
+    void SetTargetFPS(float p_targetFPS);
     float StartFrame();
     void EndFrame();        // sleep here for whatever's left for the frame time
 

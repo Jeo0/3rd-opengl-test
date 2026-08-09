@@ -100,6 +100,9 @@ void Shader::Delete(){
 
 
 void Shader::compileErrors(unsigned int shader, std::string type){
+
+    // ============== goback here
+    std::cout << "type: " << type << ": " << glGetUniformLocation(shader, "u_diffuse_tex_type0") << std::endl;
 	GLint hasCompiled;
 	char infoLog[1024];
 	if(type != "PROGRAM"){	// compilation

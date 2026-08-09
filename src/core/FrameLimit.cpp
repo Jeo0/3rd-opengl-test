@@ -2,15 +2,15 @@
 #include "GLFW/glfw3.h"
 #include <thread>
 
-FrameLimit::FrameLimit(float pTargetFPS) {
+FrameLimit::FrameLimit(float p_targetFPS) {
     c_frameStart = glfwGetTime();
-    this->SetTargetFPS(pTargetFPS);
+    this->SetTargetFPS(p_targetFPS);
 }
 FrameLimit::~FrameLimit(){}
 
 
-void FrameLimit::SetTargetFPS(float pTargetFPS) {
-    if(pTargetFPS > 0.0)  c_targetFrameTime = 1.0 / pTargetFPS;
+void FrameLimit::SetTargetFPS(float p_targetFPS) {
+    if(p_targetFPS > 0.0)  c_targetFrameTime = 1.0 / p_targetFPS;
     else    c_targetFrameTime = 0.0;
 }
 

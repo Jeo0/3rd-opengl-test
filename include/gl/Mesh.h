@@ -2,8 +2,9 @@
 #include "Camera.h"
 #include "VAO.h"
 #include "VBO.h"
-#include "core/Texture.h"
+#include "gl/Texture.h"
 #include "shaderClass.h"
+#include <memory>
 #include <vector>
 
 class Mesh {
@@ -19,5 +20,5 @@ public:
        std::vector<Texture> &p_textures);
   ~Mesh();
 
-  void Draw(Shader &p_shader, Camera &p_camera);
+  void Draw(Shader &p_shader, Camera& p_camera);
 };

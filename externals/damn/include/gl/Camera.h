@@ -6,16 +6,16 @@
 
 class Camera {
 public:
-    glm::vec3 cPosition;
-    glm::vec3 cOrientation {glm::vec3(0.0, 0.0, -1.0)};
-    glm::vec3 cUp {glm::vec3(0.0, 1.0, 0.0)};
+    glm::vec3 c_position;
+    glm::vec3 c_orientation {glm::vec3(0.0, 0.0, -1.0)};
+    glm::vec3 c_up {glm::vec3(0.0, 1.0, 0.0)};
 
-    bool cFirstClick {true};
-    float cSensitivity {50.0};
-    float cSpeed {2.0};
-    float cDelta {0.0};
+    bool c_firstClick {true};
+    float c_sensitivity {50.0};
+    float c_speed {2.0};
+    float c_delta {0.0};
 
-    int cHeight, cWidth;
+    int c_height, c_width;
 
     Camera(int pHeight, int pWidth, glm::vec3 pPosition);
     ~Camera();

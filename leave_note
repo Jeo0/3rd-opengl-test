@@ -1,2 +1,15 @@
-vbo and vao and ebo things
+== vbo and vao and ebo things
+/ done 
+
+== then 
+- camera.cpp, camera.h,  / 
+- shader uniform for camera position /
+- mesh  /
+- core /
+/ done
+
+
+== black pyramid shows
+try to tell whether it's with the uniforms textures globals etc shit
+
 

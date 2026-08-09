@@ -27,7 +27,6 @@ private:
     // to establish the OpenGL context before VAO/VBO/Shaders are created.
     Window windowObj;
     Shader shaderProgram;
-    GLuint textureID; 
 
     double bgColor[4] = {0.0f, 0.4f, 1.0f, 1.0f};
     float indexer = 0.001f;
@@ -48,10 +47,10 @@ private:
         // Linking Attributes   // VAO VBO EBO
         // Get uniforms
 
-    void Update(double pDeltaTime);
+    void Update(double p_deltaTime);
         // Handle all logic and state changes here (separate from drawing)
 
-    void Render();
+    void Render(double p_deltaTime);
         // Handle all OpenGL drawing commands here
 
     void Cleanup();

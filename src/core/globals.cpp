@@ -1,6 +1,5 @@
 
 #include "core/globals.h"
-#include "VBO.h"
 #include "glm/ext/vector_float2.hpp"
 #include "glm/ext/vector_float3.hpp"
 // OPENGL
@@ -66,13 +65,13 @@
 // =========================================
 // pyramid
 // =========================================
-std::vector<Vertex> vertices{
+std::vector<Vertex> g_vertices{
     //              vertex 3;			    color 3                    normals                          texture
-    Vertex{glm::vec3(0.0,  0.5,  0.0),  glm::vec3(0.8f, .1f, .1f),  glm::vec3(0.0, 0.0, 0.0),   glm::vec2(2.5f, 5.0f)}, // top
-    Vertex{glm::vec3(-0.5, 0.0,  -0.3), glm::vec3(.2f, .8f, .1f),   glm::vec3(0.0, 0.0, 0.0),   glm::vec2(0.0f, 0.0f)}, // front left
-    Vertex{glm::vec3(0.5,  0.0,  -0.3), glm::vec3(.2f, .14f, .8f),  glm::vec3(0.0, 0.0, 0.0),   glm::vec2(5.0f, 0.0f)}, // front right
-    Vertex{glm::vec3(0.5,  0.0,  0.3),  glm::vec3( .9f, .5f, 1.f),  glm::vec3(0.0, 0.0, 0.0),   glm::vec2(0.0f, 0.0f)}, // back right
-    Vertex{glm::vec3(-0.5, 0.0,  0.3),  glm::vec3( .9f, .5f, 1.f),  glm::vec3(0.0, 0.0, 0.0),   glm::vec2(0.0f, 0.0f)} // back left
+    Vertex{glm::vec3(0.0,  0.5,  0.0),  glm::vec3(0.0, 0.0, 0.0),   glm::vec3(0.8f, .1f, .1f),   glm::vec2(2.5f, 5.0f)}, // top
+    Vertex{glm::vec3(-0.5, 0.0,  -0.3), glm::vec3(0.0, 0.0, 0.0),   glm::vec3(.2f, .8f, .1f),    glm::vec2(0.0f, 0.0f)}, // front left
+    Vertex{glm::vec3(0.5,  0.0,  -0.3), glm::vec3(0.0, 0.0, 0.0),   glm::vec3(.2f, .14f, .8f),   glm::vec2(5.0f, 0.0f)}, // front right
+    Vertex{glm::vec3(0.5,  0.0,  0.3),  glm::vec3(0.0, 0.0, 0.0),   glm::vec3( .9f, .5f, 1.f),   glm::vec2(0.0f, 0.0f)}, // back right
+    Vertex{glm::vec3(-0.5, 0.0,  0.3),  glm::vec3(0.0, 0.0, 0.0),   glm::vec3( .9f, .5f, 1.f),   glm::vec2(0.0f, 0.0f)} // back left
                      // -0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	0.0f, 0.0f,
                      // -0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	5.0f, 0.0f,
                      //  0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	0.0f, 0.0f,
@@ -81,7 +80,7 @@ std::vector<Vertex> vertices{
 };
 
 // reduce redundancy with element buffer objects
-std::vector<GLuint> indices{
+std::vector<GLuint> g_indices{
     0, 1, 2, // front
     0, 1, 4, // left
     0, 4, 3, // back
