@@ -9,7 +9,7 @@ Texture::Texture(const std::string& p_imageLoc,
                     GLenum p_imageFormat, // non existent in jgl demo; instead, use GL_RGBA
                     GLenum p_pixelType // non existent in jgl demo; instead use GL_UNSIGNED_BYTE
                     ){
-
+    c_type = p_textureType;
 
     // loading texture
     int widthImg, heightImg, numColChann;
@@ -21,6 +21,7 @@ Texture::Texture(const std::string& p_imageLoc,
         return;
     }   
 
+    // debug  REMOVE
     std::cout << p_imageLoc.c_str() << std::endl;
 
     // openGL functions
@@ -72,7 +73,8 @@ void Texture::TexUnit(Shader& p_shaderProgram, const std::string& p_uniformTextu
 
 
 Texture::~Texture(){
-    this->Delete();
+    // this->Delete();
+    Delete();
 }
 
 void Texture::Bind(){

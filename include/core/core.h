@@ -31,6 +31,10 @@ private:
     double bgColor[4] = {0.0f, 0.4f, 1.0f, 1.0f};
     float indexer = 0.001f;
 
+    // debug REMOVE
+    float debug_time_iii = 0.0;
+    bool debug_time_iii_flag = false;
+
     // timing 
     FrameLimit cLimiter {67.0};     // fps cap
 
@@ -40,7 +44,7 @@ private:
     // unless instantiated
     std::unique_ptr<Camera> camcam;
     std::unique_ptr<Settings> setset;
-    std::unique_ptr<Mesh> cube_thing;
+    std::vector<std::unique_ptr<Mesh>> c_sceneObjects;
 
     // behaviours
     void Init();
@@ -54,6 +58,11 @@ private:
         // Handle all OpenGL drawing commands here
 
     void Cleanup();
+
+    void AddObjectToScene(std::vector<Vertex>& p_vertices,
+                         std::vector<GLuint>& p_indices,
+                         const std::string& p_textureFile,
+                         const glm::vec3& p_positionDefault = glm::vec3(0.0f));
 
 public:
     Core();

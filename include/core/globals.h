@@ -11,3 +11,7 @@ extern std::vector<Vertex> g_vertices;
 // reduce redundancy with element buffer objects
 extern std::vector<GLuint> g_indices;
 // extern GLuint g_indices[3*2];
+
+extern std::vector<Vertex> g_quadVertices;
+
+extern std::vector<GLuint> g_quadIndices;

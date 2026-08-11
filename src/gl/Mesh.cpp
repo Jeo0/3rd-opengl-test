@@ -3,12 +3,13 @@
 #include "EBO.h"
 #include <GL/gl.h>
 #include <vector>
+#include "glm/gtc/type_ptr.hpp"
 
 Mesh::Mesh(std::vector<Vertex> &p_vertices, std::vector<GLuint> &p_indices,
-           std::vector<Texture> &p_textures) {
+           std::vector<std::unique_ptr<Texture>> p_textures) {
     Mesh::c_vertices = p_vertices;
     Mesh::c_indices = p_indices;
-    Mesh::c_textures = p_textures;
+    Mesh::c_textures = std::move(p_textures);
     VAOO.Bind();
     VBO VBOO(Mesh::c_vertices);
     EBO EBOO(Mesh::c_indices);
@@ -37,15 +38,19 @@ void Mesh::Draw(Shader &p_shader, Camera& p_camera) {
     unsigned int m_numberDiffuse = 0;
     for (unsigned int iii = 0;  iii<c_textures.size(); iii++) {
         std::string m_num {};
-        std::string m_type {c_textures[iii].c_type};
+        std::string m_type {c_textures[iii]->c_type};
+
+        // debug REMOVE
+        std::cout << "type of texture: " << c_textures[iii]->c_type << std::endl;
+
         if(m_type == "diffuse_tex_type"){
             m_numberDiffuse++;
             m_num = std::to_string(m_numberDiffuse);
         }
 
         // (m_type + m_num).c_str()     i.e. = diffuse1     diffuse2    diffuse3
-        c_textures[iii].TexUnit(p_shader, ("u_" + m_type + m_num), iii);  
-        c_textures[iii].Bind();
+        c_textures[iii]->TexUnit(p_shader, ("u_" + m_type + m_num), iii);  
+        c_textures[iii]->Bind();
     }
 
 
@@ -56,7 +61,14 @@ void Mesh::Draw(Shader &p_shader, Camera& p_camera) {
                 p_camera.c_position.z);
     p_camera.Matrix(p_shader, "u_camMatrix");
 
+    // mesh's own place in the scene
+    glUniformMatrix4fv(glGetUniformLocation(p_shader.ID, "u_modelPos"), 1, GL_FALSE, glm::value_ptr(c_modelPos));
+
     // then drawing of the actual mesh
     glDrawElements(GL_TRIANGLES, c_indices.size(), GL_UNSIGNED_INT, 0);
 
+}
+
+void Mesh::SetPosition(const glm::vec3& p_position){
+    c_modelPos = glm::translate(glm::mat4(1.0), p_position);
 }

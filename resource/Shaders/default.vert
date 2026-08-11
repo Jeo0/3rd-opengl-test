@@ -15,6 +15,7 @@ out vec2 v_textureCoordinates;
 // uniform mat4 Uprojection;
 
 uniform mat4 u_camMatrix;
+uniform mat4 u_modelPos;   // this mesh's own place in the scene - see Mesh::SetPosition
 
 void main()
 {
@@ -24,7 +25,7 @@ void main()
                 // * vec4( a_pos.x * (1 + scale), 
                 //         a_pos.y * (1 + scale), 
                 //         a_pos.z * (1 + scale), 1.0);
-    gl_Position = u_camMatrix * vec4(a_pos, 1.0);
+    gl_Position = u_camMatrix * u_modelPos * vec4(a_pos, 1.0);
     v_cololor = a_color;
     v_textureCoordinates = a_tex;
 }

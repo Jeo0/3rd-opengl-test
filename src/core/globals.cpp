@@ -95,3 +95,19 @@ std::vector<GLuint> g_indices{
       // 3, 0, 4
 };
 
+
+
+// square
+std::vector<Vertex> g_quadVertices{
+    //              vertex 3;\t\t\t    color 3                    normals                          texture
+    Vertex{glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0, 0.0, 0.0), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)}, // low left
+    Vertex{glm::vec3(-0.5f,  0.5f, 0.0f), glm::vec3(0.0, 0.0, 0.0), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)}, // up left
+    Vertex{glm::vec3( 0.5f,  0.5f, 0.0f), glm::vec3(0.0, 0.0, 0.0), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)}, // up right
+    Vertex{glm::vec3( 0.5f, -0.5f, 0.0f), glm::vec3(0.0, 0.0, 0.0), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)}  // low right
+};
+
+std::vector<GLuint> g_quadIndices{
+    0, 2, 1, // upper triangle
+    0, 3, 2  // lower triangle
+};
+
