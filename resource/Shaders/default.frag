@@ -1,5 +1,7 @@
 #version 460 core
 
+in vec3 u_crntPos; // for lighting // not used here
+// in vec3 Normal; // for lighting
 in vec3 v_cololor;          
 in vec2 v_textureCoordinates;
 

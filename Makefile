@@ -83,7 +83,7 @@ $(EXE): $(OBJS)
 
 # zipping the whole project
 zip: 
-	zip -r daym.zip src/ include/ resource/
+	zip -r my_project.zip ./ -x "./.git/*" "./gitignore" "./logs.txt" "./externals/*" "./build/*" "./ghid/*" "./WHAT/*" "./neovide_backtraces.log" "./compile_commands.json" "./massif.out.118571" "./makefile2" "./leave_note" "./.cache/*"
 
 clean:
 	$(CLEAN_CMD)

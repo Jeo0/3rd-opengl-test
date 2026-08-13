@@ -1,3 +1,4 @@
+#pragma once
 // idea is to parse a json file
 // settings are loaded before every frame starts
 
