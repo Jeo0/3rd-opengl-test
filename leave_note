@@ -11,5 +11,13 @@
 
 == black pyramid shows
 try to tell whether it's with the uniforms textures globals etc shit
+/ done
 
+
+== scene handler for opengl resources or watever
+just make sure core does not handle it directly.  
+/ done
+
+== model and mesh loading by analyzing the json
+follow tutorial, except use simdjson for parsing
 
