@@ -16,7 +16,7 @@ Scene::~Scene() {
 
 bool Scene::LoadModel(const std::string& p_filePath){
     try {
-        c_sceneObjects.push_back(std::make_unique<Model>& p_filePath);
+        c_sceneObjects.push_back(std::make_unique<Model>(p_filePath));
         return true;
     } catch (std::exception& eee){ 
         std::cerr << "Scene::LoadModel failed on '" << p_filePath << "': " << eee.what() << std::endl;

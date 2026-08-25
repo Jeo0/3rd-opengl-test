@@ -1,0 +1,11 @@
+Model Information:
+* title:	Spear Fantasy
+* source:	https://sketchfab.com/3d-models/spear-fantasy-6176c9522cc54dc1926d7c5fc3b29611
+* author:	KIFIR (https://sketchfab.com/kifir)
+
+Model License:
+* license type:	CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)
+* requirements:	Author must be credited. No commercial use.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Spear Fantasy" (https://sketchfab.com/3d-models/spear-fantasy-6176c9522cc54dc1926d7c5fc3b29611) by KIFIR (https://sketchfab.com/kifir) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)

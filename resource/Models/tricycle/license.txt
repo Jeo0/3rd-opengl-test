@@ -1,0 +1,11 @@
+Model Information:
+* title:	Tricycle
+* source:	https://sketchfab.com/3d-models/tricycle-a1bfcae534604c2588dcb49c9598f979
+* author:	kurtcamarines (https://sketchfab.com/kurtcamarines)
+
+Model License:
+* license type:	CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)
+* requirements:	Author must be credited. No commercial use.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Tricycle" (https://sketchfab.com/3d-models/tricycle-a1bfcae534604c2588dcb49c9598f979) by kurtcamarines (https://sketchfab.com/kurtcamarines) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)

@@ -21,8 +21,6 @@
 
 class Core {
 private:
-    // declaration order matters! Window must be initialized first 
-    // to establish the OpenGL context before VAO/VBO/Shaders are created.
     Window windowObj;
 
     // timing 

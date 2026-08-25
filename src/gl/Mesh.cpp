@@ -6,7 +6,7 @@
 #include "glm/gtc/type_ptr.hpp"
 
 Mesh::Mesh(std::vector<Vertex> &p_vertices, std::vector<GLuint> &p_indices,
-           std::vector<std::unique_ptr<Texture>> p_textures) {
+           std::vector<std::shared_ptr<Texture>> p_textures) {
     Mesh::c_vertices = p_vertices;
     Mesh::c_indices = p_indices;
     Mesh::c_textures = std::move(p_textures);
@@ -71,4 +71,8 @@ void Mesh::Draw(Shader &p_shader, Camera& p_camera) {
 
 void Mesh::SetPosition(const glm::vec3& p_position){
     c_modelPos = glm::translate(glm::mat4(1.0), p_position);
+}
+
+void Mesh::SetTransform(const glm::mat4& p_transform){
+    c_modelPos = p_transform;
 }
