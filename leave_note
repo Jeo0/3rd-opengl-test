@@ -28,4 +28,6 @@ follow tutorial, except use simdjson for parsing
 == texture mapping (image) for the model 
 
 == simple cube gltf (no binaries)
-then test out a few vertex manipulation tings 
+then test out a few vertex manipulation tings  
+
+== vertex & fragment shader manipulation
