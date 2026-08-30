@@ -205,8 +205,8 @@ unit: $(UNIT_EXE)
 
 # zipping the whole project
 zip: 
-	rm -i ./my_project.zip
-	zip -r my_project.zip ./ -x "./.git/*" "./gitignore" "./logs.txt" "./externals/*" "./build/*" "./ghid/*" "./WHAT/*" "./neovide_backtraces.log" "./compile_commands.json" "./massif.out.118571" "./makefile2" "./leave_note" "./.cache/*" "./resource/Models/spear/*" "./resource/Models/stool/*" "./resource/Models/tricycle/*"
+	rm -i ./externals/daym.zip
+	zip -r ./externals/daym.zip ./ -x "./.git/*" "./gitignore" "./logs.txt" "./externals/*" "./build/*" "./ghid/*" "./WHAT/*" "./neovide_backtraces.log" "./compile_commands.json" "./massif.out.118571" "./makefile2" "./leave_note" "./.cache/*" "./resource/Models/spear/*" "./resource/Models/stool/*" "./resource/Models/tricycle/*"
 
 clean:
 	$(CLEAN_CMD)
