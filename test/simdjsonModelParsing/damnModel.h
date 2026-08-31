@@ -25,7 +25,8 @@ class Model {
 
 
         std::vector<unsigned char> LoadBinaryData(const std::string& p_directory);
-        void TraverseNode(unsigned int p_nodeIndex, glm::mat4 p_matrix = glm::mat4(1.0));
+        void TraverseNode(unsigned int p_nodeIndex, const glm::mat4& p_matrix = glm::mat4(1.0));
+        void LoadMesh(unsigned int p_meshIndex, const glm::mat4& p_transform);
 
     public:
         Model(const std::string& p_filepath);
