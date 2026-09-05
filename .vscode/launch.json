@@ -1,0 +1,35 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "g++ Makefile - Build & Debug",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/Debug/simdjsonModelParsing.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "Build with Makefile",
+            "linux": {
+                "miDebuggerPath": "/usr/bin/gdb"
+            },
+            "osx": {
+                "type": "cppdbg",
+                "MIMode": "lldb"
+            },
+            "windows": {
+                "miDebuggerPath": "C:\\MinGW\\bin\\gdb.exe"
+            }
+        }
+    ]
+}

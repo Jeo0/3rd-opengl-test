@@ -115,22 +115,33 @@ SCRATCH_TARGETS := $(patsubst $(SCRATCH_DIR)/%/,%,$(wildcard $(SCRATCH_DIR)/*/))
 # comment block above
 # SCRATCH_LIBS_assimpParsing = -lassimp
 # SCRATCH_LIBS_imguiImport   = ...
+SCRATCH_LIBS_simdjsonModelParsing = -lGL
 
 # per-target EXTRA existing project sources, for when a scratch program
 # wants to reuse something real instead of just declarations -- e.g.
 # simdjsonModelParsing needs simdjson.cpp itself compiled in, since
-# simdjson.h is declaration-only. These MUST be set here, before the
-# $(foreach ... $(eval ...)) block below generates each target's rule.
-SCRATCH_EXTRA_SRCS_simdjsonModelParsing = $(SRC_DIR)/core/simdjson.cpp
+# simdjson.h is declaration-only. Also needs glad.c: Texture.h/NoTexture.cpp
+# call GLAD-redirected functions like glGenTextures, which glad.h just
+# `#define`s to glad_glGenTextures -- an extern function-pointer variable
+# that is only ever DEFINED in glad.c. -lGL alone can't provide it (that's
+# the system's own un-prefixed symbols), so without glad.c compiled in here
+# every glad_gl* call is an undefined reference at link time. These MUST be
+# set here, before the $(foreach ... $(eval ...)) block below generates
+# each target's rule.
+SCRATCH_EXTRA_SRCS_simdjsonModelParsing = $(SRC_DIR)/core/simdjson.cpp $(SRC_DIR)/glad.c
 
-# Generic compile rule: any .cpp under test/ (or pulled in via
+# Generic compile rules: any .cpp/.c under test/ (or pulled in via
 # SCRATCH_EXTRA_SRCS_* above) mirrors into build/test_objects/, same idea
-# as the main $(OBJ_DIR) rule above, using the same CXXFLAGS (so scratch
-# code sees the same include paths -- simdjson, glm, GLFW, etc. -- as the
-# real app).
+# as the main $(OBJ_DIR) rules above, using the same CXXFLAGS/CFLAGS (so
+# scratch code sees the same include paths -- simdjson, glm, GLFW, etc. --
+# as the real app).
 $(SCRATCH_OBJ_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(SCRATCH_OBJ_DIR)/%.o: %.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 # One instantiation of this per subfolder, via $(eval $(call ...)) below.
 # $(1) is the subfolder/target name (e.g. "simdjsonModelParsing"). Doubled
@@ -140,7 +151,10 @@ $(SCRATCH_OBJ_DIR)/%.o: %.cpp
 # real path (or nothing) right now, while $(1) is being substituted.
 define SCRATCH_template
 SCRATCH_$(1)_SRCS := $$(call rwildcard,$(SCRATCH_DIR)/$(1),*.cpp) $(SCRATCH_EXTRA_SRCS_$(1))
-SCRATCH_$(1)_OBJS := $$(patsubst %.cpp,$(SCRATCH_OBJ_DIR)/%.o,$$(SCRATCH_$(1)_SRCS))
+# chained patsubst: first pass converts .cpp sources (leaving .c ones
+# untouched, since the pattern doesn't match), second pass converts the
+# remaining .c sources (leaving already-converted .o paths untouched)
+SCRATCH_$(1)_OBJS := $$(patsubst %.c,$(SCRATCH_OBJ_DIR)/%.o,$$(patsubst %.cpp,$(SCRATCH_OBJ_DIR)/%.o,$$(SCRATCH_$(1)_SRCS)))
 SCRATCH_$(1)_BIN  := $(SCRATCH_BIN_DIR)/$(1)
 
 $$(SCRATCH_$(1)_BIN): $$(SCRATCH_$(1)_OBJS)
