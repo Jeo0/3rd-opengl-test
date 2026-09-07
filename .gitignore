@@ -1,2 +1,4 @@
 ./daym.zip
 ./externals/doctest/*
+./cache/*
+./vscode

@@ -30,6 +30,7 @@ class Model {
         std::vector<unsigned char> c_binaryData;
 
         // std::vector<std::unique_ptr<Mesh>> c_meshes;
+        std::vector<std::shared_ptr<Texture>> c_loadedTextures;
 
 
         std::vector<unsigned char> LoadBinaryData(const std::string& p_directory);

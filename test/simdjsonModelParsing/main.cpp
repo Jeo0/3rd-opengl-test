@@ -39,7 +39,8 @@ std::vector<glm::vec2> GroupFloatsVec2(const std::vector<float>& p_textureVector
 }
 
 // helper
-uint64_t GetUintOr(const simdjson::dom::element& p_obj, std::string_view p_key, uint64_t p_default) { uint64_t value = p_default;
+uint64_t GetUintOr(const simdjson::dom::element& p_obj, std::string_view p_key, uint64_t p_default) { 
+    uint64_t value = p_default;
     p_obj[p_key].get(value); // if error, value = p_default, else value = whatever p_obj[p_key] is
     return value;
 }
@@ -128,7 +129,14 @@ std::vector<unsigned char> Model::LoadBinaryData(const std::string& p_directory)
     return std::vector<unsigned char>(m_bytesText.begin(), m_bytesText.end());
 }
 
-
+// helper 
+// bool HasThisField(const simdjson::dom::element& p_node, const simdjson::dom::array& p_field){
+bool HasThisField(const simdjson::dom::element& p_node, std::string_view p_key){
+    // accepts simdjson::dom::array as field only
+    // i dont know how it will treat simdjson::dom::element
+    simdjson::dom::element m_field;
+    return p_node[p_key].get(m_field); // should return a bool
+}
 
 void Model::TraverseNode(unsigned int p_nodeIndex, const glm::mat4& p_matrix){
     /*
@@ -151,24 +159,35 @@ void Model::TraverseNode(unsigned int p_nodeIndex, const glm::mat4& p_matrix){
     //////////////////////////////////////////
     // gather the matrix, scale, rotation, and translation to be processed
     // if current node has matrix
-	glm::mat4 m_matNode = glm::mat4(1.0);
-    simdjson::dom::array matrixField;
+    // goback here ++++++++++++++  1st
+    // something is wrong with the HasThisField
+	glm::mat4 m_matNode(1.0);
+    simdjson::dom::array t_matrixField;
         // std::cout << "INFO empty m_matNode: " << glm::to_string(m_matNode) << std::endl;
-    if (m_currentNode["matrix"].get(matrixField) == simdjson::SUCCESS){ // will return an error, should be catched??
+    // if (m_currentNode["matrix"].get(t_matrixField) == simdjson::SUCCESS){ // will return an error, should be catched??   // REMOVE LATER
+    if(HasThisField(m_currentNode, "matrix")){ 
+        try {
+            simdjson::dom::array t_matrixField = m_currentNode["matrix"].get_array();
+            // t_matrixField = m_currentNode["matrix"].get_array();
+            std::cout << "INFO YAY matrixField: " << t_matrixField << std::endl;
+        }
+        catch (simdjson::simdjson_error& ee){
+            std::cout << "INFO NOT damn ayaw ee, \n";
+        }
 
-        // std::cout << "INFO pass before m_matNode: " << glm::to_string(m_matNode) << std::endl;
+        std::cout << "INFO pass after t_matrixfield: " << glm::to_string(m_matNode) << std::endl;
         // // copy
         // // method 1
         std::array<double, 16> t_matrixArray;
         for(auto ii=0; ii<(int)t_matrixArray.size(); ii++){
-            t_matrixArray[ii] = matrixField.at(ii);
+            t_matrixArray[ii] = t_matrixField.at(ii);
         }
         m_matNode = glm::make_mat4(t_matrixArray.data());
 
         // method 2
         // double t_matrixArray[16];
         // for(auto ii=0; ii<16; ii++){
-        //     t_matrixArray[ii] = matrixField.at(ii);
+        //     t_matrixArray[ii] = t_matrixField.at(ii);
         // }
         // m_matNode = glm::make_mat4(t_matrixArray);
 
@@ -180,7 +199,8 @@ void Model::TraverseNode(unsigned int p_nodeIndex, const glm::mat4& p_matrix){
     glm::vec3 m_scaleNode(1.0);
     simdjson::dom::array t_scaleField;
         // std::cout << "INFO empty m_scaleNode: " << glm::to_string(m_scaleNode) << std::endl;
-    if (m_currentNode["scale"].get(t_scaleField) == simdjson::SUCCESS){ // will return an error, should be catched??
+    // if (m_currentNode["scale"].get(t_scaleField) == simdjson::SUCCESS){ // will return an error, should be catched?? // REMOVE LATER
+    if(HasThisField(m_currentNode, "scale")) {
 
         // std::cout << "INFO before m_scaleNode: " << glm::to_string(m_scaleNode) << std::endl;
         // copy 
@@ -195,10 +215,11 @@ void Model::TraverseNode(unsigned int p_nodeIndex, const glm::mat4& p_matrix){
 
     // for the rotation 
     glm::quat m_rotationNode(1.0, 0.0, 0.0,0.0);
-    simdjson::dom::array t_rotationField;
         // std::cout << "INFO empty m_rotationNode: " << glm::to_string(m_rotationNode) << std::endl;
-    if(m_currentNode["rotation"].get(t_rotationField) == simdjson::SUCCESS){
-        t_rotationField = m_currentNode["rotation"].get_array();
+    // if(m_currentNode["rotation"].get(t_rotationField) == simdjson::SUCCESS){ // REMOVE LATER
+    if(HasThisField(m_currentNode, "rotation")) {
+       simdjson::dom::array t_rotationField = m_currentNode["rotation"].get_array();
+        
 
         // gltf stores quaternions as [x, y, z, w]; glm::quat constructor wants (w, x, y, z)
         m_rotationNode = glm::quat((double)t_rotationField.at(3),
@@ -209,9 +230,9 @@ void Model::TraverseNode(unsigned int p_nodeIndex, const glm::mat4& p_matrix){
 
     // for the translation
     glm::vec3 m_translationNode(0.0);
-    simdjson::dom::array t_translationField;
-    if(m_currentNode["translation"].get(t_translationField) == simdjson::SUCCESS){
-        t_translationField = m_currentNode["translation"].get_array();
+    // if(m_currentNode["translation"].get(t_translationField) == simdjson::SUCCESS){ // REMOVE LATER
+    if(HasThisField(m_currentNode, "translation")) {
+        simdjson::dom::array t_translationField = m_currentNode["translation"].get_array();
 
         m_translationNode = glm::vec3((double)t_translationField.at(0),
                 (double)t_translationField.at(1),
@@ -229,8 +250,9 @@ void Model::TraverseNode(unsigned int p_nodeIndex, const glm::mat4& p_matrix){
         // std::cout << "INFO m_matrixNextNode: " << glm::to_string(m_matrixNextNode) << std::endl;
 
     // check for mesh
-    simdjson::dom::element m_meshField;
-    if(m_currentNode["mesh"].get(m_meshField) == simdjson::SUCCESS){
+    // simdjson::dom::element m_meshField;
+    // if(m_currentNode["mesh"].get(m_meshField) == simdjson::SUCCESS){ // REMOVE LATER
+    if(HasThisField(m_currentNode, "mesh")) {
         uint64_t t_meshIndex = m_currentNode["mesh"];
         // std::cout << "INFO t_meshIndex: " << t_meshIndex << std::endl;
 
@@ -245,9 +267,11 @@ void Model::TraverseNode(unsigned int p_nodeIndex, const glm::mat4& p_matrix){
     // }
     // debug REMOVE LATER }
 
+        // std::cout << "INFO pass before children: "<< std::endl;
     // now for the children but we recurse
-    simdjson::dom::element m_childrenField;
-    if(m_currentNode["children"].get(m_childrenField) == simdjson::SUCCESS){
+    // simdjson::dom::element m_childrenField;
+    // if(m_currentNode["children"].get(m_childrenField) == simdjson::SUCCESS){ // REMOVE LATER
+    if(HasThisField(m_currentNode, "children")) {
         simdjson::dom::array t_children = m_currentNode["children"].get_array();
         for (simdjson::dom::element ii_child : t_children) {
             uint64_t t_childIndex = ii_child;
@@ -313,6 +337,9 @@ void Model::LoadMesh(unsigned int p_meshIndex, const glm::mat4& p_transform){
 
     std::vector<Texture> m_finalTextures = GetTextures();
     // std::cout << "INFO after return finalTextures" << std::endl;
+    
+
+    // c_meshes.push_back(m_finalVertices, m_finalIndices, m_finalTextures);
 
 	// // Combine all the vertex components and also get the indices and textures
 	// std::vector<Vertex> vertices = assembleVertices(positions, normals, texUVs);
@@ -331,26 +358,44 @@ std::vector<Texture> Model::GetTextures(){
     std::cout << "INFO pass function GETTING TEXTURES" << std::endl; // debug REMOVE
 
     // debug REMOVE LATER {
-    std::cout << "INFO c_jsonData[\"images\"]: " << c_jsonData["images"]<< std::endl;
+    // std::cout << "INFO c_jsonData[\"images\"]: " << c_jsonData["images"]<< std::endl;
+    // outputs: INFO c_jsonData["images"]: [{"uri":"textures/Material_25_baseColor.png"},
+    //                                      {"uri":"textures/Material_25_metallicRoughness.png"},
+    //                                      {"uri":"textures/Material_25_normal.png"}]
     // std::cout << "INFO c_jsonData[\"images\"].size(): " << c_jsonData["images"].size() << std::endl;
-    std::string damn = static_cast<std::string>(c_jsonData["images"].at(0)["uri"]);
-    m_textures.push_back(
-            Texture(
-                "resource/Models/spear/" + damn, 
-                "diffuse_tex_type", 
-                0, 
-                GL_RGBA, 
-                GL_UNSIGNED_BYTE));
-    std::cout << "INFO in GetTextures(): success pushback" << std::endl;
-    return m_textures;
+    // std::string damn = static_cast<std::string>(c_jsonData["images"].at(0)["uri"]);
+    // m_textures.push_back(
+    //         Texture(
+    //             "resource/Models/spear/" + damn, 
+    //             "diffuse_tex_type", 
+    //             0, 
+    //             GL_RGBA, 
+    //             GL_UNSIGNED_BYTE));
+    // std::cout << "INFO in GetTextures(): success pushback" << std::endl;
+    // return m_textures;
     // debug REMOVE LATER }
-
 
 	// std::string fileStr = std::string(file);
 	// std::string fileDirectory = fileStr.substr(0, fileStr.find_last_of('/') + 1);
-	//
+
+
+    // int index = 123;
+    // std::string_view TexturePath = c_jsonData["images"].at(index)["uri"];
+
+    // goback here ++++++++++++++ 2nd
+    // check what it looks like
+    simdjson::dom::element m_material = c_jsonData["materials"]; 
+    // loading 
+    if(HasThisField(m_material, "baseColor")){
+        std::cout << "INFO baseColor: " << m_material["baseColor"] << std::endl;
+    }
+    if(HasThisField(m_material, "pbrMetallicRoughness")){
+        std::cout << "INFO pbrMetallicRoughness: " << m_material["pbrMetallicRoughness"] << std::endl;
+    }
+
+    // goback here ++++++++++++++++++++
 	// // Go over all images
-	// for (unsigned int i = 0; i < JSON["images"].size(); i++)
+	// for (unsigned int i = 0; i < JSON["images"].size(); i++) // 3 times 
 	// {
 	// 	// uri of current texture
 	// 	std::string texPath = JSON["images"][i]["uri"];
@@ -388,7 +433,8 @@ std::vector<Texture> Model::GetTextures(){
 	// 		}
 	// 	}
 	// }
-	//
+
+
     return m_textures;
 }
 
