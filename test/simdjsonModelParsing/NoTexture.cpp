@@ -14,8 +14,9 @@ Texture::Texture(const std::string& p_imageLoc,
     // loading texture
     int widthImg, heightImg, numColChann;
 
-    std::cout << "INFO passing Texture constructor;\n\
-        p_imageLoc.c_str():" << p_imageLoc.c_str() << std::endl;
+    // debug  REMOVE
+    // std::cout << "INFO passing Texture constructor;\n\
+    //     p_imageLoc.c_str():" << p_imageLoc.c_str() << std::endl;
 
     // actual image texture
     unsigned char* bytes = stbi_load(p_imageLoc.c_str(), &widthImg, &heightImg, &numColChann, 4); 
@@ -25,19 +26,22 @@ Texture::Texture(const std::string& p_imageLoc,
     }   
 
     // debug  REMOVE
-    std::cout << p_imageLoc.c_str() << std::endl;
+    std::cout << "INFO in NoTexture.cpp, receiving p_imageLoc.c_str(): " << p_imageLoc.c_str() << std::endl;
 
     // openGL functions
     // generating texture
     // control this ting
     stbi_set_flip_vertically_on_load(true);
+    // std::cout << "INFO in NoTexture.cpp, pass stbi_set_flip_vertically_on_load" << std::endl;
     glGenTextures(1, &c_ID);               // generate opengl texture obj
 
+    // std::cout << "INFO in NoTexture.cpp, pass through GenTextures " << std::endl;
 
     glActiveTexture(GL_TEXTURE0 + p_slot);               // assign texture to a texture unit
     c_unit = p_slot;
     glBindTexture(GL_TEXTURE_2D, c_ID);
     
+    // std::cout << "INFO in NoTexture.cpp, pass through ActiveTexture and BindTexture " << std::endl;
 
 
     auto m_filter = GL_NEAREST;
@@ -56,12 +60,15 @@ Texture::Texture(const std::string& p_imageLoc,
     glGenerateMipmap(GL_TEXTURE_2D);
     // ++++===================== goback here
 
+    // std::cout << "INFO in NoTexture.cpp, pass through glTexImage2D " << std::endl;
     // glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     stbi_image_free(bytes);
     glBindTexture(GL_TEXTURE_2D, 0);
 
 
+
+    // std::cout << "INFO in NoTexture.cpp, pass through the Texture constructor " << std::endl;
 }
 
 

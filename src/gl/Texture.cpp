@@ -11,6 +11,9 @@ Texture::Texture(const std::string& p_imageLoc,
                     ){
     c_type = p_textureType;
 
+    // std::cout << "INFO passing Texture constructor;\n\
+    //     p_imageLoc.c_str():" << p_imageLoc.c_str() << std::endl;
+
     // loading texture
     int widthImg, heightImg, numColChann;
 

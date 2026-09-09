@@ -39,7 +39,7 @@ class Model {
         
         std::vector<float> GetFloats(const simdjson::dom::element p_accessor);
         std::vector<GLuint> GetIndices(const simdjson::dom::element p_accessor);
-        std::vector<Texture> GetTextures();
+        std::vector<std::shared_ptr<Texture>> GetTextures();
 
     public:
         Model(const std::string& p_filepath);

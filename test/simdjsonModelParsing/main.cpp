@@ -60,6 +60,12 @@ std::vector<Vertex> AssembleVertices(const std::vector<glm::vec3>& p_positions, 
     return m_outputAssembledVertices;
 }
 
+// helper 
+bool HasThisField(const simdjson::dom::element& p_node, std::string_view p_key){
+    simdjson::dom::element m_field;
+    return p_node[p_key].get(m_field) == simdjson::SUCCESS; // should return a bool
+}
+
 // debug REMOVE LATER {
 std::string getget_file_contents(const char* filename){
     std::ifstream in(filename, std::ios::binary);
@@ -129,14 +135,6 @@ std::vector<unsigned char> Model::LoadBinaryData(const std::string& p_directory)
     return std::vector<unsigned char>(m_bytesText.begin(), m_bytesText.end());
 }
 
-// helper 
-// bool HasThisField(const simdjson::dom::element& p_node, const simdjson::dom::array& p_field){
-bool HasThisField(const simdjson::dom::element& p_node, std::string_view p_key){
-    // accepts simdjson::dom::array as field only
-    // i dont know how it will treat simdjson::dom::element
-    simdjson::dom::element m_field;
-    return p_node[p_key].get(m_field); // should return a bool
-}
 
 void Model::TraverseNode(unsigned int p_nodeIndex, const glm::mat4& p_matrix){
     /*
@@ -162,20 +160,13 @@ void Model::TraverseNode(unsigned int p_nodeIndex, const glm::mat4& p_matrix){
     // goback here ++++++++++++++  1st
     // something is wrong with the HasThisField
 	glm::mat4 m_matNode(1.0);
-    simdjson::dom::array t_matrixField;
         // std::cout << "INFO empty m_matNode: " << glm::to_string(m_matNode) << std::endl;
     // if (m_currentNode["matrix"].get(t_matrixField) == simdjson::SUCCESS){ // will return an error, should be catched??   // REMOVE LATER
     if(HasThisField(m_currentNode, "matrix")){ 
-        try {
-            simdjson::dom::array t_matrixField = m_currentNode["matrix"].get_array();
-            // t_matrixField = m_currentNode["matrix"].get_array();
-            std::cout << "INFO YAY matrixField: " << t_matrixField << std::endl;
-        }
-        catch (simdjson::simdjson_error& ee){
-            std::cout << "INFO NOT damn ayaw ee, \n";
-        }
+        simdjson::dom::array t_matrixField = m_currentNode["matrix"].get_array();
+        // std::cout << "INFO YAY matrixField: " << t_matrixField << std::endl;
 
-        std::cout << "INFO pass after t_matrixfield: " << glm::to_string(m_matNode) << std::endl;
+        // std::cout << "INFO pass after t_matrixfield: " << glm::to_string(m_matNode) << std::endl;
         // // copy
         // // method 1
         std::array<double, 16> t_matrixArray;
@@ -335,7 +326,7 @@ void Model::LoadMesh(unsigned int p_meshIndex, const glm::mat4& p_transform){
     //     std::cout << "INFO m_index: " << ii << std::endl;
     // }
 
-    std::vector<Texture> m_finalTextures = GetTextures();
+    std::vector<std::shared_ptr<Texture>> m_finalTextures = GetTextures();
     // std::cout << "INFO after return finalTextures" << std::endl;
     
 
@@ -352,9 +343,10 @@ void Model::LoadMesh(unsigned int p_meshIndex, const glm::mat4& p_transform){
     
 }
 
-std::vector<Texture> Model::GetTextures(){
+std::vector<std::shared_ptr<Texture>> Model::GetTextures(){
 	// std::vector<Texture> textures;
-    std::vector<Texture> m_textures;
+    // std::vector<Texture> m_textures;
+    std::vector<std::shared_ptr<Texture>> m_textures;
     std::cout << "INFO pass function GETTING TEXTURES" << std::endl; // debug REMOVE
 
     // debug REMOVE LATER {
@@ -384,13 +376,76 @@ std::vector<Texture> Model::GetTextures(){
 
     // goback here ++++++++++++++ 2nd
     // check what it looks like
-    simdjson::dom::element m_material = c_jsonData["materials"]; 
+    simdjson::dom::element m_material = c_jsonData["materials"].at(0); 
     // loading 
-    if(HasThisField(m_material, "baseColor")){
-        std::cout << "INFO baseColor: " << m_material["baseColor"] << std::endl;
-    }
     if(HasThisField(m_material, "pbrMetallicRoughness")){
-        std::cout << "INFO pbrMetallicRoughness: " << m_material["pbrMetallicRoughness"] << std::endl;
+        // std::cout << "INFO c_jsonDatap[\"materials\"]: " << c_jsonData["materials"] << std::endl;
+        // std::cout << "INFO pbrMetallicRoughness: " << m_material["pbrMetallicRoughness"] << std::endl;
+        simdjson::dom::element t_currentContext = m_material["pbrMetallicRoughness"];
+
+            std::cout << "INFO t_currentContext: " << t_currentContext << std::endl;
+
+        // checkling if the current pbrMetallicRoughness has these properties:
+        // baseColorTexture and metallicRoughnessTexture
+        if(HasThisField(t_currentContext, "baseColorTexture")){
+            std::cout << "INFO t_currentContext[baseColorTexture]: " << t_currentContext["baseColorTexture"] << std::endl;
+
+            uint64_t t_index = t_currentContext["baseColorTexture"]["index"]; // should return 2
+            std::string t_imageUri = static_cast<std::string>
+                (c_jsonData["images"].at(t_index)["uri"]);
+            std::cout << "INFO t_imageUri: " << t_imageUri << std::endl;
+
+            // and then load it by making an object for it and putting in the back
+            auto m_baseColorTexture = std::make_shared<Texture>
+                ("resource/Models/spear/" + t_imageUri, 
+                "diffuse_tex_type", 0, GL_RGBA, GL_UNSIGNED_BYTE);
+            std::cout << "INFO pass m_baseColorTexture" << std::endl;
+
+
+            m_textures.push_back(m_baseColorTexture);
+            std::cout << "INFO pass baseColorTexture loaded" << std::endl;
+        }
+
+        if(HasThisField(t_currentContext, "metallicRoughnessTexture")){
+            uint64_t t_index = t_currentContext["metallicRoughnessTexture"]["index"]; // should return 1
+            std::string t_imageUri = static_cast<std::string>
+                (c_jsonData["images"].at(t_index)["uri"]);
+            // and then load it by making an object for it and putting in the back
+            std::shared_ptr<Texture> m_metallicRoughnessTexture = std::make_shared<Texture>
+                ("resource/Models/spear/" + t_imageUri, 
+                "diffuse_tex_type", 0, GL_RGBA, GL_UNSIGNED_BYTE);
+
+            m_textures.push_back(m_metallicRoughnessTexture);
+            std::cout << "INFO pass metallicRoughnessTexture loaded" << std::endl;
+        }
+        // m_textures.push_back(m_diffuse);
+        // c_loadedTextures.push_back(m_diffuse);
+
+
+        // reference Texture constructor
+// Texture::Texture(const std::string& p_imageLoc,
+//                     const std::string& p_textureType,
+//                     GLuint p_slot,  // add  this to the header  // goback here ============
+//                     GLenum p_imageFormat, // non existent in jgl demo; instead, use GL_RGBA
+//                     GLenum p_pixelType // non existent in jgl demo; instead use GL_UNSIGNED_BYTE
+        // Texture diffuse = Texture((fileDirectory + texPath).c_str(), "diffuse_tex_type", loadedTex.size());
+        // textures.push_back(diffuse);
+        // loadedTex.push_back(diffuse);
+        // loadedTexName.push_back(texPath);
+    }
+
+    if(HasThisField(m_material, "normalTexture")){
+        uint64_t t_index = m_material["normalTexture"]["index"]; // should be 2
+        std::string t_imageUri = static_cast<std::string>(c_jsonData["images"].at(t_index)["uri"]);
+
+
+        // and then load it by making an object for it and putting in the back
+        std::shared_ptr<Texture> m_normalTexture = std::make_shared<Texture>
+            ("resource/Models/spear/" + t_imageUri, 
+            "diffuse_tex_type", 0, GL_RGBA, GL_UNSIGNED_BYTE);
+
+        m_textures.push_back(m_normalTexture);
+            std::cout << "INFO pass normalTexture loaded" << std::endl;
     }
 
     // goback here ++++++++++++++++++++
@@ -608,6 +663,37 @@ std::vector<float> Model::GetFloats(const simdjson::dom::element p_accessor) {
     // return floatVec;
 }
 
+// debug REMOVE LATER {
+#include "GLAD/glad.h"
+#include "GLFW/glfw3.h"
+
 int main() {
+    // make glfw and opengl context first (requirement from using Textures)
+    if (!glfwInit()) {
+        std::cerr << "Failed to init GLFW" << std::endl;
+        return 1;
+    }
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);   // no window shown
+
+    GLFWwindow* window = glfwCreateWindow(1, 1, "simdjsonModelParsing test", nullptr, nullptr);
+    if (!window) {
+        std::cerr << "Failed to create GL context" << std::endl;
+        glfwTerminate();
+        return 1;
+    }
+    glfwMakeContextCurrent(window);
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cerr << "Failed to initialize GLAD" << std::endl;
+        return 1;
+    }
+
     Model what("resource/Models/spear/scene.gltf");
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
 }
+// debug REMOVE LATER }
