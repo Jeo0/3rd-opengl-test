@@ -153,34 +153,24 @@ void Model::TraverseNode(unsigned int p_nodeIndex, const glm::mat4& p_matrix){
     // auto m_currentNode = c_jsonData["nodes"][p_nodeIndex]; // 0th first
     simdjson::dom::element m_currentNode = c_jsonData["nodes"].at(p_nodeIndex); // 0th first
 
+    // goback here ++++++++++++++  
     //////////////////////////////////////////
     //////////////////////////////////////////
     // gather the matrix, scale, rotation, and translation to be processed
     // if current node has matrix
-    // goback here ++++++++++++++  1st
-    // something is wrong with the HasThisField
 	glm::mat4 m_matNode(1.0);
         // std::cout << "INFO empty m_matNode: " << glm::to_string(m_matNode) << std::endl;
     // if (m_currentNode["matrix"].get(t_matrixField) == simdjson::SUCCESS){ // will return an error, should be catched??   // REMOVE LATER
     if(HasThisField(m_currentNode, "matrix")){ 
         simdjson::dom::array t_matrixField = m_currentNode["matrix"].get_array();
         // std::cout << "INFO YAY matrixField: " << t_matrixField << std::endl;
-
         // std::cout << "INFO pass after t_matrixfield: " << glm::to_string(m_matNode) << std::endl;
         // // copy
-        // // method 1
         std::array<double, 16> t_matrixArray;
         for(auto ii=0; ii<(int)t_matrixArray.size(); ii++){
             t_matrixArray[ii] = t_matrixField.at(ii);
         }
         m_matNode = glm::make_mat4(t_matrixArray.data());
-
-        // method 2
-        // double t_matrixArray[16];
-        // for(auto ii=0; ii<16; ii++){
-        //     t_matrixArray[ii] = t_matrixField.at(ii);
-        // }
-        // m_matNode = glm::make_mat4(t_matrixArray);
 
         // debug REMOVE LATER
         // std::cout << "INFO final m_matNode: " << glm::to_string(m_matNode) << std::endl;
@@ -280,11 +270,11 @@ void Model::LoadMesh(unsigned int p_meshIndex, const glm::mat4& p_transform){
     // std::cout << "INFO i'm loaded, p_meshidecx: " << p_meshIndex << std::endl;
     // std::cout << "INFO i'm loaded, p_transform: " << glm::to_string(p_transform) << std::endl;
 
-    simdjson::dom::element m_accessors = c_jsonData["meshes"].at(p_meshIndex)["primitives"].at(0);
+    simdjson::dom::element m_primitives = c_jsonData["meshes"].at(p_meshIndex)["primitives"].at(0);
 
         // std::cout << "INFO beforeFloats: \n";
 	// Get all accessor indices
-    std::vector<float> t_positionVectors = GetFloats( c_jsonData["accessors"].at((uint64_t)m_accessors["attributes"]["POSITION"]));
+    std::vector<float> t_positionVectors = GetFloats( c_jsonData["accessors"].at((uint64_t)m_primitives["attributes"]["POSITION"]));
     // debug REMOVE LATER
     // for(auto &xx: t_positionVectors){
     //     std::cout << "INFO t_positionVectors: " << xx << std::endl;
@@ -300,14 +290,14 @@ void Model::LoadMesh(unsigned int p_meshIndex, const glm::mat4& p_transform){
 	// std::vector<glm::vec3> positions = groupFloatsVec3(posVec);
 
 
-    std::vector<float> t_normalVectors = GetFloats(c_jsonData["accessors"].at((uint64_t)m_accessors["attributes"]["NORMAL"]));
+    std::vector<float> t_normalVectors = GetFloats(c_jsonData["accessors"].at((uint64_t)m_primitives["attributes"]["NORMAL"]));
     std::vector<glm::vec3> m_normals = GroupFloatsVec3(t_normalVectors);
 	// std::vector<float> normalVec = getFloats(JSON["accessors"][
 	//            JSON["meshes"][indMesh]["primitives"][0]["attributes"]["NORMAL"] ]);
 	// std::vector<glm::vec3> normals = groupFloatsVec3(normalVec);
 
     
-    std::vector<float> t_textureVectors = GetFloats(c_jsonData["accessors"].at((uint64_t)m_accessors["attributes"]["TEXCOORD_0"]));
+    std::vector<float> t_textureVectors = GetFloats(c_jsonData["accessors"].at((uint64_t)m_primitives["attributes"]["TEXCOORD_0"]));
     std::vector<glm::vec2> m_textureUVs = GroupFloatsVec2(t_textureVectors);
 	// std::vector<float> texVec = getFloats(JSON["accessors"][
 	//            JSON["meshes"][indMesh]["primitives"][0]["attributes"]["TEXCOORD_0"] ]);
@@ -317,16 +307,24 @@ void Model::LoadMesh(unsigned int p_meshIndex, const glm::mat4& p_transform){
 
     // then combine all vertex components 
     std::vector<Vertex> m_finalVertices = AssembleVertices(m_positions, m_normals, m_textureUVs);
-    std::vector<GLuint> m_finalIndices = GetIndices(c_jsonData["accessors"].at((uint64_t)m_accessors["indices"]));
+    std::vector<GLuint> m_finalIndices = GetIndices(c_jsonData["accessors"].at((uint64_t)m_primitives["indices"]));
     // goback here ++++++++++++++
     // std::cout << "INFO pass m_indices\n";
-    // std::cout << "INFO m_indices: " << c_jsonData["accessors"].at((uint64_t)m_accessors["indices"]) << std::endl;
+    // std::cout << "INFO m_indices: " << c_jsonData["accessors"].at((uint64_t)m_primitives["indices"]) << std::endl;
     // outputs: {"bufferView":0,"componentType":5125,"count":15528,"type":"SCALAR"}
     // for(auto& ii: m_indices){
     //     std::cout << "INFO m_index: " << ii << std::endl;
     // }
 
-    std::vector<std::shared_ptr<Texture>> m_finalTextures = GetTextures();
+    // multiple primitives exist along with their materials
+    // so load only the material indicated from the primitive as an index
+    // then 
+    std::vector<std::shared_ptr<Texture>> m_finalTextures;
+    if(HasThisField(m_primitives, "material")){
+        uint64_t t_currentMaterialIndex = m_primitives["material"];
+        simdjson::dom::element p_material = c_jsonData["materials"].at(t_currentMaterialIndex); 
+        m_finalTextures = GetTextures(p_material);
+    }
     // std::cout << "INFO after return finalTextures" << std::endl;
     
 
@@ -343,11 +341,12 @@ void Model::LoadMesh(unsigned int p_meshIndex, const glm::mat4& p_transform){
     
 }
 
-std::vector<std::shared_ptr<Texture>> Model::GetTextures(){
+std::vector<std::shared_ptr<Texture>> Model::GetTextures(simdjson::dom::element& p_material){
 	// std::vector<Texture> textures;
     // std::vector<Texture> m_textures;
     std::vector<std::shared_ptr<Texture>> m_textures;
     std::cout << "INFO pass function GETTING TEXTURES" << std::endl; // debug REMOVE
+    std::cout << "INFO p_material: "<< p_material << std::endl; // debug REMOVE
 
     // debug REMOVE LATER {
     // std::cout << "INFO c_jsonData[\"images\"]: " << c_jsonData["images"]<< std::endl;
@@ -374,52 +373,67 @@ std::vector<std::shared_ptr<Texture>> Model::GetTextures(){
     // int index = 123;
     // std::string_view TexturePath = c_jsonData["images"].at(index)["uri"];
 
-    // goback here ++++++++++++++ 2nd
-    // check what it looks like
-    simdjson::dom::element m_material = c_jsonData["materials"].at(0); 
+    // goback here ++++++++++++++ 1st 
+    // TODO: refactor this, no hardcoded resource file paths
     // loading 
-    if(HasThisField(m_material, "pbrMetallicRoughness")){
-        // std::cout << "INFO c_jsonDatap[\"materials\"]: " << c_jsonData["materials"] << std::endl;
-        // std::cout << "INFO pbrMetallicRoughness: " << m_material["pbrMetallicRoughness"] << std::endl;
-        simdjson::dom::element t_currentContext = m_material["pbrMetallicRoughness"];
 
-            std::cout << "INFO t_currentContext: " << t_currentContext << std::endl;
+    if(HasThisField(p_material, "normalTexture")){
+        uint64_t t_index = p_material["normalTexture"]["index"]; // should be 2
+        std::string t_imageUri = static_cast<std::string>(c_jsonData["images"].at(t_index)["uri"]);
 
-        // checkling if the current pbrMetallicRoughness has these properties:
-        // baseColorTexture and metallicRoughnessTexture
-        if(HasThisField(t_currentContext, "baseColorTexture")){
-            std::cout << "INFO t_currentContext[baseColorTexture]: " << t_currentContext["baseColorTexture"] << std::endl;
+        // and then load it by making an object for it and putting in the back
+        std::shared_ptr<Texture> m_normalTexture = std::make_shared<Texture>
+            ("resource/Models/spear/" + t_imageUri, "diffuse_tex_type", 0, GL_RGBA, GL_UNSIGNED_BYTE);
 
-            uint64_t t_index = t_currentContext["baseColorTexture"]["index"]; // should return 2
-            std::string t_imageUri = static_cast<std::string>
-                (c_jsonData["images"].at(t_index)["uri"]);
-            std::cout << "INFO t_imageUri: " << t_imageUri << std::endl;
-
-            // and then load it by making an object for it and putting in the back
-            auto m_baseColorTexture = std::make_shared<Texture>
-                ("resource/Models/spear/" + t_imageUri, 
-                "diffuse_tex_type", 0, GL_RGBA, GL_UNSIGNED_BYTE);
-            std::cout << "INFO pass m_baseColorTexture" << std::endl;
+        m_textures.push_back(m_normalTexture);
+            // std::cout << "INFO pass normalTexture loaded" << std::endl;
+    }
 
 
-            m_textures.push_back(m_baseColorTexture);
-            std::cout << "INFO pass baseColorTexture loaded" << std::endl;
-        }
+    // only if the material has pbrMetallicRoughness passes this point
+    // early return
+    if(!HasThisField(p_material, "pbrMetallicRoughness")) return m_textures;
 
-        if(HasThisField(t_currentContext, "metallicRoughnessTexture")){
-            uint64_t t_index = t_currentContext["metallicRoughnessTexture"]["index"]; // should return 1
-            std::string t_imageUri = static_cast<std::string>
-                (c_jsonData["images"].at(t_index)["uri"]);
-            // and then load it by making an object for it and putting in the back
-            std::shared_ptr<Texture> m_metallicRoughnessTexture = std::make_shared<Texture>
-                ("resource/Models/spear/" + t_imageUri, 
-                "diffuse_tex_type", 0, GL_RGBA, GL_UNSIGNED_BYTE);
+    // std::cout << "INFO c_jsonDatap[\"materials\"]: " << c_jsonData["materials"] << std::endl;
+    // std::cout << "INFO pbrMetallicRoughness: " << p_material["pbrMetallicRoughness"] << std::endl;
+    simdjson::dom::element t_currentContext = p_material["pbrMetallicRoughness"];
 
-            m_textures.push_back(m_metallicRoughnessTexture);
-            std::cout << "INFO pass metallicRoughnessTexture loaded" << std::endl;
-        }
-        // m_textures.push_back(m_diffuse);
-        // c_loadedTextures.push_back(m_diffuse);
+    // std::cout << "INFO t_currentContext: " << t_currentContext << std::endl;
+
+    // checkling if the current pbrMetallicRoughness has these properties:
+    // baseColorTexture and metallicRoughnessTexture
+    if(HasThisField(t_currentContext, "baseColorTexture")){
+        // std::cout << "INFO t_currentContext[baseColorTexture]: " << t_currentContext["baseColorTexture"] << std::endl;
+
+        uint64_t t_index = t_currentContext["baseColorTexture"]["index"]; // should return 2
+        std::string t_imageUri = static_cast<std::string>
+            (c_jsonData["images"].at(t_index)["uri"]);
+        // std::cout << "INFO t_imageUri: " << t_imageUri << std::endl;
+
+        // and then load it by making an object for it and putting in the back
+        auto m_baseColorTexture = std::make_shared<Texture>
+            ("resource/Models/spear/" + t_imageUri, 
+            "diffuse_tex_type", 0, GL_RGBA, GL_UNSIGNED_BYTE);
+        // std::cout << "INFO pass m_baseColorTexture" << std::endl;
+
+
+        m_textures.push_back(m_baseColorTexture);
+        // std::cout << "INFO pass baseColorTexture loaded" << std::endl;
+    }
+
+    if(HasThisField(t_currentContext, "metallicRoughnessTexture")){
+        uint64_t t_index = t_currentContext["metallicRoughnessTexture"]["index"]; // should return 1
+        std::string t_imageUri = static_cast<std::string>
+            (c_jsonData["images"].at(t_index)["uri"]);
+        // and then load it by making an object for it and putting in the back
+        std::shared_ptr<Texture> m_metallicRoughnessTexture = std::make_shared<Texture>
+            ("resource/Models/spear/" + t_imageUri, "diffuse_tex_type", 0, GL_RGBA, GL_UNSIGNED_BYTE);
+
+        m_textures.push_back(m_metallicRoughnessTexture);
+        // std::cout << "INFO pass metallicRoughnessTexture loaded" << std::endl;
+    }
+    // m_textures.push_back(m_diffuse);
+    // c_loadedTextures.push_back(m_diffuse);
 
 
         // reference Texture constructor
@@ -432,21 +446,7 @@ std::vector<std::shared_ptr<Texture>> Model::GetTextures(){
         // textures.push_back(diffuse);
         // loadedTex.push_back(diffuse);
         // loadedTexName.push_back(texPath);
-    }
 
-    if(HasThisField(m_material, "normalTexture")){
-        uint64_t t_index = m_material["normalTexture"]["index"]; // should be 2
-        std::string t_imageUri = static_cast<std::string>(c_jsonData["images"].at(t_index)["uri"]);
-
-
-        // and then load it by making an object for it and putting in the back
-        std::shared_ptr<Texture> m_normalTexture = std::make_shared<Texture>
-            ("resource/Models/spear/" + t_imageUri, 
-            "diffuse_tex_type", 0, GL_RGBA, GL_UNSIGNED_BYTE);
-
-        m_textures.push_back(m_normalTexture);
-            std::cout << "INFO pass normalTexture loaded" << std::endl;
-    }
 
     // goback here ++++++++++++++++++++
 	// // Go over all images
