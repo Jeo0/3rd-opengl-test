@@ -1,4 +1,0 @@
-
-================== simdjsonModelParsing ==================
-INFO m_index: 1
-INFO m_index: 2
