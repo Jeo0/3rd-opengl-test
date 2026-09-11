@@ -9,13 +9,14 @@
 #include "shaderClass.h"
 #include "GLFW/glfw3.h"
 #include "Camera.h"
-#include "Mesh.h"
+#include "Model.h"
+// #include "Mesh.h"
 
 class Scene {
     private:
         std::unique_ptr<Shader> c_shader; 
         std::unique_ptr<Camera> c_camera; 
-        std::vector<std::unique_ptr<Mesh>> c_sceneObjects; 
+        std::vector<std::unique_ptr<Model>> c_sceneObjects; 
 
         // debug REMOVE
         float debug_time_iii = 0.0;

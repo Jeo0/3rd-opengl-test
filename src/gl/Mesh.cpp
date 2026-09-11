@@ -41,7 +41,7 @@ void Mesh::Draw(Shader &p_shader, Camera& p_camera) {
         std::string m_type {c_textures[iii]->c_type};
 
         // debug REMOVE
-        std::cout << "type of texture: " << c_textures[iii]->c_type << std::endl;
+        // std::cout << "type of texture: " << c_textures[iii]->c_type << std::endl;
 
         if(m_type == "diffuse_tex_type"){
             m_numberDiffuse++;
@@ -49,7 +49,8 @@ void Mesh::Draw(Shader &p_shader, Camera& p_camera) {
         }
 
         // (m_type + m_num).c_str()     i.e. = diffuse1     diffuse2    diffuse3
-        c_textures[iii]->TexUnit(p_shader, ("u_" + m_type + m_num), iii);  
+        // c_textures[iii]->TexUnit(p_shader, ("u_" + m_type + m_num), iii);  
+        c_textures[iii]->TexUnit(p_shader, ("u_" + m_type + m_num), c_textures[iii]->c_unit);
         c_textures[iii]->Bind();
     }
 

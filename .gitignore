@@ -2,5 +2,6 @@
 ./externals/doctest/
 ./externals/fastgltf-0.9.0/
 ./externals/zips/
+./externals/temp/
 ./cache/
 ./vscode

@@ -1,18 +1,104 @@
-
-#include "gl/Model.h"
+// this file is supposed to be Model.cpp
+#include "VBO.h"
 #include "core/simdjson.h"
+#include "Model.h"
+#include "glm/gtc/quaternion.hpp"
+#include <cstdint>
 
-#include "gl/shaderClass.h" // for the get_file_contents() helper
-#include "glm/gtc/type_ptr.hpp"
+#define GLM_ENABLE_EXPERIMENTAL     // glm library says to enable dis shit as string cast is an experimental
+#include "glm/gtx/string_cast.hpp" // for printing glm::mat4() using glm::to_string()
+#include "glm/gtc/type_ptr.hpp" // glm::make_mat4()
 
 #include <filesystem>
-#include <array>
+#include <fstream>
+
+
+////////////////////////
+////////////////////////
+// helper functions 
+////////////////////////
+////////////////////////
+std::vector<glm::vec3> GroupFloatsVec3(const std::vector<float>& p_positionVectors){
+    // inputs are 9x9 expected
+    std::vector<glm::vec3> m_allVectors;
+    for(int ii=0; ii<(int)p_positionVectors.size(); ii+=3){
+        m_allVectors.push_back(glm::vec3(p_positionVectors.at(ii+0), 
+                                        p_positionVectors.at(ii+1), 
+                                        p_positionVectors.at(ii+2)));
+    }
+    return m_allVectors;
+}
+
+// helper
+std::vector<glm::vec2> GroupFloatsVec2(const std::vector<float>& p_textureVectors){
+    std::vector<glm::vec2> m_vectors;
+    for(int ii=0;  ii<(int)p_textureVectors.size(); ii+=2){
+        m_vectors.push_back(glm::vec2(p_textureVectors.at(ii), p_textureVectors.at(ii+1)));
+    }
+    return m_vectors;
+}
+
+// helper
+uint64_t GetUintOr(const simdjson::dom::element& p_obj, std::string_view p_key, uint64_t p_default) { 
+    uint64_t value = p_default;
+    p_obj[p_key].get(value); // if error, value = p_default, else value = whatever p_obj[p_key] is
+    return value;
+}
+
+// helper
+std::vector<Vertex> AssembleVertices(const std::vector<glm::vec3>& p_positions, const std::vector<glm::vec3>& p_normals, const std::vector<glm::vec2>& p_textureUVs){
+    std::vector<Vertex> m_outputAssembledVertices;
+    // goback here ++++++++++++
+    for(uint64_t ii=0; ii<(uint64_t)p_positions.size(); ii++){
+        Vertex t_vert;
+        t_vert.position = p_positions[ii];
+        t_vert.normal = (ii < p_normals.size()) ? p_normals[ii] : glm::vec3(0.0f);
+        t_vert.color = glm::vec3(1.0f, 1.0f, 1.0f);
+        t_vert.textureUV = (ii < p_textureUVs.size()) ? p_textureUVs[ii] : glm::vec2(0.0f);
+        m_outputAssembledVertices.push_back(t_vert);
+    }
+    return m_outputAssembledVertices;
+}
+
+// helper 
+bool HasThisField(const simdjson::dom::element& p_node, std::string_view p_key){
+    simdjson::dom::element m_field;
+    return p_node[p_key].get(m_field) == simdjson::SUCCESS; // should return a bool
+}
+
+// debug REMOVE LATER {
+// std::string getget_file_contents(const char* filename){
+//     std::ifstream in(filename, std::ios::binary);
+//     if (!in){
+//         std::cerr << "ERROR in getget_file_contents: unable to open file " <<  filename << std::endl;
+//         throw std::runtime_error(std::string("unable to open file ") + filename);       
+//     }
+//     else{
+//         std::string contents;
+//         in.seekg(0, std::ios::end);
+//         contents.resize(in.tellg());
+//
+//         // read
+//         in.seekg(0,std::ios::beg);
+//         in.read(&contents[0], contents.size());
+//         in.close();
+//         return contents;
+//     }
+// }        
+// debug REMOVE LATER }
 
 Model::Model(const std::string& p_filepath){
     c_filepath = p_filepath;
     std::string m_directory = std::filesystem::path(p_filepath).parent_path().string(); // long string of path
+    std::cout << "INFO c_filepath: " << c_filepath << std::endl;
+    // std::cout << "INFO mdirectory: " << m_directory << std::endl;
 
-    c_jsonData = c_parser.load(c_filepath);
+    try {
+        c_jsonData = c_parser.load(c_filepath);
+    }
+    catch (const std::runtime_error& eee){
+        std::cerr << eee.what() << " ERROR SOMETHING WRONG WITH LOADING\n";
+    }
 
     // load data 
     c_binaryData = LoadBinaryData(m_directory);
@@ -23,55 +109,680 @@ Model::Model(const std::string& p_filepath){
 Model::~Model(){
 }
 
-void Model::Draw(Shader& p_shader, Camera& p_camera){
-    for (auto& ii_mesh : c_meshes) {
-        ii_mesh->Draw(p_shader, p_camera);
-    }
+
+void Model::Draw(Shader& p_shader, Camera& p_camera) {
+	// Go over all meshes and draw each one
+	for (unsigned int i = 0; i < c_meshes.size(); i++) {
+	       c_meshes[i]->Mesh::Draw(p_shader, p_camera);
+	}
 }
 
 
 std::vector<unsigned char> Model::LoadBinaryData(const std::string& p_directory){
     // get the binary data's filepath and name
+    // std::cout << "INFO loadbinarydata() PASSED" << std::endl;
+    // std::cout << "INFO p_directory : " << p_directory << std::endl;
     // std::string m_uri = c_jsonData["buffers"][0]["uri"]; // the example we have will always be "scene.bin"
     std::string m_uri = std::string(c_jsonData["buffers"].at(0)["uri"]); // the example we have will always be "scene.bin"
-    // debug REMOVE LATER
-    // std::cout << "INFO p_directory: " << p_directory << std::endl; 
+    // std::cout << "INFO p_directory: " << p_directory << std::endl;
     // std::cout << "INFO c_filepath: " << c_filepath << std::endl;
     // std::cout << "INFO m_uri: " << m_uri << std::endl;
-    // outputs: 
-    // INFO p_directory: resource/Models/spear
-    // INFO c_filepath: resource/Models/spear/scene.gltf
-    // INFO m_uri: scene.bin
 
     // store the binary data 
     std::string m_bytesText = get_file_contents((p_directory + "/" + m_uri).c_str());
+    // std::cout << "INFO m_bytesText: " << m_bytesText << std::endl;
 
     return std::vector<unsigned char>(m_bytesText.begin(), m_bytesText.end());
 }
 
-void Model::TraverseNode(unsigned int p_nodeIndex, glm::mat4 p_matrix){
+
+void Model::TraverseNode(unsigned int p_nodeIndex, const glm::mat4& p_matrix){
+    /*
+    *   oke here are the rules after some long ass time
+    *   simdjson::dom::element type when you expect it to be of anything of SINGLE element (double, int, string, watever etc.)
+    *   simdjson::dom::array type when expecting to be given a series of watevers element
+    *   
+    *   std::string_view type to read the value of an simdjson::dom::element when it is a string
+    *   uint64_t type to read the value of an simdjson::dom::element when integers
+    *   or just int
+     */
+
+    // std::cout << "INFO oke pass here traversenode\n";
+    
+
     // auto m_currentNode = c_jsonData["nodes"][p_nodeIndex]; // 0th first
-    // simdjson::dom::element m_currentNode = c_jsonData["nodes"][p_nodeIndex]; // 0th first
     simdjson::dom::element m_currentNode = c_jsonData["nodes"].at(p_nodeIndex); // 0th first
 
+    // goback here ++++++++++++++  
+    //////////////////////////////////////////
+    //////////////////////////////////////////
+    // gather the matrix, scale, rotation, and translation to be processed
     // if current node has matrix
-    // std::cout << m_currentNode["matrix"];
-    // outputs the matrix array
-	glm::mat4 m_matNode = glm::mat4(1.0);
-    if(m_currentNode["matrix"]) {
-        simdjson::dom::array matrixIterator = m_currentNode["matrix"].get_array();
-        std::array<double, 16> matrixArray;
+	glm::mat4 m_matNode(1.0);
+        // std::cout << "INFO empty m_matNode: " << glm::to_string(m_matNode) << std::endl;
+    // if (m_currentNode["matrix"].get(t_matrixField) == simdjson::SUCCESS){ // will return an error, should be catched??   // REMOVE LATER
+    if(HasThisField(m_currentNode, "matrix")){ 
+        simdjson::dom::array t_matrixField = m_currentNode["matrix"].get_array();
+        // std::cout << "INFO YAY matrixField: " << t_matrixField << std::endl;
+        // std::cout << "INFO pass after t_matrixfield: " << glm::to_string(m_matNode) << std::endl;
+        // // copy
+        std::array<double, 16> t_matrixArray;
+        for(auto ii=0; ii<(int)t_matrixArray.size(); ii++){
+            t_matrixArray[ii] = t_matrixField.at(ii);
+        }
+        m_matNode = glm::make_mat4(t_matrixArray.data());
 
-        // copy
-        for(int ii=0; ii<matrixArray.size(); ii++){
-            matrixArray[ii] = matrixIterator[ii];
+        // debug REMOVE LATER
+        // std::cout << "INFO final m_matNode: " << glm::to_string(m_matNode) << std::endl;
+    }
+
+    // for the scale 
+    glm::vec3 m_scaleNode(1.0);
+    simdjson::dom::array t_scaleField;
+        // std::cout << "INFO empty m_scaleNode: " << glm::to_string(m_scaleNode) << std::endl;
+    // if (m_currentNode["scale"].get(t_scaleField) == simdjson::SUCCESS){ // will return an error, should be catched?? // REMOVE LATER
+    if(HasThisField(m_currentNode, "scale")) {
+
+        // std::cout << "INFO before m_scaleNode: " << glm::to_string(m_scaleNode) << std::endl;
+        // copy 
+        // std::array<double, 4> t_scaleArray;
+        t_scaleField = m_currentNode["scale"].get_array();
+        // std::cout << "INFO pass final m_scaleNode: " << glm::to_string(m_scaleNode) << std::endl;
+
+        m_scaleNode = glm::vec3((double)t_scaleField.at(0), 
+                (double)t_scaleField.at(1), 
+                (double)t_scaleField.at(2));
+    }
+
+    // for the rotation 
+    glm::quat m_rotationNode(1.0, 0.0, 0.0,0.0);
+        // std::cout << "INFO empty m_rotationNode: " << glm::to_string(m_rotationNode) << std::endl;
+    // if(m_currentNode["rotation"].get(t_rotationField) == simdjson::SUCCESS){ // REMOVE LATER
+    if(HasThisField(m_currentNode, "rotation")) {
+       simdjson::dom::array t_rotationField = m_currentNode["rotation"].get_array();
+        
+
+        // gltf stores quaternions as [x, y, z, w]; glm::quat constructor wants (w, x, y, z)
+        m_rotationNode = glm::quat((double)t_rotationField.at(3),
+                (double)t_rotationField.at(0),
+                (double)t_rotationField.at(1),
+                (double)t_rotationField.at(2));
+    }
+
+    // for the translation
+    glm::vec3 m_translationNode(0.0);
+    // if(m_currentNode["translation"].get(t_translationField) == simdjson::SUCCESS){ // REMOVE LATER
+    if(HasThisField(m_currentNode, "translation")) {
+        simdjson::dom::array t_translationField = m_currentNode["translation"].get_array();
+
+        m_translationNode = glm::vec3((double)t_translationField.at(0),
+                (double)t_translationField.at(1),
+                (double)t_translationField.at(2));
+    }
+
+    // processing
+    glm::mat4 m_translate = glm::translate(glm::mat4(1.0), m_translationNode);
+    glm::mat4 m_rotate = glm::mat4_cast(m_rotationNode);
+    glm::mat4 m_scale = glm::scale(glm::mat4(1.0), m_scaleNode);
+
+    // multiply all along with the current matrix; order matters 
+    glm::mat4 m_matrixNextNode = p_matrix * m_matNode * m_translate * m_rotate * m_scale;
+
+        // std::cout << "INFO m_matrixNextNode: " << glm::to_string(m_matrixNextNode) << std::endl;
+
+    // check for mesh
+    // simdjson::dom::element m_meshField;
+    // if(m_currentNode["mesh"].get(m_meshField) == simdjson::SUCCESS){ // REMOVE LATER
+    if(HasThisField(m_currentNode, "mesh")) {
+        uint64_t t_meshIndex = m_currentNode["mesh"];
+        // std::cout << "INFO t_meshIndex: " << t_meshIndex << std::endl;
+
+        LoadMesh(t_meshIndex, m_matrixNextNode);
+    }
+
+    // debug REMOVE LATER {
+    // simdjson::dom::element name;
+    // if(m_currentNode["name"].get(name) == simdjson::SUCCESS){
+    //     std::string_view nameOut= m_currentNode["name"];
+        // std::cout << "INFO nameOut: " << nameOut << std::endl;
+    // }
+    // debug REMOVE LATER }
+
+        // std::cout << "INFO pass before children: "<< std::endl;
+    // now for the children but we recurse
+    // simdjson::dom::element m_childrenField;
+    // if(m_currentNode["children"].get(m_childrenField) == simdjson::SUCCESS){ // REMOVE LATER
+    if(HasThisField(m_currentNode, "children")) {
+        simdjson::dom::array t_children = m_currentNode["children"].get_array();
+        for (simdjson::dom::element ii_child : t_children) {
+            uint64_t t_childIndex = ii_child;
+            TraverseNode(t_childIndex, m_matrixNextNode);
+        }
+    }
+
+}
+
+
+
+
+
+void Model::LoadMesh(unsigned int p_meshIndex, const glm::mat4& p_transform){
+    // std::cout << "INFO i'm loaded, p_meshidecx: " << p_meshIndex << std::endl;
+    // std::cout << "INFO i'm loaded, p_transform: " << glm::to_string(p_transform) << std::endl;
+
+    simdjson::dom::element m_primitives = c_jsonData["meshes"].at(p_meshIndex)["primitives"].at(0);
+
+        // std::cout << "INFO beforeFloats: \n";
+	// Get all accessor indices
+    std::vector<float> t_positionVectors = GetFloats( c_jsonData["accessors"].at((uint64_t)m_primitives["attributes"]["POSITION"]));
+    // debug REMOVE LATER
+    // for(auto &xx: t_positionVectors){
+    //     std::cout << "INFO t_positionVectors: " << xx << std::endl;
+    // }
+        // std::cout << "INFO beforeGroupFloatsVec3: \n";
+    std::vector<glm::vec3> m_positions = GroupFloatsVec3(t_positionVectors);
+    // debug REMOVE LATER
+    // for(auto &xx: m_positions){
+    //     std::cout << "INFO m_position: " << glm::to_string(xx)<< std::endl;
+    // }
+	// std::vector<float> posVec = getFloats(JSON["accessors"][
+	//            JSON["meshes"][indMesh]["primitives"][0]["attributes"]["POSITION"] ]);
+	// std::vector<glm::vec3> positions = groupFloatsVec3(posVec);
+
+
+    std::vector<float> t_normalVectors = GetFloats(c_jsonData["accessors"].at((uint64_t)m_primitives["attributes"]["NORMAL"]));
+    std::vector<glm::vec3> m_normals = GroupFloatsVec3(t_normalVectors);
+	// std::vector<float> normalVec = getFloats(JSON["accessors"][
+	//            JSON["meshes"][indMesh]["primitives"][0]["attributes"]["NORMAL"] ]);
+	// std::vector<glm::vec3> normals = groupFloatsVec3(normalVec);
+
+    
+    std::vector<float> t_textureVectors = GetFloats(c_jsonData["accessors"].at((uint64_t)m_primitives["attributes"]["TEXCOORD_0"]));
+    std::vector<glm::vec2> m_textureUVs = GroupFloatsVec2(t_textureVectors);
+	// std::vector<float> texVec = getFloats(JSON["accessors"][
+	//            JSON["meshes"][indMesh]["primitives"][0]["attributes"]["TEXCOORD_0"] ]);
+	// std::vector<glm::vec2> texUVs = groupFloatsVec2(texVec);
+	//
+
+
+    // then combine all vertex components 
+    std::vector<Vertex> m_finalVertices = AssembleVertices(m_positions, m_normals, m_textureUVs);
+    std::vector<GLuint> m_finalIndices = GetIndices(c_jsonData["accessors"].at((uint64_t)m_primitives["indices"]));
+    // goback here ++++++++++++++
+    // std::cout << "INFO pass m_indices\n";
+    // std::cout << "INFO m_indices: " << c_jsonData["accessors"].at((uint64_t)m_primitives["indices"]) << std::endl;
+    // outputs: {"bufferView":0,"componentType":5125,"count":15528,"type":"SCALAR"}
+    // for(auto& ii: m_indices){
+    //     std::cout << "INFO m_index: " << ii << std::endl;
+    // }
+
+    // multiple primitives exist along with their materials
+    // so load only the material indicated from the primitive as an index
+    // then 
+    std::vector<std::shared_ptr<Texture>> m_finalTextures;
+    if(HasThisField(m_primitives, "material")){
+        uint64_t t_currentMaterialIndex = m_primitives["material"];
+        simdjson::dom::element p_materials = c_jsonData["materials"].at(t_currentMaterialIndex); 
+        m_finalTextures = GetTextures(p_materials);
+    }
+    // std::cout << "INFO after return finalTextures" << std::endl;
+    
+
+    // consolidate all and apply transform 
+    auto newMesh = std::make_unique<Mesh>(m_finalVertices, m_finalIndices, m_finalTextures);
+    newMesh->SetTransform(p_transform);
+    // then load the mesh
+    c_meshes.push_back(std::move(newMesh));
+
+	// // Combine all the vertex components and also get the indices and textures
+	// std::vector<Vertex> vertices = assembleVertices(positions, normals, texUVs);
+	// std::vector<GLuint> indices = getIndices(JSON["accessors"][
+	//            JSON["meshes"][indMesh]["primitives"][0]["indices"];]);
+	// std::vector<Texture> textures = getTextures();
+
+	// Combine the vertices, indices, and textures into a mesh
+	// c_meshes.push_back(Mesh(vertices, indices, textures));
+    
+}
+
+std::vector<std::shared_ptr<Texture>> Model::GetTextures(simdjson::dom::element& p_materials){
+    /* rule in textures and images for gltf:
+     * materials reference textures by index, 
+     * and textures then reference images (the source file or buffer) by their source index.
+    */
+
+	// std::vector<Texture> textures;
+    // std::vector<Texture> m_textures;
+    std::vector<std::shared_ptr<Texture>> m_textures;
+    // std::cout << "INFO pass function GETTING TEXTURES" << std::endl; // debug REMOVE
+    // std::cout << "INFO p_materials: "<< p_materials << std::endl; // debug REMOVE
+
+    // debug REMOVE LATER {
+    // std::cout << "INFO c_jsonData[\"images\"]: " << c_jsonData["images"]<< std::endl;
+    // outputs: INFO c_jsonData["images"]: [{"uri":"textures/Material_25_baseColor.png"},
+    //                                      {"uri":"textures/Material_25_metallicRoughness.png"},
+    //                                      {"uri":"textures/Material_25_normal.png"}]
+    // std::cout << "INFO c_jsonData[\"images\"].size(): " << c_jsonData["images"].size() << std::endl;
+    // std::string damn = static_cast<std::string>(c_jsonData["images"].at(0)["uri"]);
+    // m_textures.push_back(
+    //         Texture(
+    //             "resource/Models/spear/" + damn, 
+    //             "diffuse_tex_type", 
+    //             0, 
+    //             GL_RGBA, 
+    //             GL_UNSIGNED_BYTE));
+    // std::cout << "INFO in GetTextures(): success pushback" << std::endl;
+    // return m_textures;
+    // debug REMOVE LATER }
+
+
+    // std::cout << "INFO c_filepath: "<< c_filepath << std::endl; // debug REMOVE
+    // c_filepath is already resource/Models/spear/scene.gltf
+	std::string m_fileDirectory = c_filepath.substr(0, c_filepath.find_last_of('/') + 1);
+
+
+
+    // goback here ++++++++++++++ 
+    // TODO: refactor this, no hardcoded resource file paths
+    // loading 
+
+    if(HasThisField(p_materials, "normalTexture")){
+        uint64_t t_normalIndex= p_materials["normalTexture"]["index"]; // should be 2
+        uint64_t t_actualTextureIndex = c_jsonData["textures"].at(t_normalIndex)["source"]; // and it shoudl be 2
+        std::string t_textureUri = static_cast<std::string> (c_jsonData["images"].at(t_actualTextureIndex)["uri"]);
+
+        // std::cout << "INFO final normal t_normalIndex: " << t_normalIndex << std::endl;
+        // std::cout << "INFO final normal t_actualTextureIndex: " << t_actualTextureIndex << std::endl;
+        // std::cout << "INFO final normal m_fileDirectory + t_textureUri(kinukuha ko): " << m_fileDirectory + t_textureUri << std::endl;
+
+        // check if it was already loaded
+        auto t_cache = c_loadedTextures.find(m_fileDirectory + t_textureUri); // c_loadedTextures is unordered map; should return string and a Texture (shared pointer)
+        if(t_cache != c_loadedTextures.end()){
+            m_textures.push_back(t_cache->second);
         }
 
-        // m_matNode = glm::make_mat4(matrixArray);
-        m_matNode = glm::make_mat4(matrixArray.data()); // we glm::make_mat4() needs the pointer, not the whole object
-    }
-    
-    // check for children 
-    // if(["children"])
+        else {
+            // and then load it by making an object for it and putting in the back
+            std::shared_ptr<Texture> m_normalTexture = std::make_shared<Texture>
+                (m_fileDirectory + t_textureUri, "normal_tex_type", c_loadedTextures.size(), GL_RGBA, GL_UNSIGNED_BYTE); 
+            c_loadedTextures[m_fileDirectory + t_textureUri] = m_normalTexture; // store it to the cache
+            // the p_slot is usually 0, but we have many textures. So use the current size as an indicator of the slot
+            // std::cout << "INFO mine normalTexture t_imageUri: " << t_imageUri << std::endl;
 
+            m_textures.push_back(m_normalTexture);
+            // std::cout << "INFO pass normalTexture loaded" << std::endl;
+        }
+    }
+
+
+    /////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////
+    // only if the material has pbrMetallicRoughness passes this point
+    // early return
+    if(!HasThisField(p_materials, "pbrMetallicRoughness")) return m_textures;
+
+    // std::cout << "INFO c_jsonDatap[\"materials\"]: " << c_jsonData["materials"] << std::endl;
+    // std::cout << "INFO pbrMetallicRoughness: " << p_materials["pbrMetallicRoughness"] << std::endl;
+    simdjson::dom::element t_currentContext = p_materials["pbrMetallicRoughness"];
+
+    // std::cout << "INFO t_currentContext: " << t_currentContext << std::endl;
+
+    // checkling if the current pbrMetallicRoughness has these properties:
+    // baseColorTexture and metallicRoughnessTexture
+    if(HasThisField(t_currentContext, "baseColorTexture")){
+        // std::cout << "INFO t_currentContext[baseColorTexture]: " << t_currentContext["baseColorTexture"] << std::endl;
+
+
+        // goback here +++++++++++ 
+        // source
+        // uint64_t pbrBaseColorIndex= t_currentContext["baseColorTexture"]["index"]; // should return 2
+        // uint64_t imageIndex = c_jsonData["textures"].at(pbrBaseColorIndex)["source"];
+        //
+        // simdjson::dom::element image = c_jsonData["images"].at(imageIndex);     // goback here ++++
+        // std::string uri = std::string(std::string_view(image["uri"]));
+        //
+        // // std::string texPath = c_filepath.empty() ? uri : (c_filepath + "/" + uri);
+        // std::string texPath = c_filepath.empty() ? uri : (m_fileDirectory + "/" + uri);
+
+        // std::cout << "INFO source baseColor pbrBaseColorIndex: " << pbrBaseColorIndex << std::endl;
+        // std::cout << "INFO source baseColor imageIndex: " << imageIndex << std::endl;
+        // std::cout << "INFO source baseColor image: " << image << std::endl;
+        // std::cout << "INFO source baseColor uri: " << uri << std::endl;
+        // std::cout << "INFO source baseColor texPath(kinukuha nya): " << texPath << std::endl;
+
+
+        // mine
+        // uint64_t t_index = t_currentContext["baseColorTexture"]["index"]; // should return 1
+        // std::string t_imageUri = static_cast<std::string> (c_jsonData["images"].at(t_index)["uri"]);    // mines misses the index at source indicated from texture, 
+                                                                                                        // usage of "t_index" 
+        // std::cout << "INFO mine baseColor t_index: " << t_index << std::endl;
+        // std::cout << "INFO mine baseColor t_imageUri: " << t_imageUri << std::endl;
+        // std::cout << "INFO mine baseColor m_fileDirectory + t_imageUri(kinukuha ko): " << m_fileDirectory + t_imageUri << std::endl;
+
+
+
+        // final: 
+        // 1. Get the texture index from the glTF Material Specification property (e.g., material.baseColorTexture.index).
+        uint64_t t_baseColorIndex = t_currentContext["baseColorTexture"]["index"];
+
+        // 2. Read the source property from that texture to get the image index (gltf.textures[textureIndex].source).
+        uint64_t t_actualTextureIndex = c_jsonData["textures"].at(t_baseColorIndex)["source"];
+
+        // 3. Fetch the final pixel data or URI from gltf.images[sourceIndex]
+        std::string t_textureUri = static_cast<std::string> (c_jsonData["images"].at(t_actualTextureIndex)["uri"]);
+
+        // std::cout << "INFO final baseColor t_baseColorIndex: " << t_baseColorIndex << std::endl;
+        // std::cout << "INFO final baseColor t_actualTextureIndex: " << t_actualTextureIndex << std::endl;
+        // std::cout << "INFO final baseColor m_fileDirectory + t_textureUri(kinukuha ko): " << m_fileDirectory + t_textureUri << std::endl;
+        // std::cout << std::endl;
+
+
+
+        // outputs:
+        // using file2
+        // INFO source baseColor pbrBaseColorIndex: 0
+        // INFO source baseColor imageIndex: 0
+        // INFO source baseColor image: {"uri":"textures/Material_25_baseColor.png"}
+        // INFO source baseColor uri: textures/Material_25_baseColor.png
+        // INFO source baseColor texPath(kinukuha nya): resource/Models/spear//textures/Material_25_baseColor.png
+        //
+        // INFO mine baseColor t_index: 0
+        // INFO mine baseColor t_imageUri: textures/Material_25_baseColor.png
+        // INFO mine baseColor m_fileDirectory + t_imageUri(kinukuha ko): resource/Models/spear/textures/Material_25_baseColor.png
+        //
+        // INFO final baseColor t_baseColorIndex: 0
+        // INFO final baseColor t_actualTextureIndex: 0
+        // INFO final baseColor m_fileDirectory + t_textureUri(kinukuha ko): resource/Models/spear/textures/Material_25_baseColor.png
+
+
+        // using file1
+        // INFO source baseColor pbrBaseColorIndex: 2
+        // INFO source baseColor imageIndex: 2
+        // INFO source baseColor image: {"uri":"textures/wheel1forrender_baseColor.png"}
+        // INFO source baseColor uri: textures/wheel1forrender_baseColor.png
+        // INFO source baseColor texPath(kinukuha nya): resource/Models/tricycle//textures/wheel1forrender_baseColor.png
+        //
+        // INFO mine baseColor t_index: 2
+        // INFO mine baseColor t_imageUri: textures/wheel1forrender_baseColor.png
+        // INFO mine baseColor m_fileDirectory + t_imageUri(kinukuha ko): resource/Models/tricycle/textures/wheel1forrender_baseColor.png
+        // 
+        // INFO final baseColor t_baseColorIndex: 2
+        // INFO final baseColor t_actualTextureIndex: 2
+        // INFO final baseColor m_fileDirectory + t_textureUri(kinukuha ko): resource/Models/tricycle/textures/wheel1forrender_baseColor.png
+        
+        // check 
+        auto t_cache = c_loadedTextures.find(m_fileDirectory + t_textureUri);
+        if(t_cache != c_loadedTextures.end()){
+            m_textures.push_back(t_cache->second);
+        }
+
+        else {
+            // and then load it by making an object for it and putting in the back
+            std::shared_ptr<Texture> m_baseColorTexture = std::make_shared<Texture>
+                (m_fileDirectory + t_textureUri, "diffuse_tex_type", c_loadedTextures.size(), GL_RGBA, GL_UNSIGNED_BYTE);
+            c_loadedTextures[m_fileDirectory + t_textureUri] = m_baseColorTexture; // store it to the cache
+            // std::cout << "INFO pass m_baseColorTexture" << std::endl;
+
+
+            m_textures.push_back(m_baseColorTexture);
+            // std::cout << "INFO pass baseColorTexture loaded" << std::endl;
+        }
+    }
+
+    if(HasThisField(t_currentContext, "metallicRoughnessTexture")){
+        uint64_t t_metallicIndex= t_currentContext["metallicRoughnessTexture"]["index"]; // should be 2
+        uint64_t t_actualTextureIndex = c_jsonData["textures"].at(t_metallicIndex)["source"]; // and it shoudl be 2
+        std::string t_textureUri = static_cast<std::string> (c_jsonData["images"].at(t_actualTextureIndex)["uri"]);
+
+        // std::cout << "INFO final metallic t_metallicIndex: " << t_metallicIndex << std::endl;
+        // std::cout << "INFO final metallic t_actualTextureIndex: " << t_actualTextureIndex << std::endl;
+        // std::cout << "INFO final metallic m_fileDirectory + t_textureUri(kinukuha ko): " << m_fileDirectory + t_textureUri << std::endl;
+
+
+        // check if it was already loaded
+        auto t_cache = c_loadedTextures.find(m_fileDirectory + t_textureUri); 
+        if(t_cache != c_loadedTextures.end()){
+            m_textures.push_back(t_cache->second);
+        }
+        else {
+            // and then load it by making an object for it and putting in the back
+            std::shared_ptr<Texture> m_metallicRoughnessTexture = std::make_shared<Texture>
+                (m_fileDirectory + t_textureUri, "specular_tex_type", c_loadedTextures.size(), GL_RGBA, GL_UNSIGNED_BYTE);
+            c_loadedTextures[m_fileDirectory + t_textureUri] = m_metallicRoughnessTexture; // store it to the cache
+
+            m_textures.push_back(m_metallicRoughnessTexture);
+            // std::cout << "INFO pass metallicRoughnessTexture loaded" << std::endl;
+        }
+    }
+    // m_textures.push_back(m_diffuse);
+    // c_loadedTextures.push_back(m_diffuse);
+
+
+        // reference Texture constructor
+// Texture::Texture(const std::string& p_imageLoc,
+//                     const std::string& p_textureType,
+//                     GLuint p_slot,  // add  this to the header  // goback here ============
+//                     GLenum p_imageFormat, // non existent in jgl demo; instead, use GL_RGBA
+//                     GLenum p_pixelType // non existent in jgl demo; instead use GL_UNSIGNED_BYTE
+        // Texture diffuse = Texture((fileDirectory + texPath).c_str(), "diffuse_tex_type", loadedTex.size());
+        // textures.push_back(diffuse);
+        // loadedTex.push_back(diffuse);
+        // loadedTexName.push_back(texPath);
+
+
+    // No, this bypasses the index indicated from the texture's "source" 
+    // and the 
+	// // Go over all images
+	// for (unsigned int i = 0; i < JSON["images"].size(); i++) // 3 times 
+	// {
+	// 	// uri of current texture
+	// 	std::string texPath = JSON["images"][i]["uri"];
+	//
+	// 	// Check if the texture has already been loaded
+	// 	bool skip = false;
+	// 	for (unsigned int j = 0; j < loadedTexName.size(); j++)
+	// 	{
+	// 		if (loadedTexName[j] == texPath)
+	// 		{
+	// 			textures.push_back(loadedTex[j]);
+	// 			skip = true;
+	// 			break;
+	// 		}
+	// 	}
+	//
+	// 	// If the texture has been loaded, skip this
+	// 	if (!skip)
+	// 	{
+	// 		// Load diffuse texture
+	// 		if (texPath.find("baseColor") != std::string::npos)
+	// 		{
+	// 			Texture diffuse = Texture((fileDirectory + texPath).c_str(), "diffuse", loadedTex.size());
+	// 			textures.push_back(diffuse);
+	// 			loadedTex.push_back(diffuse);
+	// 			loadedTexName.push_back(texPath);
+	// 		}
+	// 		// Load specular texture
+	// 		else if (texPath.find("metallicRoughness") != std::string::npos)
+	// 		{
+	// 			Texture specular = Texture((fileDirectory + texPath).c_str(), "specular", loadedTex.size());
+	// 			textures.push_back(specular);
+	// 			loadedTex.push_back(specular);
+	// 			loadedTexName.push_back(texPath);
+	// 		}
+	// 	}
+	// }
+
+
+    return m_textures;
+}
+
+
+
+std::vector<GLuint> Model::GetIndices(const simdjson::dom::element p_accessor){
+    std::vector<GLuint> m_indices;
+    // std::cout << "INFO pass function GETTING INDICES " << std::endl;
+
+    // goback here ++++++++++++++++++
+    // std::cout << "INFO p_accessor: " << p_accessor << std::endl;
+    // outputs: {"bufferView":0,"componentType":5125,"count":15528,"type":"SCALAR"}
+    uint64_t m_bufferViewIndex = GetUintOr(p_accessor, "bufferView", 0);
+    uint64_t m_count = p_accessor["count"];
+    uint64_t m_accByteOffset = GetUintOr(p_accessor, "byteOffset", 0);
+    uint64_t m_componentType = p_accessor["componentType"];
+    // debug REMOVE LATER {
+    // std::cout << "INFO m_bufferViewInd: " << m_bufferViewIndex << std::endl;
+    // std::cout << "INFO m_count: " << m_count << std::endl;
+    // std::cout << "INFO m_accByteOffset: " << m_accByteOffset << std::endl;
+    // std::cout << "INFO m_componentType: " << m_componentType << std::endl;
+    // debug REMOVE LATER }
+
+
+
+	// getting propertings from bufferView
+    simdjson::dom::element m_bufferViewObj = c_jsonData["bufferViews"].at(m_bufferViewIndex);
+    // std::cout << "INFO m_bufferView: " << m_bufferViewObj << std::endl;
+    // outputs: {"buffer":0,"byteLength":62112,"name":"floatBufferViews","target":34963}
+    uint64_t m_byteOffset = GetUintOr(m_bufferViewObj, "byteOffset", 0);
+    
+	// // Get properties from the bufferView
+	// json bufferView = JSON["bufferViews"][buffViewInd];
+	// unsigned int byteOffset = bufferView["byteOffset"];
+	//    if(!byteOffset){
+	//        bufferView = bufferView.value("byteOffset", 0);
+	//    }
+
+    // getting the actual indices
+	// // Get indices with regards to their type: unsigned int, unsigned short, or short
+	uint64_t t_beginningOfData = m_byteOffset + m_accByteOffset;
+	if (m_componentType == 5125) {  // 5125 = unsigned int 
+        for(uint64_t ii = t_beginningOfData;    ii < m_byteOffset + m_accByteOffset + m_count * 4;  ii +=4) {
+			unsigned char t_cacheBytes[] = { 
+                c_binaryData[ii+0],
+                c_binaryData[ii+1],
+                c_binaryData[ii+2],
+                c_binaryData[ii+3]
+            };
+			unsigned int t_finalValue; 
+			std::memcpy(&t_finalValue, t_cacheBytes, sizeof(unsigned int));
+			m_indices.push_back((GLuint)t_finalValue);
+		}
+	}
+	else if (m_componentType == 5123) { // 5123 = unsigned short
+        for(uint64_t ii = t_beginningOfData;    ii < m_byteOffset + m_accByteOffset + m_count * 2;  ii +=2) {
+			unsigned char t_cacheBytes[] = { 
+                c_binaryData[ii+0],
+                c_binaryData[ii+1]
+            };
+			unsigned short t_finalValue; 
+			std::memcpy(&t_finalValue, t_cacheBytes, sizeof(unsigned short));
+			m_indices.push_back((GLuint)t_finalValue);
+		}
+	}
+	else if (m_componentType == 5122) { // 5122 = short
+        for(uint64_t ii = t_beginningOfData;    ii < m_byteOffset + m_accByteOffset + m_count * 2;  ii +=2) {
+			unsigned char t_cacheBytes[] = { 
+                c_binaryData[ii+0],
+                c_binaryData[ii+1]
+            };
+			short t_finalValue; 
+			std::memcpy(&t_finalValue, t_cacheBytes, sizeof(short));
+			m_indices.push_back((GLuint)t_finalValue);
+		}
+	}
+
+	return m_indices;
+}
+
+
+
+
+std::vector<float> Model::GetFloats(const simdjson::dom::element p_accessor) {
+    std::vector<float> m_floats;
+
+
+    // =========================
+	// get properties from the accessor
+	// unsigned int buffViewInd = p_accessor.value("bufferView", 1); // from tutorial
+    // this is equivalent to
+    // uint64_t t_bufferViewField = 1;
+    // uint64_t m_bufferViewIndex {};
+    // p_accessor["bufferView"].get(t_bufferViewField);     // should return either an error or set the t_bufferViewField to a valid number
+    // m_bufferViewIndex = t_bufferViewField;
+    // or short hand here below
+    uint64_t m_bufferViewIndex = GetUintOr(p_accessor, "bufferView", 1);
+    uint64_t m_count = p_accessor["count"];
+    uint64_t m_accessorByteOffset = GetUintOr(p_accessor, "byteOffset", 0);
+    std::string_view m_type = p_accessor["type"];
+
+	// Get properties from the accessor
+	// unsigned int buffViewInd = p_accessor.value("bufferView", 1);
+	// unsigned int count = accessor["count"];
+	// unsigned int accByteOffset = accessor.value("byteOffset", 0);
+	// std::string type = accessor["type"];
+
+
+
+    // =========================
+    // getting the properties from the bufferViews
+    simdjson::dom::element m_bufferViewObj = c_jsonData["bufferViews"].at(m_bufferViewIndex);
+    uint64_t m_byteOffset = GetUintOr(m_bufferViewObj, "byteOffset", 0);
+
+
+    // // Get properties from the bufferView
+    // json bufferView = JSON["bufferViews"][buffViewInd];
+    // unsigned int byteOffset = bufferView["byteOffset"];
+    // if(!byteOffset){
+    //     bufferView = bufferView.value("byteOffset", 0);
+    // };
+
+
+    // =========================
+    // interprest the type and store into numPerVert
+    uint64_t m_numPerVert = 0;
+    if(m_type == "SCALAR") m_numPerVert = 1;
+    else if(m_type == "VEC2") m_numPerVert = 2;
+    else if(m_type == "VEC3") m_numPerVert = 3;
+    else if(m_type == "VEC4") m_numPerVert = 4;
+    else throw std::invalid_argument("Type is invalid (not SCALAR, VEC2, VEC3, or VEC4)");
+
+
+    // // Interpret the type and store it into numPerVert
+    // unsigned int numPerVert;
+    // if (type == "SCALAR") numPerVert = 1;
+    // else if (type == "VEC2") numPerVert = 2;
+    // else if (type == "VEC3") numPerVert = 3;
+    // else if (type == "VEC4") numPerVert = 4;
+    // else throw std::invalid_argument("Type is invalid (not SCALAR, VEC2, VEC3, or VEC4)");
+
+
+    // =========================
+    // do the processing: getting data through all the properties from before
+    uint64_t t_beginningOfData = m_byteOffset + m_accessorByteOffset;
+    uint64_t t_lengthOfData = m_count * 4 * m_numPerVert;
+    for(uint64_t ii = t_beginningOfData;  ii<t_beginningOfData + t_lengthOfData; ii += 4){
+        unsigned char t_bytes[] = {
+            c_binaryData[ii+0],
+            c_binaryData[ii+1],
+            c_binaryData[ii+2],
+            c_binaryData[ii+3]
+        };
+        float t_cacheValue;
+        std::memcpy(&t_cacheValue,t_bytes, sizeof(float));
+        m_floats.push_back(t_cacheValue);
+    }
+    return m_floats;
+
+    // // Go over all the bytes in the data at the correct place using the properties from above
+    // unsigned int beginningOfData = byteOffset + accByteOffset;
+    // unsigned int lengthOfData = count * 4 * numPerVert;
+    // for (unsigned int i = beginningOfData; i < beginningOfData + lengthOfData; i)
+    // {
+    // 	unsigned char bytes[] = { data[i++], data[i++], data[i++], data[i++] };
+    // 	float value;
+    // 	std::memcpy(&value, bytes, sizeof(float));
+    // 	floatVec.push_back(value);
+    // }
+    //
+    // return floatVec;
 }

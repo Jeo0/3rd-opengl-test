@@ -27,10 +27,11 @@ bool Scene::LoadModel(const std::string& p_filePath){
 
 void Scene::Update(GLFWwindow* p_window, double p_deltaTime){
     // debug REMOVE
+    
     debug_time_iii += (p_deltaTime);
-    if(debug_time_iii > 2.0 && !(debug_time_iii_flag)) {
-        std::string textureDir = "/git/resource/Textures/";
-        LoadModel((textureDir + "gadem.jpg"));
+    if(debug_time_iii > 4.0 && !(debug_time_iii_flag)) {
+        std::string textureDir = "resource/Textures/";
+        LoadModel((textureDir + "popcat.png"));
         debug_time_iii_flag = true;
         std::cout << "loaded" << std::endl;
     }

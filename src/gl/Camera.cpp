@@ -69,7 +69,7 @@ void Camera::HandleInputs(GLFWwindow* pWindowID, double pDeltaTime){
 	}
 	if (glfwGetKey(pWindowID, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
 		// c_speed = 0.1f;
-		c_speed = 100.0f * pDeltaTime;
+		c_speed = 100.0f * pDeltaTime * 10.0;
 	}
 	else if (glfwGetKey(pWindowID, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
 	{

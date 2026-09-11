@@ -5,7 +5,6 @@
 // #include "core/globals.h"
 // #include <iostream>
 // #include <memory>
-//
 // #include "gl/VBO.h"
 //
 // // 3d
@@ -55,7 +54,17 @@ void Core::Init() {
 
     // ============================
     // object instantiations
+    c_scene = std::make_unique<Scene>(windowObj.Height, windowObj.Width);
     c_setset = std::make_unique<Settings>(cLimiter);
+
+
+    std::string m_models[] {
+        "resource/Models/tricycle/scene.gltf",
+        "resource/Models/simpleCube/cube2.gltf",
+        "resource/Models/simpleCube/simplecube.gltf",
+        "resource/Models/spear/scene.gltf"
+    };
+    c_scene->LoadModel(m_models[3]);
 
 }
 

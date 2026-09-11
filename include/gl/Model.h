@@ -1,17 +1,20 @@
 #pragma once 
-#include "gl/Mesh.h"
-#include "gl/Texture.h"
-#include "gl/shaderClass.h"
 
 #include "core/simdjson.h"
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/trigonometric.hpp"
+
+#include "Mesh.h"
+#include "gl/Texture.h"
+#include "GLAD/glad.h"
+
 
 #include <cmath>
 #include <cstdlib>
 #include <stdatomic.h>
 #include <string>
 #include <type_traits>
+#include <unordered_map>
 #include <vector>
 
 
@@ -27,13 +30,21 @@ class Model {
         std::vector<unsigned char> c_binaryData;
 
         std::vector<std::unique_ptr<Mesh>> c_meshes;
+        // std::vector<std::shared_ptr<Texture>> c_loadedTextures;
+        std::unordered_map<std::string, std::shared_ptr<Texture>> c_loadedTextures; // cache it not as a queue or a stack
+
 
         std::vector<unsigned char> LoadBinaryData(const std::string& p_directory);
-        void TraverseNode(unsigned int p_nodeIndex, glm::mat4 p_matrix = glm::mat4(1.0));
+        void TraverseNode(unsigned int p_nodeIndex, const glm::mat4& p_matrix = glm::mat4(1.0));
+        void LoadMesh(unsigned int p_meshIndex, const glm::mat4& p_transform);
+        
+        std::vector<float> GetFloats(const simdjson::dom::element p_accessor);
+        std::vector<GLuint> GetIndices(const simdjson::dom::element p_accessor);
+        std::vector<std::shared_ptr<Texture>> GetTextures(simdjson::dom::element& m_material);
 
     public:
         Model(const std::string& p_filepath);
         ~Model();
 
-        void Draw(Shader& p_shader, Camera& p_camera);
+        void Draw(Shader &p_shader, Camera& p_camera);
 };

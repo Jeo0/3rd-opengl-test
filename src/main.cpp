@@ -5,8 +5,5 @@
 int main()
 {
     Core nani;
-    if(nani.start()){
-        nani.Run();
-    }
-    nani.shutdown();
+    nani.Run();
 }
