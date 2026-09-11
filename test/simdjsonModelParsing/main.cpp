@@ -375,7 +375,6 @@ std::vector<std::shared_ptr<Texture>> Model::GetTextures(simdjson::dom::element&
     // std::cout << "INFO c_filepath: "<< c_filepath << std::endl; // debug REMOVE
     // c_filepath is already resource/Models/spear/scene.gltf
 	std::string m_fileDirectory = c_filepath.substr(0, c_filepath.find_last_of('/') + 1);
-    // std::cout << "INFO fileDirectory: "<< fileDirectory << std::endl; // debug REMOVE
 
 
 
@@ -384,28 +383,30 @@ std::vector<std::shared_ptr<Texture>> Model::GetTextures(simdjson::dom::element&
     // loading 
 
     if(HasThisField(p_materials, "normalTexture")){
-        uint64_t t_index = p_materials["normalTexture"]["index"]; // should be 2
+        uint64_t t_normalIndex= p_materials["normalTexture"]["index"]; // should be 2
+        uint64_t t_actualTextureIndex = c_jsonData["textures"].at(t_normalIndex)["source"]; // and it shoudl be 2
+        std::string t_textureUri = static_cast<std::string> (c_jsonData["images"].at(t_actualTextureIndex)["uri"]);
 
+        // std::cout << "INFO final normal t_normalIndex: " << t_normalIndex << std::endl;
+        // std::cout << "INFO final normal t_actualTextureIndex: " << t_actualTextureIndex << std::endl;
+        // std::cout << "INFO final normal m_fileDirectory + t_textureUri(kinukuha ko): " << m_fileDirectory + t_textureUri << std::endl;
 
-        // source
-        simdjson::dom::element pbr = p_materials["normalTexture"]; // orig
-        uint64_t texIndex = pbr["index"]; // parameter 
-        uint64_t imageIndex = c_jsonData["textures"].at(texIndex)["source"];
+        // check if it was already loaded
+        auto t_cache = c_loadedTextures.find(m_fileDirectory + t_textureUri); // c_loadedTextures is unordered map; should return string and a Texture (shared pointer)
+        if(t_cache != c_loadedTextures.end()){
+            m_textures.push_back(t_cache->second);
+        }
 
-    simdjson::dom::element image = c_jsonData["images"].at(imageIndex);
-    std::string uri = std::string(std::string_view(image["uri"]));
+        else {
+            // and then load it by making an object for it and putting in the back
+            std::shared_ptr<Texture> m_normalTexture = std::make_shared<Texture>
+                (m_fileDirectory + t_textureUri, "diffuse_tex_type", c_loadedTextures.size(), GL_RGBA, GL_UNSIGNED_BYTE); 
+            // the p_slot is usually 0, but we have many textures. So use the current size as an indicator of the slot
+            // std::cout << "INFO mine normalTexture t_imageUri: " << t_imageUri << std::endl;
 
-        // std::cout << "INFO source normalTexture imageIndex: " << imageIndex << std::endl;
-
-        // mine
-        std::string t_imageUri = static_cast<std::string>(c_jsonData["images"].at(t_index)["uri"]);
-        // and then load it by making an object for it and putting in the back
-        std::shared_ptr<Texture> m_normalTexture = std::make_shared<Texture>
-            (m_fileDirectory + t_imageUri, "diffuse_tex_type", c_loadedTextures.size(), GL_RGBA, GL_UNSIGNED_BYTE); // the p_slot is usually 0, but we have many textures. So use the current size as an indicator of the slot
-        // std::cout << "INFO mine normalTexture t_imageUri: " << t_imageUri << std::endl;
-
-        m_textures.push_back(m_normalTexture);
+            m_textures.push_back(m_normalTexture);
             // std::cout << "INFO pass normalTexture loaded" << std::endl;
+        }
     }
 
 
@@ -505,41 +506,47 @@ std::vector<std::shared_ptr<Texture>> Model::GetTextures(simdjson::dom::element&
         // INFO final baseColor t_actualTextureIndex: 2
         // INFO final baseColor m_fileDirectory + t_textureUri(kinukuha ko): resource/Models/tricycle/textures/wheel1forrender_baseColor.png
         
+        // check 
+        auto t_cache = c_loadedTextures.find(m_fileDirectory + t_textureUri);
+        if(t_cache != c_loadedTextures.end()){
+            m_textures.push_back(t_cache->second);
+        }
+
+        else {
+            // and then load it by making an object for it and putting in the back
+            std::shared_ptr<Texture> m_baseColorTexture = std::make_shared<Texture>
+                (m_fileDirectory + t_textureUri, "diffuse_tex_type", c_loadedTextures.size(), GL_RGBA, GL_UNSIGNED_BYTE);
+            // std::cout << "INFO pass m_baseColorTexture" << std::endl;
 
 
-
-
-        // and then load it by making an object for it and putting in the back
-        auto m_baseColorTexture = std::make_shared<Texture>
-            (m_fileDirectory + t_textureUri, "diffuse_tex_type", c_loadedTextures.size(), GL_RGBA, GL_UNSIGNED_BYTE);
-        // std::cout << "INFO pass m_baseColorTexture" << std::endl;
-
-
-        m_textures.push_back(m_baseColorTexture);
-        // std::cout << "INFO pass baseColorTexture loaded" << std::endl;
+            m_textures.push_back(m_baseColorTexture);
+            // std::cout << "INFO pass baseColorTexture loaded" << std::endl;
+        }
     }
 
     if(HasThisField(t_currentContext, "metallicRoughnessTexture")){
-        uint64_t t_index = t_currentContext["metallicRoughnessTexture"]["index"]; // should return 1
+        uint64_t t_metallicIndex= t_currentContext["metallicRoughnessTexture"]["index"]; // should be 2
+        uint64_t t_actualTextureIndex = c_jsonData["textures"].at(t_metallicIndex)["source"]; // and it shoudl be 2
+        std::string t_textureUri = static_cast<std::string> (c_jsonData["images"].at(t_actualTextureIndex)["uri"]);
 
-        // source
-        simdjson::dom::element pbr = p_materials["pbrMetallicRoughness"];
-        uint64_t texIndex = pbr["baseColorTexture"]["index"];
-        uint64_t imageIndex = c_jsonData["textures"].at(texIndex)["source"];
-        // std::cout << "INFO source metallicRoughnessTexture imageIndex: " << imageIndex << std::endl;
-
-        // mine
-        std::string t_imageUri = static_cast<std::string>
-            (c_jsonData["images"].at(t_index)["uri"]);
-        // std::cout << "INFO mine metallicRoughnessTexture t_imageUri: " << t_imageUri << std::endl;
+        // std::cout << "INFO final metallic t_metallicIndex: " << t_metallicIndex << std::endl;
+        // std::cout << "INFO final metallic t_actualTextureIndex: " << t_actualTextureIndex << std::endl;
+        // std::cout << "INFO final metallic m_fileDirectory + t_textureUri(kinukuha ko): " << m_fileDirectory + t_textureUri << std::endl;
 
 
-        // and then load it by making an object for it and putting in the back
-        std::shared_ptr<Texture> m_metallicRoughnessTexture = std::make_shared<Texture>
-            (m_fileDirectory + t_imageUri, "diffuse_tex_type", c_loadedTextures.size(), GL_RGBA, GL_UNSIGNED_BYTE);
+        // check if it was already loaded
+        auto t_cache = c_loadedTextures.find(m_fileDirectory + t_textureUri); 
+        if(t_cache != c_loadedTextures.end()){
+            m_textures.push_back(t_cache->second);
+        }
+        else {
+            // and then load it by making an object for it and putting in the back
+            std::shared_ptr<Texture> m_metallicRoughnessTexture = std::make_shared<Texture>
+                (m_fileDirectory + t_textureUri, "diffuse_tex_type", c_loadedTextures.size(), GL_RGBA, GL_UNSIGNED_BYTE);
 
-        m_textures.push_back(m_metallicRoughnessTexture);
-        // std::cout << "INFO pass metallicRoughnessTexture loaded" << std::endl;
+            m_textures.push_back(m_metallicRoughnessTexture);
+            // std::cout << "INFO pass metallicRoughnessTexture loaded" << std::endl;
+        }
     }
     // m_textures.push_back(m_diffuse);
     // c_loadedTextures.push_back(m_diffuse);
@@ -803,7 +810,7 @@ int main() {
 
     std::string file1 = "resource/Models/tricycle/scene.gltf";
     std::string file2 = "resource/Models/spear/scene.gltf";
-    Model what(file1);
+    Model what(file2);
 
     glfwDestroyWindow(window);
     glfwTerminate();

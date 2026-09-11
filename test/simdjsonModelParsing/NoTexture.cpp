@@ -15,8 +15,8 @@ Texture::Texture(const std::string& p_imageLoc,
     int widthImg, heightImg, numColChann;
 
     // debug  REMOVE
-    // std::cout << "INFO passing Texture constructor;\n\
-    //     p_imageLoc.c_str():" << p_imageLoc.c_str() << std::endl;
+    // std::cout << "INFO passing Texture constructor;\n"
+    //     << "p_imageLoc.c_str():" << p_imageLoc.c_str() << std::endl;
 
     // actual image texture
     unsigned char* bytes = stbi_load(p_imageLoc.c_str(), &widthImg, &heightImg, &numColChann, 4); 
