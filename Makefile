@@ -128,7 +128,22 @@ SCRATCH_LIBS_simdjsonModelParsing = -lGL
 # every glad_gl* call is an undefined reference at link time. These MUST be
 # set here, before the $(foreach ... $(eval ...)) block below generates
 # each target's rule.
-SCRATCH_EXTRA_SRCS_simdjsonModelParsing = $(SRC_DIR)/core/simdjson.cpp $(SRC_DIR)/glad.c
+# before mesh is put into the equation
+# SCRATCH_EXTRA_SRCS_simdjsonModelParsing = $(SRC_DIR)/core/simdjson.cpp \
+# 										  $(SRC_DIR)/gl/Texture.cpp \
+# 										  $(SRC_DIR)/gl/shaderClass.cpp \
+# 										  $(SRC_DIR)/gl/stb.cpp \
+# 										  $(SRC_DIR)/glad.c 	
+SCRATCH_EXTRA_SRCS_simdjsonModelParsing = $(SRC_DIR)/core/simdjson.cpp \
+											$(SRC_DIR)/gl/Texture.cpp \
+											$(SRC_DIR)/gl/shaderClass.cpp \
+											$(SRC_DIR)/gl/stb.cpp \
+											$(SRC_DIR)/glad.c \
+											$(SRC_DIR)/gl/Mesh.cpp \
+											$(SRC_DIR)/gl/VAO.cpp \
+											$(SRC_DIR)/gl/VBO.cpp \
+											$(SRC_DIR)/gl/EBO.cpp \
+											$(SRC_DIR)/gl/Camera.cpp
 
 # Generic compile rules: any .cpp/.c under test/ (or pulled in via
 # SCRATCH_EXTRA_SRCS_* above) mirrors into build/test_objects/, same idea

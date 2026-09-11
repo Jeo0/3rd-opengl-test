@@ -328,7 +328,10 @@ void Model::LoadMesh(unsigned int p_meshIndex, const glm::mat4& p_transform){
     // std::cout << "INFO after return finalTextures" << std::endl;
     
 
-    // c_meshes.push_back(m_finalVertices, m_finalIndices, m_finalTextures);
+    // consolidate all and apply transform then load it
+    auto newMesh = std::make_unique<Mesh>(m_finalVertices, m_finalIndices, m_finalTextures);
+    newMesh->SetTransform(p_transform);
+    c_meshes.push_back(std::move(newMesh));
 
 	// // Combine all the vertex components and also get the indices and textures
 	// std::vector<Vertex> vertices = assembleVertices(positions, normals, texUVs);

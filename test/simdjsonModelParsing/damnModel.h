@@ -4,8 +4,7 @@
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/trigonometric.hpp"
 
-// #include "Mesh.h"
-// #include "NoMesh.h"
+#include "Mesh.h"
 #include "gl/Texture.h"
 #include "GLAD/glad.h"
 
@@ -30,7 +29,7 @@ class Model {
         simdjson::dom::element c_jsonData;
         std::vector<unsigned char> c_binaryData;
 
-        // std::vector<std::unique_ptr<Mesh>> c_meshes;
+        std::vector<std::unique_ptr<Mesh>> c_meshes;
         // std::vector<std::shared_ptr<Texture>> c_loadedTextures;
         std::unordered_map<std::string, std::shared_ptr<Texture>> c_loadedTextures; // cache it not as a queue or a stack
 
