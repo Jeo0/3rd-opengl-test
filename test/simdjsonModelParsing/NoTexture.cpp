@@ -26,7 +26,7 @@ Texture::Texture(const std::string& p_imageLoc,
     }   
 
     // debug  REMOVE
-    std::cout << "INFO in NoTexture.cpp, receiving p_imageLoc.c_str(): " << p_imageLoc.c_str() << std::endl;
+    // std::cout << "INFO in NoTexture.cpp, receiving p_imageLoc.c_str(): " << p_imageLoc.c_str() << std::endl;
 
     // openGL functions
     // generating texture

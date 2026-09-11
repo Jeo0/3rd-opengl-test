@@ -322,8 +322,8 @@ void Model::LoadMesh(unsigned int p_meshIndex, const glm::mat4& p_transform){
     std::vector<std::shared_ptr<Texture>> m_finalTextures;
     if(HasThisField(m_primitives, "material")){
         uint64_t t_currentMaterialIndex = m_primitives["material"];
-        simdjson::dom::element p_material = c_jsonData["materials"].at(t_currentMaterialIndex); 
-        m_finalTextures = GetTextures(p_material);
+        simdjson::dom::element p_materials = c_jsonData["materials"].at(t_currentMaterialIndex); 
+        m_finalTextures = GetTextures(p_materials);
     }
     // std::cout << "INFO after return finalTextures" << std::endl;
     
@@ -341,12 +341,17 @@ void Model::LoadMesh(unsigned int p_meshIndex, const glm::mat4& p_transform){
     
 }
 
-std::vector<std::shared_ptr<Texture>> Model::GetTextures(simdjson::dom::element& p_material){
+std::vector<std::shared_ptr<Texture>> Model::GetTextures(simdjson::dom::element& p_materials){
+    /* rule in textures and images for gltf:
+     * materials reference textures by index, 
+     * and textures then reference images (the source file or buffer) by their source index.
+    */
+
 	// std::vector<Texture> textures;
     // std::vector<Texture> m_textures;
     std::vector<std::shared_ptr<Texture>> m_textures;
-    std::cout << "INFO pass function GETTING TEXTURES" << std::endl; // debug REMOVE
-    std::cout << "INFO p_material: "<< p_material << std::endl; // debug REMOVE
+    // std::cout << "INFO pass function GETTING TEXTURES" << std::endl; // debug REMOVE
+    // std::cout << "INFO p_materials: "<< p_materials << std::endl; // debug REMOVE
 
     // debug REMOVE LATER {
     // std::cout << "INFO c_jsonData[\"images\"]: " << c_jsonData["images"]<< std::endl;
@@ -366,37 +371,54 @@ std::vector<std::shared_ptr<Texture>> Model::GetTextures(simdjson::dom::element&
     // return m_textures;
     // debug REMOVE LATER }
 
-	// std::string fileStr = std::string(file);
-	// std::string fileDirectory = fileStr.substr(0, fileStr.find_last_of('/') + 1);
+
+    // std::cout << "INFO c_filepath: "<< c_filepath << std::endl; // debug REMOVE
+    // c_filepath is already resource/Models/spear/scene.gltf
+	std::string m_fileDirectory = c_filepath.substr(0, c_filepath.find_last_of('/') + 1);
+    // std::cout << "INFO fileDirectory: "<< fileDirectory << std::endl; // debug REMOVE
 
 
-    // int index = 123;
-    // std::string_view TexturePath = c_jsonData["images"].at(index)["uri"];
 
-    // goback here ++++++++++++++ 1st 
+    // goback here ++++++++++++++ 
     // TODO: refactor this, no hardcoded resource file paths
     // loading 
 
-    if(HasThisField(p_material, "normalTexture")){
-        uint64_t t_index = p_material["normalTexture"]["index"]; // should be 2
-        std::string t_imageUri = static_cast<std::string>(c_jsonData["images"].at(t_index)["uri"]);
+    if(HasThisField(p_materials, "normalTexture")){
+        uint64_t t_index = p_materials["normalTexture"]["index"]; // should be 2
 
+
+        // source
+        simdjson::dom::element pbr = p_materials["normalTexture"]; // orig
+        uint64_t texIndex = pbr["index"]; // parameter 
+        uint64_t imageIndex = c_jsonData["textures"].at(texIndex)["source"];
+
+    simdjson::dom::element image = c_jsonData["images"].at(imageIndex);
+    std::string uri = std::string(std::string_view(image["uri"]));
+
+        // std::cout << "INFO source normalTexture imageIndex: " << imageIndex << std::endl;
+
+        // mine
+        std::string t_imageUri = static_cast<std::string>(c_jsonData["images"].at(t_index)["uri"]);
         // and then load it by making an object for it and putting in the back
         std::shared_ptr<Texture> m_normalTexture = std::make_shared<Texture>
-            ("resource/Models/spear/" + t_imageUri, "diffuse_tex_type", 0, GL_RGBA, GL_UNSIGNED_BYTE);
+            (m_fileDirectory + t_imageUri, "diffuse_tex_type", c_loadedTextures.size(), GL_RGBA, GL_UNSIGNED_BYTE); // the p_slot is usually 0, but we have many textures. So use the current size as an indicator of the slot
+        // std::cout << "INFO mine normalTexture t_imageUri: " << t_imageUri << std::endl;
 
         m_textures.push_back(m_normalTexture);
             // std::cout << "INFO pass normalTexture loaded" << std::endl;
     }
 
 
+    /////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////
     // only if the material has pbrMetallicRoughness passes this point
     // early return
-    if(!HasThisField(p_material, "pbrMetallicRoughness")) return m_textures;
+    if(!HasThisField(p_materials, "pbrMetallicRoughness")) return m_textures;
 
     // std::cout << "INFO c_jsonDatap[\"materials\"]: " << c_jsonData["materials"] << std::endl;
-    // std::cout << "INFO pbrMetallicRoughness: " << p_material["pbrMetallicRoughness"] << std::endl;
-    simdjson::dom::element t_currentContext = p_material["pbrMetallicRoughness"];
+    // std::cout << "INFO pbrMetallicRoughness: " << p_materials["pbrMetallicRoughness"] << std::endl;
+    simdjson::dom::element t_currentContext = p_materials["pbrMetallicRoughness"];
 
     // std::cout << "INFO t_currentContext: " << t_currentContext << std::endl;
 
@@ -405,15 +427,91 @@ std::vector<std::shared_ptr<Texture>> Model::GetTextures(simdjson::dom::element&
     if(HasThisField(t_currentContext, "baseColorTexture")){
         // std::cout << "INFO t_currentContext[baseColorTexture]: " << t_currentContext["baseColorTexture"] << std::endl;
 
-        uint64_t t_index = t_currentContext["baseColorTexture"]["index"]; // should return 2
-        std::string t_imageUri = static_cast<std::string>
-            (c_jsonData["images"].at(t_index)["uri"]);
-        // std::cout << "INFO t_imageUri: " << t_imageUri << std::endl;
+
+        // goback here +++++++++++ 
+        // source
+        // uint64_t pbrBaseColorIndex= t_currentContext["baseColorTexture"]["index"]; // should return 2
+        // uint64_t imageIndex = c_jsonData["textures"].at(pbrBaseColorIndex)["source"];
+        //
+        // simdjson::dom::element image = c_jsonData["images"].at(imageIndex);     // goback here ++++
+        // std::string uri = std::string(std::string_view(image["uri"]));
+        //
+        // // std::string texPath = c_filepath.empty() ? uri : (c_filepath + "/" + uri);
+        // std::string texPath = c_filepath.empty() ? uri : (m_fileDirectory + "/" + uri);
+
+        // std::cout << "INFO source baseColor pbrBaseColorIndex: " << pbrBaseColorIndex << std::endl;
+        // std::cout << "INFO source baseColor imageIndex: " << imageIndex << std::endl;
+        // std::cout << "INFO source baseColor image: " << image << std::endl;
+        // std::cout << "INFO source baseColor uri: " << uri << std::endl;
+        // std::cout << "INFO source baseColor texPath(kinukuha nya): " << texPath << std::endl;
+
+
+        // mine
+        // uint64_t t_index = t_currentContext["baseColorTexture"]["index"]; // should return 1
+        // std::string t_imageUri = static_cast<std::string> (c_jsonData["images"].at(t_index)["uri"]);    // mines misses the index at source indicated from texture, 
+                                                                                                        // usage of "t_index" 
+        // std::cout << "INFO mine baseColor t_index: " << t_index << std::endl;
+        // std::cout << "INFO mine baseColor t_imageUri: " << t_imageUri << std::endl;
+        // std::cout << "INFO mine baseColor m_fileDirectory + t_imageUri(kinukuha ko): " << m_fileDirectory + t_imageUri << std::endl;
+
+
+
+        // final: 
+        // 1. Get the texture index from the glTF Material Specification property (e.g., material.baseColorTexture.index).
+        uint64_t t_baseColorIndex = t_currentContext["baseColorTexture"]["index"];
+
+        // 2. Read the source property from that texture to get the image index (gltf.textures[textureIndex].source).
+        uint64_t t_actualTextureIndex = c_jsonData["textures"].at(t_baseColorIndex)["source"];
+
+        // 3. Fetch the final pixel data or URI from gltf.images[sourceIndex]
+        std::string t_textureUri = static_cast<std::string> (c_jsonData["images"].at(t_actualTextureIndex)["uri"]);
+
+        // std::cout << "INFO final baseColor t_baseColorIndex: " << t_baseColorIndex << std::endl;
+        // std::cout << "INFO final baseColor t_actualTextureIndex: " << t_actualTextureIndex << std::endl;
+        // std::cout << "INFO final baseColor m_fileDirectory + t_textureUri(kinukuha ko): " << m_fileDirectory + t_textureUri << std::endl;
+        // std::cout << std::endl;
+
+
+
+        // outputs:
+        // using file2
+        // INFO source baseColor pbrBaseColorIndex: 0
+        // INFO source baseColor imageIndex: 0
+        // INFO source baseColor image: {"uri":"textures/Material_25_baseColor.png"}
+        // INFO source baseColor uri: textures/Material_25_baseColor.png
+        // INFO source baseColor texPath(kinukuha nya): resource/Models/spear//textures/Material_25_baseColor.png
+        //
+        // INFO mine baseColor t_index: 0
+        // INFO mine baseColor t_imageUri: textures/Material_25_baseColor.png
+        // INFO mine baseColor m_fileDirectory + t_imageUri(kinukuha ko): resource/Models/spear/textures/Material_25_baseColor.png
+        //
+        // INFO final baseColor t_baseColorIndex: 0
+        // INFO final baseColor t_actualTextureIndex: 0
+        // INFO final baseColor m_fileDirectory + t_textureUri(kinukuha ko): resource/Models/spear/textures/Material_25_baseColor.png
+
+
+        // using file1
+        // INFO source baseColor pbrBaseColorIndex: 2
+        // INFO source baseColor imageIndex: 2
+        // INFO source baseColor image: {"uri":"textures/wheel1forrender_baseColor.png"}
+        // INFO source baseColor uri: textures/wheel1forrender_baseColor.png
+        // INFO source baseColor texPath(kinukuha nya): resource/Models/tricycle//textures/wheel1forrender_baseColor.png
+        //
+        // INFO mine baseColor t_index: 2
+        // INFO mine baseColor t_imageUri: textures/wheel1forrender_baseColor.png
+        // INFO mine baseColor m_fileDirectory + t_imageUri(kinukuha ko): resource/Models/tricycle/textures/wheel1forrender_baseColor.png
+        // 
+        // INFO final baseColor t_baseColorIndex: 2
+        // INFO final baseColor t_actualTextureIndex: 2
+        // INFO final baseColor m_fileDirectory + t_textureUri(kinukuha ko): resource/Models/tricycle/textures/wheel1forrender_baseColor.png
+        
+
+
+
 
         // and then load it by making an object for it and putting in the back
         auto m_baseColorTexture = std::make_shared<Texture>
-            ("resource/Models/spear/" + t_imageUri, 
-            "diffuse_tex_type", 0, GL_RGBA, GL_UNSIGNED_BYTE);
+            (m_fileDirectory + t_textureUri, "diffuse_tex_type", c_loadedTextures.size(), GL_RGBA, GL_UNSIGNED_BYTE);
         // std::cout << "INFO pass m_baseColorTexture" << std::endl;
 
 
@@ -423,11 +521,22 @@ std::vector<std::shared_ptr<Texture>> Model::GetTextures(simdjson::dom::element&
 
     if(HasThisField(t_currentContext, "metallicRoughnessTexture")){
         uint64_t t_index = t_currentContext["metallicRoughnessTexture"]["index"]; // should return 1
+
+        // source
+        simdjson::dom::element pbr = p_materials["pbrMetallicRoughness"];
+        uint64_t texIndex = pbr["baseColorTexture"]["index"];
+        uint64_t imageIndex = c_jsonData["textures"].at(texIndex)["source"];
+        // std::cout << "INFO source metallicRoughnessTexture imageIndex: " << imageIndex << std::endl;
+
+        // mine
         std::string t_imageUri = static_cast<std::string>
             (c_jsonData["images"].at(t_index)["uri"]);
+        // std::cout << "INFO mine metallicRoughnessTexture t_imageUri: " << t_imageUri << std::endl;
+
+
         // and then load it by making an object for it and putting in the back
         std::shared_ptr<Texture> m_metallicRoughnessTexture = std::make_shared<Texture>
-            ("resource/Models/spear/" + t_imageUri, "diffuse_tex_type", 0, GL_RGBA, GL_UNSIGNED_BYTE);
+            (m_fileDirectory + t_imageUri, "diffuse_tex_type", c_loadedTextures.size(), GL_RGBA, GL_UNSIGNED_BYTE);
 
         m_textures.push_back(m_metallicRoughnessTexture);
         // std::cout << "INFO pass metallicRoughnessTexture loaded" << std::endl;
@@ -448,7 +557,8 @@ std::vector<std::shared_ptr<Texture>> Model::GetTextures(simdjson::dom::element&
         // loadedTexName.push_back(texPath);
 
 
-    // goback here ++++++++++++++++++++
+    // No, this bypasses the index indicated from the texture's "source" 
+    // and the 
 	// // Go over all images
 	// for (unsigned int i = 0; i < JSON["images"].size(); i++) // 3 times 
 	// {
@@ -691,7 +801,9 @@ int main() {
         return 1;
     }
 
-    Model what("resource/Models/spear/scene.gltf");
+    std::string file1 = "resource/Models/tricycle/scene.gltf";
+    std::string file2 = "resource/Models/spear/scene.gltf";
+    Model what(file1);
 
     glfwDestroyWindow(window);
     glfwTerminate();

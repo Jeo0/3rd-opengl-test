@@ -15,6 +15,7 @@
 #include <stdatomic.h>
 #include <string>
 #include <type_traits>
+#include <unordered_map>
 #include <vector>
 
 
@@ -30,7 +31,8 @@ class Model {
         std::vector<unsigned char> c_binaryData;
 
         // std::vector<std::unique_ptr<Mesh>> c_meshes;
-        std::vector<std::shared_ptr<Texture>> c_loadedTextures;
+        // std::vector<std::shared_ptr<Texture>> c_loadedTextures;
+        std::unordered_map<std::string, std::shared_ptr<Texture>> c_loadedTextures; // cache it not as a queue or a stack
 
 
         std::vector<unsigned char> LoadBinaryData(const std::string& p_directory);

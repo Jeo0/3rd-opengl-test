@@ -1,4 +1,5 @@
 ./daym.zip
 ./externals/doctest/*
+./externals/fastgltf-0.9.0/*
 ./cache/*
 ./vscode
