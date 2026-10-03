@@ -25,7 +25,8 @@ follow tutorial, except use simdjson for parsing
 == gltf understanding?? 
 / done maybe
 
-== texture mapping (image) for the model 
+== texture mapping (image) for the model (flip)
+/ done maybe
 
 == simple cube gltf (no binaries)
 then test out a few vertex manipulation tings  

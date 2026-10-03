@@ -58,14 +58,21 @@ void Core::Init() {
     c_setset = std::make_unique<Settings>(cLimiter);
 
 
-    std::string m_models[] {
+    std::string linuxm_models[] {
         "resource/Models/tricycle/scene.gltf",
         "resource/Models/simpleCube/cube2.gltf",
         "resource/Models/simpleCube/simplecube.gltf",
         "resource/Models/spear/scene.gltf"
     };
-    c_scene->LoadModel(m_models[3]);
+    c_scene->LoadModel(linuxm_models[3]);
 
+    // std::string windowsm_models[] {
+    //     "resource\\Models\\tricycle\\scene.gltf",
+    //     "resource\\Models\\simpleCube\\cube2.gltf",
+    //     "resource\\Models\\simpleCube\\simplecube.gltf",
+    //     "resource\\Models\\spear\\scene.gltf"
+    // };
+    // c_scene->LoadModel(windowsm_models[3]);
 }
 
 

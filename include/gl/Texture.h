@@ -15,7 +15,8 @@ public:
             const std::string& p_textureType,
             GLuint      p_slot,
             GLenum      p_imageFormat, // non existent in jgl demo; instead, use GL_RGBA
-            GLenum      p_pixelType); // non existent in jgl demo; instead use GL_UNSIGNED_BYTE
+            GLenum      p_pixelType, // non existent in jgl demo; instead use GL_UNSIGNED_BYTE
+            bool p_flipVertically = false);
     ~Texture();
 
     void Bind();

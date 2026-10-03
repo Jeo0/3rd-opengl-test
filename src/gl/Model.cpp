@@ -91,10 +91,12 @@ Model::Model(const std::string& p_filepath){
     c_filepath = p_filepath;
     std::string m_directory = std::filesystem::path(p_filepath).parent_path().string(); // long string of path
     std::cout << "INFO c_filepath: " << c_filepath << std::endl;
-    // std::cout << "INFO mdirectory: " << m_directory << std::endl;
+    std::cout << "INFO mdirectory: " << m_directory << std::endl;
 
     try {
-        c_jsonData = c_parser.load(c_filepath);
+        std::cout << "INFO pass try" << std::endl;
+        c_jsonData = c_parser.load(c_filepath);         // does not work on windows
+        std::cout << "INFO pass c_jsonData = c_parser.load(c_filepath): " << std::endl;
     }
     catch (const std::runtime_error& eee){
         std::cerr << eee.what() << " ERROR SOMETHING WRONG WITH LOADING\n";
@@ -120,16 +122,17 @@ void Model::Draw(Shader& p_shader, Camera& p_camera) {
 
 std::vector<unsigned char> Model::LoadBinaryData(const std::string& p_directory){
     // get the binary data's filepath and name
-    // std::cout << "INFO loadbinarydata() PASSED" << std::endl;
+    std::cout << "INFO loadbinarydata() PASSED" << std::endl;
     // std::cout << "INFO p_directory : " << p_directory << std::endl;
     // std::string m_uri = c_jsonData["buffers"][0]["uri"]; // the example we have will always be "scene.bin"
     std::string m_uri = std::string(c_jsonData["buffers"].at(0)["uri"]); // the example we have will always be "scene.bin"
     // std::cout << "INFO p_directory: " << p_directory << std::endl;
     // std::cout << "INFO c_filepath: " << c_filepath << std::endl;
-    // std::cout << "INFO m_uri: " << m_uri << std::endl;
+    std::cout << "INFO m_uri: " << m_uri << std::endl;
 
     // store the binary data 
-    std::string m_bytesText = get_file_contents((p_directory + "/" + m_uri).c_str());
+    // std::string m_bytesText = get_file_contents((p_directory + "\\" + m_uri).c_str());   // windows
+    std::string m_bytesText = get_file_contents((p_directory + "/" + m_uri).c_str()); // linux
     // std::cout << "INFO m_bytesText: " << m_bytesText << std::endl;
 
     return std::vector<unsigned char>(m_bytesText.begin(), m_bytesText.end());

@@ -7,7 +7,8 @@ Texture::Texture(const std::string& p_imageLoc,
                     const std::string& p_textureType,
                     GLuint p_slot,  // add  this to the header  // goback here ============
                     GLenum p_imageFormat, // non existent in jgl demo; instead, use GL_RGBA
-                    GLenum p_pixelType // non existent in jgl demo; instead use GL_UNSIGNED_BYTE
+                    GLenum p_pixelType, // non existent in jgl demo; instead use GL_UNSIGNED_BYTE
+                    bool p_flipVertically
                     ){
     c_type = p_textureType;
 
@@ -16,6 +17,7 @@ Texture::Texture(const std::string& p_imageLoc,
 
     // loading texture
     int widthImg, heightImg, numColChann;
+    stbi_set_flip_vertically_on_load(p_flipVertically); // dont flip this 
 
     // actual image texture
     unsigned char* bytes = stbi_load(p_imageLoc.c_str(), &widthImg, &heightImg, &numColChann, 4); 
@@ -30,7 +32,6 @@ Texture::Texture(const std::string& p_imageLoc,
     // openGL functions
     // generating texture
     // control this ting
-    stbi_set_flip_vertically_on_load(true);
     glGenTextures(1, &c_ID);               // generate opengl texture obj
 
 
