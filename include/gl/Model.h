@@ -47,4 +47,6 @@ class Model {
         ~Model();
 
         void Draw(Shader &p_shader, Camera& p_camera);
+        void DrawPoints(Shader &p_shader, Camera& p_camera);
+
 };

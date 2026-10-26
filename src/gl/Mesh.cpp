@@ -54,6 +54,9 @@ void Mesh::Draw(Shader &p_shader, Camera& p_camera) {
         c_textures[iii]->Bind();
     }
 
+    // for no diffuse texture
+    // so the shader falls back to flat grey instead of reading black
+    glUniform1i(glGetUniformLocation(p_shader.ID, "u_hasDiffuse"), m_numberDiffuse > 0);
 
     // take care of the camera matrix
     glUniform3f(glGetUniformLocation(p_shader.ID, "u_camPos"), 
@@ -69,6 +72,23 @@ void Mesh::Draw(Shader &p_shader, Camera& p_camera) {
     glDrawElements(GL_TRIANGLES, c_indices.size(), GL_UNSIGNED_INT, 0);
 
 }
+
+
+void Mesh::DrawPoints(Shader &p_shader, Camera& p_camera) {
+    p_shader.Activate();
+    VAOO.Bind();
+
+    glUniform3f(glGetUniformLocation(p_shader.ID, "u_camPos"),
+                p_camera.c_position.x,
+                p_camera.c_position.y,
+                p_camera.c_position.z);
+    p_camera.Matrix(p_shader, "u_camMatrix");
+    glUniformMatrix4fv(glGetUniformLocation(p_shader.ID, "u_modelPos"), 1, GL_FALSE, glm::value_ptr(c_modelPos));
+
+    // DrawArrays ignores the EBO, so every vertex is drawn exactly once
+    glDrawArrays(GL_POINTS, 0, (GLsizei)c_vertices.size());
+}
+
 
 void Mesh::SetPosition(const glm::vec3& p_position){
     c_modelPos = glm::translate(glm::mat4(1.0), p_position);

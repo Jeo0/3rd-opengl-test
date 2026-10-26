@@ -30,10 +30,10 @@ std::string get_file_contents(const char* filename){
 }        
 
 
-Shader::Shader(const char* vertFilename, const char* fragFilename){
+Shader::Shader(const char* p_vertFilename, const char* p_fragFilename) {
     // get those in a string
-    std::string vertexSrcCode = get_file_contents(vertFilename);
-    std::string fragmentSrcCode = get_file_contents(fragFilename);      
+    std::string vertexSrcCode = get_file_contents(p_vertFilename);
+    std::string fragmentSrcCode = get_file_contents(p_fragFilename);      
 
     // however, we want it to be charater arrays
     const char* vertexSource = vertexSrcCode.c_str();
@@ -88,6 +88,57 @@ Shader::Shader(const char* vertFilename, const char* fragFilename){
 }
 
 
+// 3 inputs
+// including geometry shaders
+Shader::Shader(const char* p_vertFilename, const char* p_geomFilename, const char* p_fragFilename){
+    // get those in a string
+    std::string vertexSrcCode = get_file_contents(p_vertFilename);
+    std::string geometrySrcCode  = get_file_contents(p_geomFilename);
+    std::string fragmentSrcCode = get_file_contents(p_fragFilename);      
+
+    // however, we want it to be charater arrays
+    const char* vertexSource = vertexSrcCode.c_str();
+    const char* geometrySource = geometrySrcCode.c_str();
+    const char* fragmentSource = fragmentSrcCode.c_str();
+
+	// vertex and fragment shader objects
+	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertexShader, 1, &vertexSource, NULL);
+	glCompileShader(vertexShader);
+	compileErrors(vertexShader, "VERTEX"); // error handling
+
+	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
+	glCompileShader(fragmentShader);
+	compileErrors(fragmentShader, "FRAGMENT"); // error handling
+                                               //
+	GLuint geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
+	glShaderSource(geometryShader, 1, &geometrySource, NULL);
+	glCompileShader(geometryShader);
+	compileErrors(geometryShader, "GEOMETRY"); // error handling
+
+
+	// "wrap the vertex and fragment shader objects up"
+	// using shader program
+	ID = glCreateProgram();
+
+	glAttachShader(ID, vertexShader);
+	glAttachShader(ID, fragmentShader);
+	glAttachShader(ID, geometryShader);
+
+	// wrap them up by linking
+	glLinkProgram(ID);
+	compileErrors(ID, "PROGRAM");
+
+
+
+	// we can now safely delete the shader objects
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+	glDeleteShader(geometryShader);
+
+}
+
 void Shader::Activate(){
 	glUseProgram(ID);
 }
@@ -99,37 +150,37 @@ void Shader::Delete(){
 
 
 
-void Shader::compileErrors(unsigned int shader, std::string type){
+void Shader::compileErrors(unsigned int p_shader, std::string p_type){
 
     // ============== goback here
-    std::cout << "type: " << type << ": " << glGetUniformLocation(shader, "u_diffuse_tex_type0") << std::endl;
+    std::cout << "p_type: " << p_type << ": " << glGetUniformLocation(p_shader, "u_diffuse_tex_type0") << std::endl;
 	GLint hasCompiled;
 	char infoLog[1024];
-	if(type != "PROGRAM"){	// compilation
-		glGetShaderiv(shader, GL_COMPILE_STATUS, &hasCompiled);
+	if(p_type != "PROGRAM"){	// compilation
+		glGetShaderiv(p_shader, GL_COMPILE_STATUS, &hasCompiled);
 		if(hasCompiled == GL_FALSE){
-			glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-			std::cerr << "SHADER_COMPILATION_ERROR for:" << type << "\n" << std::endl;
-			// std::cerr << "SHADER_COMPILATION_ERROR for: " << type << "\n" << infoLog << std::endl;
+			glGetShaderInfoLog(p_shader, 1024, NULL, infoLog);
+			std::cerr << "SHADER_COMPILATION_ERROR for:" << p_type << "\n" << std::endl;
+			// std::cerr << "SHADER_COMPILATION_ERROR for: " << p_type << "\n" << infoLog << std::endl;
 		}
 
 	// } else{		// linking 
-	// 	glGetShaderiv(shader, GL_COMPILE_STATUS, &hasCompiled);
-	// 	// glGetProgramiv(shader, GL_LINK_STATUS, &hasCompiled);
+	// 	glGetShaderiv(p_shader, GL_COMPILE_STATUS, &hasCompiled);
+	// 	// glGetProgramiv(p_shader, GL_LINK_STATUS, &hasCompiled);
 	// 	if(hasCompiled == GL_FALSE){
-	// 		glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-	// 		std::cerr << "SHADER_LINKING_ERROR for:" << type << "\n" << std::endl;
+	// 		glGetShaderInfoLog(p_shader, 1024, NULL, infoLog);
+	// 		std::cerr << "SHADER_LINKING_ERROR for:" << p_type << "\n" << std::endl;
 	//
-	// 		// glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-	// 		// std::cerr << "PROGRAM_SHADER_LINKING_ERROR for: " << type << "\n" << infoLog << std::endl;
+	// 		// glGetProgramInfoLog(p_shader, 1024, NULL, infoLog);
+	// 		// std::cerr << "PROGRAM_SHADER_LINKING_ERROR for: " << p_type << "\n" << infoLog << std::endl;
 	// 	}
 	//
 	// }
     } else {        // linking 
-        glGetProgramiv(shader, GL_LINK_STATUS, &hasCompiled);
+        glGetProgramiv(p_shader, GL_LINK_STATUS, &hasCompiled);
         if(hasCompiled == GL_FALSE){
-            glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-            std::cerr << "SHADER_LINKING_ERROR for: " << type << "\n" << infoLog << std::endl;
+            glGetProgramInfoLog(p_shader, 1024, NULL, infoLog);
+            std::cerr << "SHADER_LINKING_ERROR for: " << p_type << "\n" << infoLog << std::endl;
         }
     }
 }

@@ -1,4 +1,5 @@
 
+#pragma once 
 #include "Camera.h"
 #include "VAO.h"
 #include "VBO.h"
@@ -27,6 +28,7 @@ public:
   ~Mesh();
 
   void Draw(Shader &p_shader, Camera& p_camera);
+  void DrawPoints(Shader &p_shader, Camera& p_camera);   // same VAO, one dot per vertex
   void SetPosition(const glm::vec3& p_position);
   void SetTransform(const glm::mat4& p_transform);
 };

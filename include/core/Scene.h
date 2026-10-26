@@ -11,12 +11,18 @@
 #include "Camera.h"
 #include "Model.h"
 // #include "Mesh.h"
+#include "Render.h"
 
 class Scene {
     private:
         std::unique_ptr<Shader> c_shader; 
+        std::unique_ptr<Shader> c_pointShader;  // vertex dots
+
+
         std::unique_ptr<Camera> c_camera; 
         std::vector<std::unique_ptr<Model>> c_sceneObjects; 
+        std::vector<std::unique_ptr<RenderPass>> c_passes; 
+
 
         // debug REMOVE
         float debug_time_iii = 0.0;

@@ -113,11 +113,19 @@ Model::~Model(){
 
 
 void Model::Draw(Shader& p_shader, Camera& p_camera) {
-	// Go over all meshes and draw each one
-	for (unsigned int i = 0; i < c_meshes.size(); i++) {
-	       c_meshes[i]->Mesh::Draw(p_shader, p_camera);
+	// go over all meshes and draw each one
+	for (unsigned int ii = 0; ii < c_meshes.size(); ii++) {
+	       c_meshes[ii]->Mesh::Draw(p_shader, p_camera);
 	}
 }
+
+void Model::DrawPoints(Shader &p_shader, Camera& p_camera) {
+    // now have each mesh 
+    for (const auto& mesh : c_meshes) {
+        mesh->Mesh::DrawPoints(p_shader, p_camera);
+    }
+}
+
 
 
 std::vector<unsigned char> Model::LoadBinaryData(const std::string& p_directory){
