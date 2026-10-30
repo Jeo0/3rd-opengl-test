@@ -16,8 +16,16 @@ Scene::Scene(int p_viewportHeight, int p_viewportWidth) {
     // goback here ===========================================
     // c_passes.emplace_back(std::make_unique<SurfacePass>(*c_shader));
     // c_passes.emplace_back(std::make_unique<PointOverlayPass>(*c_pointShader));
-    c_passes.emplace_back(std::move(m_surfacePass));
-    c_passes.emplace_back(std::move(m_pointPass));
+
+    auto t_surfacePass = std::make_unique<SurfacePass>(*c_shader);
+    // std::unique_ptr<SurfacePass> t_surfacePass = std::make_unique<SurfacePass>(*c_shader);
+    // c_surfacePass = t_surfacePass.get();
+    c_passes.emplace_back(std::move(t_surfacePass));
+
+    auto t_pointPass = std::make_unique<PointOverlayPass>(*c_pointShader);
+    // std::unique_ptr<PointOverlayPass> t_pointPass = std::make_unique<PointOverlayPass>(*c_pointShader);
+    // c_pointOverlayPass = t_pointPass.get();
+    c_passes.emplace_back(std::move(t_pointPass));
 }
 
 Scene::~Scene() {
@@ -39,8 +47,9 @@ bool Scene::LoadModel(const std::string& p_filePath){
 
 
 void Scene::Update(GLFWwindow* p_window, double p_deltaTime){
+
+#ifdef DEBUG_SHOW
     // debug REMOVE
-    
     debug_time_iii += (p_deltaTime);
     if(debug_time_iii > 4.0 && !(debug_time_iii_flag)) {
         std::string textureDir = "resource/Textures/";
@@ -48,13 +57,17 @@ void Scene::Update(GLFWwindow* p_window, double p_deltaTime){
         debug_time_iii_flag = true;
         std::cout << "INFO loaded" << std::endl;
     }
+#endif
 
     // inputs
+    c_events->HandleInputs();
     c_camera->HandleInputs(p_window, p_deltaTime); 
     c_camera->UpdateMatrix(45.0, 1.0, 100.0);
 
+#ifdef DEBUG_SHOW
     // debug  REMOVE
     std::cout << "FPS: " << (1.0 / p_deltaTime) << '\n';
+#endif
 
 }
 
