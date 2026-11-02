@@ -20,11 +20,13 @@ Scene::Scene(int p_viewportHeight, int p_viewportWidth) {
     auto t_surfacePass = std::make_unique<SurfacePass>(*c_shader);
     // std::unique_ptr<SurfacePass> t_surfacePass = std::make_unique<SurfacePass>(*c_shader);
     // c_surfacePass = t_surfacePass.get();
+    c_surfacePass = t_surfacePass.get();
     c_passes.emplace_back(std::move(t_surfacePass));
 
     auto t_pointPass = std::make_unique<PointOverlayPass>(*c_pointShader);
     // std::unique_ptr<PointOverlayPass> t_pointPass = std::make_unique<PointOverlayPass>(*c_pointShader);
     // c_pointOverlayPass = t_pointPass.get();
+    c_pointOverlayPass = t_pointPass.get();
     c_passes.emplace_back(std::move(t_pointPass));
 }
 
@@ -46,30 +48,67 @@ bool Scene::LoadModel(const std::string& p_filePath){
 }
 
 
-void Scene::Update(GLFWwindow* p_window, double p_deltaTime){
+void Scene::Update(const InputFrame& p_input, double p_deltaTime) {
+    const float m_deltaTime = static_cast<float>(p_deltaTime);
 
-#ifdef DEBUG_SHOW
-    // debug REMOVE
-    debug_time_iii += (p_deltaTime);
-    if(debug_time_iii > 4.0 && !(debug_time_iii_flag)) {
-        std::string textureDir = "resource/Textures/";
-        LoadModel((textureDir + "popcat.png"));
-        debug_time_iii_flag = true;
-        std::cout << "INFO loaded" << std::endl;
+
+    // ============================
+    // surface pass
+    c_surfacePass->c_edgeWidth += p_input.edgeWidthAxis * 10.0f * m_deltaTime;
+    c_surfacePass->c_edgeWidth = std::clamp( c_surfacePass->c_edgeWidth, 0.0f, 20.0f);
+
+
+    // ============================
+    // point overlay pass
+    c_pointOverlayPass->c_size += p_input.pointSizeAxis * 20.0f * m_deltaTime;
+    c_pointOverlayPass->c_size = std::clamp(c_pointOverlayPass->c_size, 1.0f, 64.0f);
+
+    if (p_input.togglePoints) {
+        c_pointOverlayPass->c_enabled = !c_pointOverlayPass->c_enabled;
     }
-#endif
+    if (p_input.togglePointXray) {
+        c_pointOverlayPass->c_xray = !c_pointOverlayPass->c_xray;
+    }
 
-    // inputs
-    c_events->HandleInputs();
-    c_camera->HandleInputs(p_window, p_deltaTime); 
-    c_camera->UpdateMatrix(45.0, 1.0, 100.0);
 
+    // ============================
+    // camera
+    c_camera->Update(p_input.camera, p_deltaTime);
+    c_camera->UpdateMatrix( c_camera->c_fovDeg, 1.0f, 100.0f);
+
+
+    // ============================
+    // debug REMOVE
 #ifdef DEBUG_SHOW
-    // debug  REMOVE
     std::cout << "FPS: " << (1.0 / p_deltaTime) << '\n';
 #endif
 
 }
+
+// void Scene::Update(GLFWwindow* p_window, double p_deltaTime){
+//
+// #ifdef DEBUG_SHOW
+//     // debug REMOVE
+//     debug_time_iii += (p_deltaTime);
+//     if(debug_time_iii > 4.0 && !(debug_time_iii_flag)) {
+//         std::string textureDir = "resource/Textures/";
+//         LoadModel((textureDir + "popcat.png"));
+//         debug_time_iii_flag = true;
+//         std::cout << "INFO loaded" << std::endl;
+//     }
+// #endif
+//
+//     // inputs
+//     c_events->HandleInputs();
+//     c_camera->HandleInputs(p_window, p_deltaTime); 
+//     c_camera->UpdateMatrix(45.0, 1.0, 100.0);
+//
+// #ifdef DEBUG_SHOW
+//     // debug  REMOVE
+//     std::cout << "FPS: " << (1.0 / p_deltaTime) << '\n';
+// #endif
+//
+// }
 
 // void Scene::Render(GLFWwindow* p_window, double p_deltaTime) { 
 //     // opengl things

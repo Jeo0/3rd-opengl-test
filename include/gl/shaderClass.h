@@ -13,8 +13,8 @@ std::string get_file_contents(const char* filename);        // outputs the conte
 class Shader{
 public:
     GLuint ID;      // public id (i.e. reference)
-    Shader(const char* p_vertFile, const char* p_fragFile);        // take in the shader source codes
-    Shader(const char* p_vertFile, const char* p_geomFilename, const char* p_fragFile);        // take in the shader source codes
+    Shader(const char* p_vertFilename, const char* p_fragFilename);        // take in the shader source codes
+    Shader(const char* p_vertFilename, const char* p_geomFilename, const char* p_fragFilename); // take in the shader source codes
 
     void Activate();
     void Delete();

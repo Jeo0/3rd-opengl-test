@@ -30,12 +30,12 @@ Core::Core() :  windowObj(800, 800, "gademNoice", NULL, NULL, {0.01f, 0.24f, 0.4
 Core::~Core() { Cleanup(); }
 
 void Core::Run() {
-    // The Main Game/Render Loop
     while (!glfwWindowShouldClose(windowObj.ID)) {
+        glfwPollEvents();           // poll first so InputHandler::Poll reads this frame's state
+
         float mDeltaTime = cLimiter.StartFrame();
         Update(mDeltaTime);
         Render(mDeltaTime);         // buffer swap
-        glfwPollEvents(); // polling is a must after buffer swap
 
         cLimiter.EndFrame();
     }
@@ -49,13 +49,14 @@ void Core::Init() {
 
 
     // ============================
-    // open gl opengl settings
+    // opengl settings
     glEnable(GL_DEPTH_TEST);
 
     // ============================
     // object instantiations
     c_scene = std::make_unique<Scene>(windowObj.Height, windowObj.Width);
     c_setset = std::make_unique<Settings>(cLimiter);
+    c_inputHandler = std::make_unique<InputHandler>();
 
 
     std::string linuxm_models[] {
@@ -81,11 +82,16 @@ void Core::Update(double p_deltaTime) {
     // settings
     c_setset->LoadSettings(cLimiter);
 
-    c_scene->Update(windowObj.ID, p_deltaTime);
+    // input layer
+    const InputFrame m_input = c_inputHandler->Poll(windowObj.ID);
+
+    // scene only ever sees the snapshot, never the GLFWwindow*
+    c_scene->Update(m_input, p_deltaTime);
 
     // this no work i dont even have any implementation for dis shit. I'm letting the camera handle the input lmao
-    windowObj.HandleMouseInput(); // core handles the window 
+    // windowObj.HandleMouseInput(); // core handles the window 
 }
+
 
 
 void Core::Render(double p_deltaTime) {

@@ -15,19 +15,41 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 // public
 Window::Window(int mheight, int mlength, const char* mtitlebar, GLFWmonitor* mmonitor, GLFWwindow* mshare, std::array <GLfloat, 4> mstdBgColor){
     // 1 settings 
-    glfwInit();
+    if (!glfwInit()){
+        std::cerr << "ERROR Window::Window, cannot glfwInit()" << std::endl;
+    }
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    // ================================
+    // debug remove 
+    std::cout << "typeof mheight\t:" << typeid(mheight).name() 
+        << "\t: " << mheight << std::endl;
+    std::cout << "typeof mlength\t:" << typeid(mlength).name() 
+        << "\t: " << mlength << std::endl;
+    std::cout << "typeof mtitlebar\t:" << typeid(mtitlebar).name() 
+        << "\t: " << mtitlebar << std::endl;
+    std::cout << "typeof mmonitor\t:" << typeid(mmonitor).name() 
+        // << std::endl;
+        << "\t: " << mmonitor << std::endl;
+    std::cout << "typeof mshare\t:" << typeid(mshare).name() 
+        // << std::endl;
+        << "\t: " << mshare << std::endl;
+
 
     // 2 create window
     ID = glfwCreateWindow(mheight, mlength, mtitlebar, mmonitor, mshare);
+    std::cout << "INFO Window::Window ID=createwindow" << std::endl;
 
 	if(ID == NULL){
-		std::cerr << "fail to create glfw window" << std::endl;
+		std::cerr << "failed to create glfw window" << std::endl;
 		glfwTerminate();
         throw(errno);
 	}
+    // =======================
+    // debug remove 
+    std::cout << "INFO Window::Window FINALLY A WINDOW IS CREATED" << std::endl;
     glfwMakeContextCurrent(ID);
     
     // 3 glad 

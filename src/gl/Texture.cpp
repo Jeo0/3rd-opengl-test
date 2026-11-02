@@ -1,7 +1,7 @@
 #include "gl/Texture.h"
 #include "core/globals.h"
 #include "stb/stb_image.h"
-#include <GL/gl.h>
+// #include <GL/gl.h> // no 
 
 Texture::Texture(const std::string& p_imageLoc,
                     const std::string& p_textureType,
@@ -12,7 +12,7 @@ Texture::Texture(const std::string& p_imageLoc,
                     ){
     c_type = p_textureType;
 
-    // std::cout << "INFO passing Texture constructor;\n\
+    // std::cout << "INFO passing Texture constructor << std::endl;
     //     p_imageLoc.c_str():" << p_imageLoc.c_str() << std::endl;
 
     // loading texture

@@ -40,9 +40,15 @@ std::vector<glm::vec2> GroupFloatsVec2(const std::vector<float>& p_textureVector
 
 // helper
 uint64_t GetUintOr(const simdjson::dom::element& p_obj, std::string_view p_key, uint64_t p_default) { 
-    uint64_t value = p_default;
-    p_obj[p_key].get(value); // if error, value = p_default, else value = whatever p_obj[p_key] is
-    return value;
+    // uint64_t value = p_default;
+    // p_obj[p_key].get(value); // if error, value = p_default, else value = whatever p_obj[p_key] is
+    // return value;
+    uint64_t m_value = p_default;
+    // get() leaves m_value untouched on error, but the error code must still be read
+    if (p_obj[p_key].get(m_value) != simdjson::SUCCESS) {
+        m_value = p_default;
+    }
+    return m_value;
 }
 
 // helper

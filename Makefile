@@ -37,9 +37,9 @@ LIBS =
 # ---------------------------------------------------------------------
 ifeq ($(OS), Windows_NT)
     ECHO_MESSAGE = "MinGW (Windows)"
-    LIBS += -lglfw3 -lgdi32 -lopengl32 -limm32
-    CXXFLAGS += `pkg-config --cflags glfw3`
-    CFLAGS += `pkg-config --cflags glfw3`
+    LIBS += -Llib -lglfw3 -lgdi32 -lopengl32 -lwinmm -limm32
+    # CXXFLAGS += `pkg-config --cflags glfw3`
+    # CFLAGS += `pkg-config --cflags glfw3`
     EXE = $(EXE_BASE).exe
 	CLEAN_CMD = rm -rf build
 else

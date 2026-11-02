@@ -1,0 +1,124 @@
+g++ -std=c++17 -I./include -I./include/gl  -g -Wall -Wformat  `pkg-config --cflags glfw3` -c -o build/objects/./src/core/Scene.o src/core/Scene.cpp
+g++ -std=c++17 -I./include -I./include/gl  -g -Wall -Wformat  `pkg-config --cflags glfw3` -c -o build/objects/./src/core/InputHandler.o src/core/InputHandler.cpp
+g++ -std=c++17 -I./include -I./include/gl  -g -Wall -Wformat  `pkg-config --cflags glfw3` -c -o build/objects/./src/core/FrameLimit.o src/core/FrameLimit.cpp
+g++ -std=c++17 -I./include -I./include/gl  -g -Wall -Wformat  `pkg-config --cflags glfw3` -c -o build/objects/./src/core/InputFrame.o src/core/InputFrame.cpp
+g++ -std=c++17 -I./include -I./include/gl  -g -Wall -Wformat  `pkg-config --cflags glfw3` -c -o build/objects/./src/core/Settings.o src/core/Settings.cpp◙♪g++ -std=c++17 -I./include -I./include/gl  -g -Wall -Wformat  `pkg-config --cflags glfw3` -c -o build/objects/./src/core/simdjson.o src/core/simdjson.cpp
+pkg-config: could not find package 'glfw3'
+pkg-config: could not find package 'glfw3'
+pkg-config: could not find package 'glfw3'
+pkg-config: could not find package 'glfw3'
+pkg-config: could not find package 'glfw3'
+pkg-config: could not find package 'glfw3'
+pkg-config: could not find package 'glfw3'
+pkg-config: could not find package 'glfw3'
+g++ -std=c++17 -I./include -I./include/gl  -g -Wall -Wformat  `pkg-config --cflags glfw3` -c -o build/objects/./src/gl/Camera.o src/gl/Camera.cpp
+g++ -std=c++17 -I./include -I./include/gl  -g -Wall -Wformat  `pkg-config --cflags glfw3` -c -o build/objects/./src/gl/EBO.o src/gl/EBO.cpp
+pkg-config: could not find package 'glfw3'
+g++ pkg-config: could not find package 'glfw3'
+-std=c++17 -I./include -I./include/gl  -g -Wall -Wformat  `pkg-config --cflags glfw3` -c -o build/objects/./src/gl/Mesh.o src/gl/Mesh.cpp
+pkg-config: could not find package 'glfw3'
+g++ -std=c++17 -I./include -I./include/gl  -g -Wall -Wformat  `pkg-config --cflags glfw3` -c -o build/objects/./src/gl/Model.o src/gl/Model.cpp
+pkg-config: could not find package 'glfw3'
+g++ -std=c++17 -I./include -I./include/gl  -g -Wall -Wformat  `pkg-config --cflags glfw3` -c -o build/objects/./src/gl/Render.o src/gl/Render.cpp
+pkg-config: could not find package 'glfw3'
+In file included from src/core/core.cpp:1:
+./include/core/core.h:30:21: error: 'InputHandler' was not declared in this scope
+   30 |     std::unique_ptr<InputHandler> c_inputHandler;
+      |                     ^~~~~~~~~~~~
+./include/core/core.h:30:33: error: template argument 1 is invalid
+   30 |     std::unique_ptr<InputHandler> c_inputHandler;
+      |                                 ^
+./include/core/core.h:30:33: error: template argument 2 is invalid
+src/core/core.cpp: In member function 'void Core::Init()':
+src/core/core.cpp:59:39: error: 'InputHandler' was not declared in this scope; did you mean 'c_inputHandler'?
+   59 |     c_inputHandler = std::make_unique<InputHandler>();
+      |                                       ^~~~~~~~~~~~
+      |                                       c_inputHandler
+src/core/core.cpp:59:52: error: no matching function for call to 'make_unique<<expression error> >()'
+   59 |     c_inputHandler = std::make_unique<InputHandler>();
+      |                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+  • there are 3 candidates
+In file included from C:/Users/Airie/Documents/tempo/mingw-264devkiot/w64devkit/lib/gcc/x86_64-w64-mingw32/16.2.0/include/c++/memory:80,
+                 from ./include/core/core.h:5:
+    • candidate 1: 'template<class _Tp, class ... _Args> std::__detail::__unique_ptr_t<_Tp> std::make_unique(_Args&& ...)'
+      C:/Users/Airie/Documents/tempo/mingw-264devkiot/w64devkit/lib/gcc/x86_64-w64-mingw32/16.2.0/include/c++/bits/unique_ptr.h:1104:5:
+       1104 |     make_unique(_Args&&... __args)
+            |     ^~~~~~~~~~~
+      • template argument deduction/substitution failed:
+        • error: template argument 1 is invalid
+          src/core/core.cpp:59:52:
+             59 |     c_inputHandler = std::make_unique<InputHandler>();
+                |                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+    • candidate 2: 'template<class _Tp> std::__detail::__unique_ptr_array_t<_Tp> std::make_unique(size_t)'
+      C:/Users/Airie/Documents/tempo/mingw-264devkiot/w64devkit/lib/gcc/x86_64-w64-mingw32/16.2.0/include/c++/bits/unique_ptr.h:1119:5:
+       1119 |     make_unique(size_t __num)
+            |     ^~~~~~~~~~~
+      • candidate expects 1 argument, 0 provided
+    • candidate 3: 'template<class _Tp, class ... _Args> std::__detail::__invalid_make_unique_t<_Tp> std::make_unique(_Args&& ...)' (deleted)
+      C:/Users/Airie/Documents/tempo/mingw-264devkiot/w64devkit/lib/gcc/x86_64-w64-mingw32/16.2.0/include/c++/bits/unique_ptr.h:1129:5:
+       1129 |     make_unique(_Args&&...) = delete;
+            |     ^~~~~~~~~~~
+      • template argument deduction/substitution failed:
+        • error: template argument 1 is invalid
+          src/core/core.cpp:59:52:
+             59 |     c_inputHandler = std::make_unique<InputHandler>();
+                |                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+src/core/core.cpp: In member function 'void Core::Update(double)':
+src/core/core.cpp:86:46: error: base operand of '->' is not a pointer
+   86 |     const InputFrame m_input = c_inputHandler->Poll(windowObj.ID);
+      |                                              ^~
+src/core/core.cpp:88:31: error: cannot convert 'GLFWwindow*' to 'const InputFrame&'
+   88 |     c_scene->Update(windowObj.ID, p_deltaTime);
+      |                     ~~~~~~~~~~^~
+      |                               |
+      |                               GLFWwindow*
+In file included from ./include/core/core.h:14:
+./include/core/Scene.h:44:39: note: initializing argument 1 of 'void Scene::Update(const InputFrame&, double)'
+   44 |         void Update(const InputFrame& p_input, double p_deltaTime);
+      |                     ~~~~~~~~~~~~~~~~~~^~~~~~~
+src/core/core.cpp:86:22: warning: unused variable 'm_input' [-Wunused-variable]
+   86 |     const InputFrame m_input = c_inputHandler->Poll(windowObj.ID);
+      |                      ^~~~~~~
+g++ -std=c++17 -I./include -I./include/gl  -g -Wall -Wformat  `pkg-config --cflags glfw3` -c -o build/objects/./src/gl/Texture.o src/gl/Texture.cpp
+In file included from src/gl/Camera.cpp:2:
+./include/core/core.h:30:21: error: 'InputHandler' was not declared in this scope
+   30 |     std::unique_ptr<InputHandler> c_inputHandler;
+      |                     ^~~~~~~~~~~~
+./include/core/core.h:30:33: error: template argument 1 is invalid
+   30 |     std::unique_ptr<InputHandler> c_inputHandler;
+      |                                 ^
+./include/core/core.h:30:33: error: template argument 2 is invalid
+src/gl/Camera.cpp: In member function 'void Camera::Update(const CameraInput&, double)':
+src/gl/Camera.cpp:63:27: error: 'c_moveSpeed' was not declared in this scope
+   63 |     const float m_speed = c_moveSpeed * (p_input.sprint ? c_sprintMultiplier : 1.0f);
+      |                           ^~~~~~~~~~~
+pkg-config: could not find package 'glfw3'
+src/gl/Camera.cpp:63:59: error: 'c_sprintMultiplier' was not declared in this scope
+   63 |     const float m_speed = c_moveSpeed * (p_input.sprint ? c_sprintMultiplier : 1.0f);
+      |                                                           ^~~~~~~~~~~~~~~~~~
+make: *** [Makefile:73: build/objects/./src/core/core.o] Error 1
+make: *** Waiting for unfinished jobs....
+src/gl/Texture.cpp:15:5: warning: multi-line comment [-Wcomment]
+   15 |     // std::cout << "INFO passing Texture constructor;\n\
+      |     ^
+make: *** [Makefile:72: build/objects/./src/gl/Camera.o] Error 1
+src/gl/Render.cpp: In member function 'virtual void PointOverlayPass::Draw(const SceneObjects&, Camera&)':
+src/gl/Render.cpp:30:13: error: 'm_object' was not declared in this scope; did you mean 'object'?
+   30 |         if (m_object) {
+      |             ^~~~~~~~
+      |             object
+src/gl/Render.cpp:29:22: warning: unused variable 'object' [-Wunused-variable]
+   29 |     for (const auto& object : p_objects) {
+      |                      ^~~~~~
+src/gl/Render.cpp:42:9: error: 'm_programPointSizeWasEnabled' was not declared in this scope
+   42 |     if (m_programPointSizeWasEnabled == GL_FALSE) {
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/gl/Render.cpp:22:21: warning: unused variable 'depthWasEnabled' [-Wunused-variable]
+   22 |     const GLboolean depthWasEnabled = glIsEnabled(GL_DEPTH_TEST);
+      |                     ^~~~~~~~~~~~~~~
+make: *** [Makefile:72: build/objects/./src/gl/Render.o] Error 1
+src/gl/Model.cpp: In function 'uint64_t GetUintOr(const simdjson::dom::element&, std::string_view, uint64_t)':
+src/gl/Model.cpp:44:21: warning: ignoring return value of 'simdjson::error_code simdjson::simdjson_result<simdjson::dom::element>::get(T&) const [with T = long long unsigned int]' declared with attribute 'warn_unused_result' [-Wunused-result]
+   44 |     p_obj[p_key].get(value); // if error, value = p_default, else value = whatever p_obj[p_key] is
+      |     ~~~~~~~~~~~~~~~~^~~~~~~
+

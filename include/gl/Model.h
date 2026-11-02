@@ -49,4 +49,8 @@ class Model {
         void Draw(Shader &p_shader, Camera& p_camera);
         void DrawPoints(Shader &p_shader, Camera& p_camera);
 
+
+        // read only view for the atg layer; nothing outside Model gets to mutate meshes
+        const std::vector<std::unique_ptr<Mesh>>& GetMeshes() const { return c_meshes; }
+
 };

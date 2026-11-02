@@ -3,6 +3,7 @@
 // and objects
 
 #pragma once
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -12,7 +13,7 @@
 #include "Model.h"
 // #include "Mesh.h"
 #include "Render.h"
-#include "Events.h" 
+#include "core/InputFrame.h" 
 
 class Scene {
     private:
@@ -40,9 +41,10 @@ class Scene {
         ~Scene();
 
         bool LoadModel(const std::string& p_filePath);
-        void Update(GLFWwindow* p_window, double p_deltaTime);
+        // void Update(GLFWwindow* p_window, double p_deltaTime);
+        void Update(const InputFrame& p_input, double p_deltaTime);
         void Render(GLFWwindow* p_window, double p_deltaTime);
 
-        Camera* GetCamera() { return c_camera.get(); }
+        // Camera* GetCamera() { return c_camera.get(); }
 
 };

@@ -12,6 +12,7 @@
 // heap allocated objects
 #include "core/Settings.h"
 #include "core/Scene.h"
+#include "core/InputHandler.h"
 
 #include "VBO.h"
 #include "VAO.h"
@@ -27,8 +28,10 @@ private:
     FrameLimit cLimiter {67.0};     // fps cap
 
 
+    std::unique_ptr<InputHandler> c_inputHandler;
     std::unique_ptr<Settings> c_setset;
     std::unique_ptr<Scene> c_scene;
+
 
     // behaviours
     void Init();

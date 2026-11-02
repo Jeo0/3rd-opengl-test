@@ -153,15 +153,18 @@ void Shader::Delete(){
 void Shader::compileErrors(unsigned int p_shader, std::string p_type){
 
     // ============== goback here
-    std::cout << "p_type: " << p_type << ": " << glGetUniformLocation(p_shader, "u_diffuse_tex_type0") << std::endl;
+    // glGetUniformLocation only accepts a linked PROGRAM id; calling it on a shader
+    // object (VERTEX/FRAGMENT/GEOMETRY) just raises GL_INVALID_OPERATION, so the old
+    // debug print here was removed
+    // std::cout << "p_type: " << p_type << ": " << glGetUniformLocation(p_shader, "u_diffuse_tex_type0") << std::endl;
 	GLint hasCompiled;
 	char infoLog[1024];
 	if(p_type != "PROGRAM"){	// compilation
 		glGetShaderiv(p_shader, GL_COMPILE_STATUS, &hasCompiled);
 		if(hasCompiled == GL_FALSE){
 			glGetShaderInfoLog(p_shader, 1024, NULL, infoLog);
-			std::cerr << "SHADER_COMPILATION_ERROR for:" << p_type << "\n" << std::endl;
-			// std::cerr << "SHADER_COMPILATION_ERROR for: " << p_type << "\n" << infoLog << std::endl;
+			// std::cerr << "SHADER_COMPILATION_ERROR for:" << p_type << "\n" << std::endl;
+			std::cerr << "SHADER_COMPILATION_ERROR for: " << p_type << "\n" << infoLog << std::endl;
 		}
 
 	// } else{		// linking 
