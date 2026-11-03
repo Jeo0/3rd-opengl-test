@@ -7,12 +7,14 @@ class InputHandler {
 private:
     bool c_previousP = false;
     bool c_previousX = false;
+    bool c_previousF1 = false;
 
     bool c_mouseCaptured = false;
     bool c_firstMouse = true;
 
     double c_lastMouseX = 0.0;
     double c_lastMouseY = 0.0;
+
 
     static bool IsDown(GLFWwindow* p_window, int p_key);
 
@@ -23,5 +25,7 @@ private:
     );
 
 public:
-    InputFrame Poll(GLFWwindow* p_window);
+    // InputFrame Poll(GLFWwindow* p_window, const UiCapture* p_ui); // previous
+    InputFrame Poll(GLFWwindow* p_window, const UiCapture& p_ui);
+    bool IsMouseCaptured() const;
 };

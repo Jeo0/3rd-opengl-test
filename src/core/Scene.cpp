@@ -2,17 +2,19 @@
 #include "core/Scene.h"
 #include "Render.h"
 #include <iostream>
+#include "core/ImGuiLayer.h"
+#include "glm/gtc/type_ptr.hpp"
+#include "imgui/imgui.h"
 
 
 Scene::Scene(int p_viewportHeight, int p_viewportWidth) {
-    c_camera = std::make_unique<Camera>(p_viewportHeight, p_viewportHeight, glm::vec3(0.0f, 0.0f, 2.0f));
+    c_camera = std::make_unique<Camera>(p_viewportHeight, p_viewportWidth, glm::vec3(0.0f, 0.0f, 2.0f));
 
     // default shaders
     c_shader = std::make_unique<Shader>("resource/Shaders/default.vert", "resource/Shaders/default.geom", "resource/Shaders/default.frag");
     
     // shaders for the vertices and edges 
     c_pointShader = std::make_unique<Shader>("resource/Shaders/point.vert", "resource/Shaders/point.frag"); 
-
     // goback here ===========================================
     // c_passes.emplace_back(std::make_unique<SurfacePass>(*c_shader));
     // c_passes.emplace_back(std::make_unique<PointOverlayPass>(*c_pointShader));
@@ -55,7 +57,10 @@ void Scene::Update(const InputFrame& p_input, double p_deltaTime) {
     // ============================
     // surface pass
     c_surfacePass->c_edgeWidth += p_input.edgeWidthAxis * 10.0f * m_deltaTime;
-    c_surfacePass->c_edgeWidth = std::clamp( c_surfacePass->c_edgeWidth, 0.0f, 20.0f);
+    c_surfacePass->c_edgeWidth = std::clamp( 
+            c_surfacePass->c_edgeWidth, 
+            c_surfacePass->c_edgeWidthMin, 
+            c_surfacePass->c_edgeWidthMax);
 
 
     // ============================
@@ -130,7 +135,9 @@ void Scene::Update(const InputFrame& p_input, double p_deltaTime) {
 //     glfwSwapBuffers(p_window); // or p_window.ID
 // }
 
-void Scene::Render(GLFWwindow* p_window, double p_deltaTime) {
+// removed 
+// void Scene::Render(GLFWwindow* p_window, double p_deltaTime) {
+void Scene::Render(double p_deltaTime) {
     glClearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -141,5 +148,28 @@ void Scene::Render(GLFWwindow* p_window, double p_deltaTime) {
         if (iii_pass->c_enabled) iii_pass->Draw(c_sceneObjects, *c_camera);
     }
 
-    glfwSwapBuffers(p_window);
+    // removed 
+    // glfwSwapBuffers(p_window);
+}
+
+void Scene::DrawUI() {
+    ImGui::Begin("scene");
+
+    if (ImGui::CollapsingHeader("camera", ImGuiTreeNodeFlags_DefaultOpen)) {
+        ImGui::SliderFloat("fov", &c_camera->c_fovDeg, 10.0f, 120.0f, "%.0f deg");
+        ImGui::SliderFloat("move speed", &c_camera->c_moveSpeed, 0.1f, 20.0f);
+        ImGui::DragFloat3("position", glm::value_ptr(c_camera->c_position), 0.05f);
+    }
+
+    for (auto& iii_pass : c_passes) {
+        ImGui::PushID(iii_pass.get());          // passes can reuse labels like "enabled"
+        if (ImGui::CollapsingHeader(iii_pass->GetName(), ImGuiTreeNodeFlags_DefaultOpen)) {
+            ImGui::Checkbox("enabled", &iii_pass->c_enabled);
+            iii_pass->DrawUI();
+        }
+        ImGui::PopID();
+    }
+
+    ImGui::ColorEdit4("background", bgColor);
+    ImGui::End();
 }

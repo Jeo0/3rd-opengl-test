@@ -5,3 +5,4 @@
 ./externals/temp/
 ./cache/
 ./vscode
+./imgui.ini

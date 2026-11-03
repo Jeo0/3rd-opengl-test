@@ -3,13 +3,19 @@
 #include <thread>
 
 FrameLimit::FrameLimit(float p_targetFPS) {
+    c_targetFPS = p_targetFPS;
     c_frameStart = glfwGetTime();
     this->SetTargetFPS(p_targetFPS);
 }
 FrameLimit::~FrameLimit(){}
 
+float FrameLimit::GetTargetFPS(){
+    return c_targetFPS;
+}
+
 
 void FrameLimit::SetTargetFPS(float p_targetFPS) {
+    c_targetFPS = p_targetFPS;
     if(p_targetFPS > 0.0)  c_targetFrameTime = 1.0 / p_targetFPS;
     else    c_targetFrameTime = 0.0;
 }

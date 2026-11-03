@@ -1,6 +1,7 @@
 #include "core/core.h"
 #include "GLFW/glfw3.h"
-#include <filesystem>
+#include "imgui/imgui.h"
+// #include <filesystem>
 // #include "gl/Texture.h"
 // #include "core/globals.h"
 // #include <iostream>
@@ -32,6 +33,7 @@ Core::~Core() { Cleanup(); }
 void Core::Run() {
     while (!glfwWindowShouldClose(windowObj.ID)) {
         glfwPollEvents();           // poll first so InputHandler::Poll reads this frame's state
+        c_imguiLayer->BeginFrame();     // updates WantCaptureMouse/Keyboard for this frame's Poll
 
         float mDeltaTime = cLimiter.StartFrame();
         Update(mDeltaTime);
@@ -46,6 +48,10 @@ void Core::Init() {
     // ============================
     // uniforms
     // uniformID = glGetUniformLocation(shaderProgram.ID, "scale");
+
+    // ============================
+    // ImGui 
+    c_imguiLayer = std::make_unique<ImGuiLayer>(windowObj.ID);
 
 
     // ============================
@@ -77,30 +83,55 @@ void Core::Init() {
 }
 
 
+void Core::DrawUI() {
+    ImGui::Begin("core");
+    ImGui::Text("%.1f fps (%.2f ms)", ImGui::GetIO().Framerate, 1000.0f / ImGui::GetIO().Framerate);
+
+    float m_fps = cLimiter.GetTargetFPS();      // add this getter
+    if (ImGui::SliderFloat("fps cap", &m_fps, 0.0f, 240.0f, "%.0f")) cLimiter.SetTargetFPS(m_fps);
+
+    if (ImGui::Button("reload settings.json")) c_setset->LoadSettings(cLimiter);
+    ImGui::End();
+}
+
+
 void Core::Update(double p_deltaTime) {
     /*  LOGIC TINGS */
     // settings
-    c_setset->LoadSettings(cLimiter);
+    // c_setset->LoadSettings(cLimiter);
 
     // input layer
-    const InputFrame m_input = c_inputHandler->Poll(windowObj.ID);
+    const InputFrame m_input = c_inputHandler->Poll(windowObj.ID, c_imguiLayer->GetCapture());
+    c_imguiLayer->SetMouseEnabled(!c_inputHandler->IsMouseCaptured());
 
     // scene only ever sees the snapshot, never the GLFWwindow*
     c_scene->Update(m_input, p_deltaTime);
 
-    // this no work i dont even have any implementation for dis shit. I'm letting the camera handle the input lmao
-    // windowObj.HandleMouseInput(); // core handles the window 
+    // ============================
+    // ui (immediate mode, so building widgets is just more logic)
+    if (m_input.toggleUi) c_imguiLayer->ToggleVisible();
+    if (c_imguiLayer->IsVisible()) {
+        DrawUI();
+        c_scene->DrawUI();
+    }
 }
 
 
 
 void Core::Render(double p_deltaTime) {
     /*  RENDER TINGS */
-    c_scene->Render(windowObj.ID, p_deltaTime);
+    // c_scene->Render(windowObj.ID, p_deltaTime);
+    c_scene->Render(p_deltaTime);       // no swap in here anymore
+    c_imguiLayer->EndFrame();           // ui on top of the scene
+    glfwSwapBuffers(windowObj.ID);
 }
 
 void Core::Cleanup() {
+    c_imguiLayer.reset();
+    c_scene.reset();
+
     glfwDestroyWindow(windowObj.ID);
     glfwTerminate();
 }
+
 

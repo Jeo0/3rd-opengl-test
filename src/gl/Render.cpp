@@ -1,7 +1,11 @@
 
 #include "gl/Render.h"
 #include <GLAD/glad.h>
+#include "glm/gtc/type_ptr.hpp"
 #include "glm/trigonometric.hpp"
+#include "core/ImGuiLayer.h"
+#include "imgui/imgui.h"
+
 
 PointOverlayPass::PointOverlayPass(Shader& p_shader)
     : c_shader(p_shader) {}
@@ -87,4 +91,10 @@ void SurfacePass::Draw( const SceneObjects& p_objects, Camera& p_camera) {
     if (m_polygonOffsetWasEnabled == GL_FALSE) {
         glDisable(GL_POLYGON_OFFSET_FILL);
     }
+}
+
+
+void SurfacePass::DrawUI() {
+    ImGui::SliderFloat("edge width", &c_edgeWidth, c_edgeWidthMin, c_edgeWidthMax, "%.1f px");
+    ImGui::ColorEdit3("edge color", glm::value_ptr(c_edgeColor));
 }

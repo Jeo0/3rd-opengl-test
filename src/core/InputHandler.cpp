@@ -1,8 +1,5 @@
 #include "core/InputHandler.h"
 
-bool InputHandler::IsDown(GLFWwindow* p_window, int p_key) {
-    return glfwGetKey(p_window, p_key) == GLFW_PRESS;
-}
 
 bool InputHandler::WasPressed(GLFWwindow* p_window, int p_key, bool& p_previousState) {
     const bool m_currentState = IsDown(p_window, p_key);
@@ -14,47 +11,55 @@ bool InputHandler::WasPressed(GLFWwindow* p_window, int p_key, bool& p_previousS
 
     return m_pressed;
 }
+bool InputHandler::IsMouseCaptured() const { return c_mouseCaptured; }
 
 
-InputFrame InputHandler::Poll(GLFWwindow* p_window) {
+InputFrame InputHandler::Poll(GLFWwindow* p_window, const UiCapture& p_ui) {
     InputFrame m_input;
 
     // ============================
-    // camera movement
-
-    m_input.camera.forward =
-        IsDown(p_window, GLFW_KEY_W)
-        - IsDown(p_window, GLFW_KEY_S);
-
-    m_input.camera.right =
-        IsDown(p_window, GLFW_KEY_D)
-        - IsDown(p_window, GLFW_KEY_A);
-
-    m_input.camera.vertical =
-        IsDown(p_window, GLFW_KEY_SPACE)
-        - IsDown(p_window, GLFW_KEY_LEFT_CONTROL);
-
-    m_input.camera.sprint =
-        IsDown(p_window, GLFW_KEY_LEFT_SHIFT);
+    // ImGUI 
+    m_input.toggleUi = WasPressed(p_window, GLFW_KEY_F1, c_previousF1);
 
 
+    if (!p_ui.keyboard) {
+        // ============================
+        // camera movement
+        m_input.camera.forward =
+            IsDown(p_window, GLFW_KEY_W)
+            - IsDown(p_window, GLFW_KEY_S);
+
+        m_input.camera.right =
+            IsDown(p_window, GLFW_KEY_D)
+            - IsDown(p_window, GLFW_KEY_A);
+
+        m_input.camera.vertical =
+            IsDown(p_window, GLFW_KEY_SPACE)
+            - IsDown(p_window, GLFW_KEY_LEFT_CONTROL);
+
+        m_input.camera.sprint =
+            IsDown(p_window, GLFW_KEY_LEFT_SHIFT);
+
+
+        // ============================
+        // surface pass
+        m_input.edgeWidthAxis =
+            IsDown(p_window, GLFW_KEY_RIGHT_BRACKET)
+            - IsDown(p_window, GLFW_KEY_LEFT_BRACKET);
+
+
+        // ============================
+        // point overlay pass
+        m_input.pointSizeAxis =
+            IsDown(p_window, GLFW_KEY_EQUAL)
+            - IsDown(p_window, GLFW_KEY_MINUS);
+
+    }
     // ============================
-    // surface pass
+    // point overlay pass continuation
 
-    m_input.edgeWidthAxis =
-        IsDown(p_window, GLFW_KEY_RIGHT_BRACKET)
-        - IsDown(p_window, GLFW_KEY_LEFT_BRACKET);
-
-
-    // ============================
-    // point overlay pass
-
-    m_input.pointSizeAxis =
-        IsDown(p_window, GLFW_KEY_EQUAL)
-        - IsDown(p_window, GLFW_KEY_MINUS);
-
-    m_input.togglePoints =
-        WasPressed(p_window, GLFW_KEY_P, c_previousP);
+    m_input.togglePoints = 
+        WasPressed(p_window, GLFW_KEY_P, c_previousP) && !p_ui.keyboard;
 
     m_input.togglePointXray =
         WasPressed(p_window, GLFW_KEY_X, c_previousX);
@@ -67,7 +72,7 @@ InputFrame InputHandler::Poll(GLFWwindow* p_window) {
         glfwGetMouseButton(p_window, GLFW_MOUSE_BUTTON_LEFT)
         == GLFW_PRESS;
 
-    if (m_leftMouseDown) {
+    if (m_leftMouseDown && (c_mouseCaptured || !p_ui.mouse)) {
 
         if (!c_mouseCaptured) {
             glfwSetInputMode(p_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -104,4 +109,8 @@ InputFrame InputHandler::Poll(GLFWwindow* p_window) {
     }
 
     return m_input;
+}
+
+bool InputHandler::IsDown(GLFWwindow* p_window, int p_key) {
+    return glfwGetKey(p_window, p_key) == GLFW_PRESS;
 }

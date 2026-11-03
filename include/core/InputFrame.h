@@ -1,7 +1,8 @@
 #pragma once
-
 #include "glm/vec2.hpp"
 
+// ==============================
+// camera layer
 struct CameraInput {
     float forward = 0.0f;
     float right = 0.0f;
@@ -16,11 +17,21 @@ struct CameraInput {
 struct InputFrame {
     CameraInput camera;
 
-    // Continuous actions: -1, 0, or +1
+    // continuous actions: -1, 0, or +1
     float edgeWidthAxis = 0.0f;
     float pointSizeAxis = 0.0f;
 
-    // One-frame actions
+    // one-frame actions
     bool togglePoints = false;
     bool togglePointXray = false;
+    bool toggleUi = false;  // 
 };
+
+
+// ==============================
+// ImGUI layer
+struct UiCapture {
+    bool mouse = false;
+    bool keyboard = false;
+};
+

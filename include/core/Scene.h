@@ -33,7 +33,7 @@ class Scene {
         // debug REMOVE
         float debug_time_iii = 0.0;
         bool debug_time_iii_flag = false;
-        double bgColor[4] = {0.0f, 0.4f, 1.0f, 1.0f};
+        float bgColor[4] = {0.0f, 0.4f, 1.0f, 1.0f};
 //#endif
 
     public:
@@ -43,7 +43,10 @@ class Scene {
         bool LoadModel(const std::string& p_filePath);
         // void Update(GLFWwindow* p_window, double p_deltaTime);
         void Update(const InputFrame& p_input, double p_deltaTime);
-        void Render(GLFWwindow* p_window, double p_deltaTime);
+        // void Render(GLFWwindow* p_window, double p_deltaTime); // removed
+        void Render(double p_deltaTime);
+        void DrawUI();
+
 
         // Camera* GetCamera() { return c_camera.get(); }
 

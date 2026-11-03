@@ -25,7 +25,8 @@ CXX = g++
 CC = gcc
 
 INCLUDES = -I$(INC_DIR) \
-		   -I$(INC_DIR)/gl
+		   -I$(INC_DIR)/gl \
+		   -I$(INC_DIR)/imgui
 
 CXXFLAGS = -std=c++17 $(INCLUDES)  -g -Wall -Wformat 
 CFLAGS = $(INCLUDES)  -g -Wall -Wformat 

@@ -13,6 +13,7 @@
 #include "core/Settings.h"
 #include "core/Scene.h"
 #include "core/InputHandler.h"
+#include "core/ImGuiLayer.h"
 
 #include "VBO.h"
 #include "VAO.h"
@@ -23,6 +24,7 @@
 class Core {
 private:
     Window windowObj;
+    std::unique_ptr<ImGuiLayer> c_imguiLayer;
 
     // timing 
     FrameLimit cLimiter {67.0};     // fps cap
@@ -38,6 +40,8 @@ private:
         // Linking Attributes   // VAO VBO EBO
         // Get uniforms
 
+    void DrawUI();
+
     void Update(double p_deltaTime);
         // Handle all logic and state changes here (separate from drawing)
 
@@ -45,6 +49,7 @@ private:
         // Handle all OpenGL drawing commands here
 
     void Cleanup();
+
 
 public:
     Core();

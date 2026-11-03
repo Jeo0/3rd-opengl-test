@@ -66,7 +66,7 @@ Window::Window(int mheight, int mlength, const char* mtitlebar, GLFWmonitor* mmo
     // -- to 	800,800	:	top-right window
     Height = mheight;
     Width = mlength;
-    glViewport(0,0, Height, Width);
+    glViewport(0,0, Width, Height);
 
 	// tell opengl to render static (r,g,b,a) 
     glClearColor(mstdBgColor[0], mstdBgColor[1], mstdBgColor[2], mstdBgColor[3]);

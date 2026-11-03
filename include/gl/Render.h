@@ -18,6 +18,9 @@ public:
     // unless u want it to be 0
     virtual void Draw( const SceneObjects& p_objects, Camera& p_camera) = 0;
 
+    virtual const char* GetName() const = 0;
+    virtual void DrawUI() {}            // optional knobs, default none
+
     bool c_enabled = true;
 };
 
@@ -25,6 +28,10 @@ public:
 class PointOverlayPass final : public RenderPass {
 public:
     explicit PointOverlayPass(Shader& p_shader);
+
+    const char* GetName() const override {
+        return "PointOverlayPass";
+    }
 
     void Draw(const SceneObjects& p_objects, Camera& p_camera) override;
 
@@ -46,11 +53,20 @@ class SurfacePass final : public RenderPass {
 public:
     explicit SurfacePass(Shader& p_shader);
 
+    const char* GetName() const override {
+        return "SurfacePass";
+    }
+
     void Draw(const SceneObjects& p_objects, Camera& p_camera) override;
+    void DrawUI() override;
 
     // wireframe settings are owned by the pass that uses them.
     float c_edgeWidth = 2.0f;  // px, [ and ]; 0 disables the wireframe
     glm::vec3 c_edgeColor{0.05f, 0.05f, 0.05f};
+
+    // 
+    static constexpr float c_edgeWidthMin = 0.0f;
+    static constexpr float c_edgeWidthMax = 20.0f;
 
 private:
     Shader& c_shader;   // each scene can now have its own shader
