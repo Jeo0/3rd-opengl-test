@@ -7,10 +7,11 @@
 
 // private 
 // ++++=========================== goback here
-void Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+// REMOVE LATER
+// void Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     // if (key == GLFW_KEY_E && action == GLFW_PRESS)
         //
-}
+// }
 
 // public
 Window::Window(int mheight, int mlength, const char* mtitlebar, GLFWmonitor* mmonitor, GLFWwindow* mshare, std::array <GLfloat, 4> mstdBgColor){
@@ -24,23 +25,23 @@ Window::Window(int mheight, int mlength, const char* mtitlebar, GLFWmonitor* mmo
 
     // ================================
     // debug remove 
-    std::cout << "typeof mheight\t:" << typeid(mheight).name() 
-        << "\t: " << mheight << std::endl;
-    std::cout << "typeof mlength\t:" << typeid(mlength).name() 
-        << "\t: " << mlength << std::endl;
-    std::cout << "typeof mtitlebar\t:" << typeid(mtitlebar).name() 
-        << "\t: " << mtitlebar << std::endl;
-    std::cout << "typeof mmonitor\t:" << typeid(mmonitor).name() 
-        // << std::endl;
-        << "\t: " << mmonitor << std::endl;
-    std::cout << "typeof mshare\t:" << typeid(mshare).name() 
-        // << std::endl;
-        << "\t: " << mshare << std::endl;
+    // std::cout << "typeof mheight\t:" << typeid(mheight).name() 
+    //     << "\t: " << mheight << std::endl;
+    // std::cout << "typeof mlength\t:" << typeid(mlength).name() 
+    //     << "\t: " << mlength << std::endl;
+    // std::cout << "typeof mtitlebar\t:" << typeid(mtitlebar).name() 
+    //     << "\t: " << mtitlebar << std::endl;
+    // std::cout << "typeof mmonitor\t:" << typeid(mmonitor).name() 
+    //     // << std::endl;
+    //     << "\t: " << mmonitor << std::endl;
+    // std::cout << "typeof mshare\t:" << typeid(mshare).name() 
+    //     // << std::endl;
+    //     << "\t: " << mshare << std::endl;
 
 
     // 2 create window
     ID = glfwCreateWindow(mheight, mlength, mtitlebar, mmonitor, mshare);
-    std::cout << "INFO Window::Window ID=createwindow" << std::endl;
+    // std::cout << "INFO Window::Window ID=createwindow" << std::endl;
 
 	if(ID == NULL){
 		std::cerr << "failed to create glfw window" << std::endl;
@@ -49,7 +50,7 @@ Window::Window(int mheight, int mlength, const char* mtitlebar, GLFWmonitor* mmo
 	}
     // =======================
     // debug remove 
-    std::cout << "INFO Window::Window FINALLY A WINDOW IS CREATED" << std::endl;
+    // std::cout << "INFO Window::Window FINALLY A WINDOW IS CREATED" << std::endl;
     glfwMakeContextCurrent(ID);
     
     // 3 glad 
@@ -64,9 +65,11 @@ Window::Window(int mheight, int mlength, const char* mtitlebar, GLFWmonitor* mmo
     // tell opengl that we want to set the viewport (where opengl will render in)
     // -- from	0,0 	:	bot-left window
     // -- to 	800,800	:	top-right window
-    Height = mheight;
-    Width = mlength;
-    glViewport(0,0, Width, Height);
+    // Height = mheight;
+    // Width = mlength;
+    // glViewport(0,0, Width, Height);
+    glfwGetFramebufferSize(ID, &c_width, &c_height);
+    glViewport(0, 0, c_width, c_height);
 
 	// tell opengl to render static (r,g,b,a) 
     glClearColor(mstdBgColor[0], mstdBgColor[1], mstdBgColor[2], mstdBgColor[3]);
@@ -85,7 +88,21 @@ Window::~Window() {
     glfwTerminate();
 }
 
-// ++++===================== goback here
-void Window::HandleMouseInput(){
-    //glfwSetKeyCallback(ID, key_callback);
+// REMOVE LATER
+// // ++++===================== goback here
+// void Window::HandleMouseInput(){
+//     //glfwSetKeyCallback(ID, key_callback);
+// }
+
+bool Window::PollResize() {
+    // limit first how the smallest window will be
+    glfwSetWindowSizeLimits(ID, 320, 240, GLFW_DONT_CARE, GLFW_DONT_CARE);
+
+    int m_width = 0, m_height = 0;
+    glfwGetFramebufferSize(ID, &m_width, &m_height);
+    if (m_width == c_width && m_height == c_height) return false;
+
+    c_width = m_width;
+    c_height = m_height;
+    return true;
 }

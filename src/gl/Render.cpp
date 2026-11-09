@@ -97,4 +97,6 @@ void SurfacePass::Draw( const SceneObjects& p_objects, Camera& p_camera) {
 void SurfacePass::DrawUI() {
     ImGui::SliderFloat("edge width", &c_edgeWidth, c_edgeWidthMin, c_edgeWidthMax, "%.1f px");
     ImGui::ColorEdit3("edge color", glm::value_ptr(c_edgeColor));
+
+
 }

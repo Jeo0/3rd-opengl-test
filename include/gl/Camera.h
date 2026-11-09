@@ -9,7 +9,10 @@
 class Camera {
     public:
         // debug view, runtime tweakable with the keys in Scene::Update
-        float c_fovDeg     = 45.0f;
+        float c_fovDeg    = 45.0;
+        float c_nearPlane = 1.0;
+        float c_farPlane  = 100.0;
+
         // edge width / point size / toggles now live on SurfacePass and PointOverlayPass
         glm::vec3 c_position;
         // glm::vec3 c_orientation {glm::vec3(0.0, 0.0, -1.0)};
@@ -19,10 +22,10 @@ class Camera {
         glm::mat4 c_cameraMatrix {glm::mat4(1.0)};
 
         // bool c_firstClick {true};
-        float c_sensitivity {0.1f};         // degrees per pixel of mouse movement
+        float c_sensitivity {0.1};         // degrees per pixel of mouse movement
         // float c_speed {100.0};
-        float c_moveSpeed {2.0f};           // world units per second
-        float c_sprintMultiplier {5.0f};    // applied while left shift is held
+        float c_moveSpeed {2.0};           // world units per second
+        float c_sprintMultiplier {5.0};    // applied while left shift is held
 
         int c_height, c_width;
 
@@ -32,8 +35,10 @@ class Camera {
         // ====================
         void Update(const CameraInput& p_input, double p_deltaTime);
         // void HandleInputs(GLFWwindow* p_window, double p_deltaTime);
-        void UpdateMatrix(float p_FOVdeg, float p_nearPlane, float p_farPlane);
+        void UpdateMatrix(float p_FOVdeg, float p_nearPlane, float p_farPlane); 
+        void FrameBounds(const glm::vec3& p_min, const glm::vec3& p_max);
         void Matrix(Shader& p_shader, std::string p_uniform);
+        void SetViewport(int p_width, int p_height);
 };
 
 

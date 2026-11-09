@@ -41,13 +41,18 @@ class Scene {
         ~Scene();
 
         bool LoadModel(const std::string& p_filePath);
+        // REMOVE LATER
         // void Update(GLFWwindow* p_window, double p_deltaTime);
-        void Update(const InputFrame& p_input, double p_deltaTime);
         // void Render(GLFWwindow* p_window, double p_deltaTime); // removed
+        void Update(const InputFrame& p_input, double p_deltaTime);
         void Render(double p_deltaTime);
         void DrawUI();
 
+        void Resize(int p_width, int p_height);
 
+
+
+        // REMOVE LATER
         // Camera* GetCamera() { return c_camera.get(); }
 
 };

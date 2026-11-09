@@ -1,0 +1,24 @@
+
+Area-weighted random surface 
+- Baseline: cheap, but points clump
+
+
+Voxel grid	
+- Simple even spacing, the usual point-cloud standard
+
+
+Farthest point sampling (FPS)	
+- Spreads a fixed N as evenly as possible; already in your plan
+
+
+Poisson disk with radius = s	
+- Ties directly to the budget formula; even, unclustered spacing
+
+
+Curvature-weighted FPS	
+- Feature-aware; for the small-budget case above
+
+
+QEM / subdivision	
+- Only if you add an edge-tracing mode
+

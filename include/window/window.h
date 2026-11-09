@@ -3,8 +3,9 @@
 #include <array>
 
 class Window {
-private:
-    void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    // REMOVE LATER
+// private:
+//     void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 public:
     GLFWwindow* ID;
@@ -12,9 +13,13 @@ public:
     ~Window();
 
 
-    int Height = 0, Width = 0;
+    int c_height = 0, c_width = 0;
 
-    void HandleMouseInput();
+    bool PollResize();
+    bool IsMinimized() const {return (c_height == 0) || (c_width == 0); };
+
+    // REMOVE LATER
+    // void HandleMouseInput();
 };
 
 

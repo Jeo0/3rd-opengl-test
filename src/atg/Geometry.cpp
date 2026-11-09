@@ -119,5 +119,71 @@ float SurfaceArea(const MeshData& p_mesh) {
     return m_total;
 }
 
+
+// { 
+//     // 1. Get the total number of vertices
+//     size_t vertexCount = mesh.positions.size();
+//
+//     // 2. Get the total number of indices and triangles
+//     size_t indexCount = mesh.indices.size();
+//     size_t triangleCount = indexCount / 3; 
+//
+//     // --- Example: Limit printing to the first 5 elements ---
+//     size_t maxVerticesToPrint = std::min<size_t>(5, vertexCount);
+//     size_t maxTrianglesToPrint = std::min<size_t>(5, triangleCount);
+//
+//     std::cout << "--- Vertices ---\n";
+//     for (size_t i = 0; i < maxVerticesToPrint; ++i) {
+//         const auto& v = mesh.positions[i];
+//         std::cout << "Vertex " << i << ": (" << v.x << ", " << v.y << ", " << v.z << ")\n";
+//     }
+//
+//     std::cout << "\n--- Triangles ---\n";
+//     for (size_t i = 0; i < maxTrianglesToPrint; ++i) {
+//         // Each triangle uses 3 consecutive indices
+//         size_t idx = i * 3;
+//         std::cout << "Triangle " << i << ": [" 
+//                   << mesh.indices[idx] << ", " 
+//                   << mesh.indices[idx + 1] << ", " 
+//                   << mesh.indices[idx + 2] << "]\n";
+//     }
+// }
+
+
+std::ostream& operator<<(std::ostream& os, const MeshData& p_mesh) {
+    os << "========== MeshData ==========\n";
+
+    // Positions
+    os << "Positions (" << p_mesh.positions.size() << "):\n";
+    
+    // size_t m_maxElements = 12; 
+    // for (size_t ii = 0; ii < m_maxElements; ++ii) {
+    for (size_t ii = 0; ii < p_mesh.positions.size(); ++ii) {
+        const auto& pos = p_mesh.positions[ii];
+
+        os << "  [" << std::setw(4) << ii << "] "
+           << "X: " << std::setw(10) << pos.x << " | "
+           << "Y: " << std::setw(10) << pos.y << " | "
+           << "Z: " << std::setw(10) << pos.z << '\n';
+    }
+
+
+    // Indices
+    os << "\nIndices (" << p_mesh.indices.size() << "):\n";
+
+    // for (size_t ii = 0; ii < m_maxElements; ii += 3) {
+    for (size_t ii = 0; ii < p_mesh.indices.size(); ii += 3) {
+        os << "  Triangle " << std::setw(4) << ii / 3 << ": ";
+
+        for (size_t jj = ii; jj < std::min(ii + 3, p_mesh.indices.size()); ++jj) {
+            os << std::setw(6) << p_mesh.indices[jj] << ' ';
+        }
+        os << '\n';
+    }
+    os << "==============================\n";
+    return os;
+}
+
+
 } // namespace atg
 

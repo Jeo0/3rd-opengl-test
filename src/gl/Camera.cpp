@@ -34,12 +34,29 @@ void Camera::UpdateMatrix(float p_FOVdeg, float p_nearPlane, float p_farPlane){
     // makes camera look in the right direction from the right position
     mview = glm::lookAt(c_position, c_position + c_orientation, c_up);
 
-    // enables perspective 
-    mprojection = glm::perspective(glm::radians(p_FOVdeg), (float)c_width/c_height, p_nearPlane, p_farPlane);
+    // camera viewport
+    // also enables perspective 
+    const float m_aspect = (c_height > 0) ? (float)c_width / (float)c_height : 1.0f;
+    mprojection = glm::perspective(glm::radians(p_FOVdeg), m_aspect, p_nearPlane, p_farPlane);
 
     // now set the object's own matrix
     c_cameraMatrix = mprojection * mview;
 
+}
+
+void Camera::FrameBounds(const glm::vec3& p_min, const glm::vec3& p_max) {
+    const glm::vec3 m_center = 0.5f * (p_min + p_max);
+    const float m_radius = 0.5f * glm::length(p_max - p_min);     // bounding sphere
+    if (m_radius <= 0.0f) return;
+
+    // back off until the sphere fits the vertical fov
+    const float m_dist = m_radius / glm::sin(glm::radians(c_fovDeg) * 0.5f);
+    c_position = m_center - c_orientation * m_dist;
+
+    // planes scale with the model, far/near ratio stays around 1000:1
+    c_nearPlane = m_radius * 0.01f;
+    c_farPlane  = (m_dist + m_radius) * 4.0f;
+    c_moveSpeed = m_radius;             // cross the model in about 2 s whatever its units
 }
 
 void Camera::Update(const CameraInput& p_input, double p_deltaTime) {
@@ -82,6 +99,12 @@ void Camera::Update(const CameraInput& p_input, double p_deltaTime) {
         c_orientation = glm::rotate(c_orientation, m_yaw, c_up);
     }
 }
+
+void Camera::SetViewport(int p_width, int p_height){
+    c_width = p_width;
+    c_height = p_height;
+}
+
 
 // void Camera::Update(const CameraInput& p_input, double p_deltaTime) {
 // void Camera::HandleInputs(GLFWwindow* p_window, double p_deltaTime){

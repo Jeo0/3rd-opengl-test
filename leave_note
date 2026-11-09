@@ -32,3 +32,12 @@ follow tutorial, except use simdjson for parsing
 then test out a few vertex manipulation tings  
 
 == vertex & fragment shader manipulation
+/ done 
+
+== input handling
+/ done maybe
+
+== imgui
+/ done 
+
+== testing few vertex manipulation tings

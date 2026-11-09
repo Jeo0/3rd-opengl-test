@@ -5,6 +5,7 @@
 
 #pragma once
 #include "glm/glm.hpp"
+#include <iomanip>
 #include <cstdint>
 #include <vector>
 
@@ -36,5 +37,6 @@ namespace atg {
     float SurfaceArea(const MeshData& p_mesh);
     float TriangleArea(const MeshData& p_mesh, size_t p_triangle);
 
+    std::ostream& operator<<(std::ostream& os, const MeshData& mesh);
 } // namespace atg
 

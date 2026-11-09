@@ -5,10 +5,11 @@
 #include "core/ImGuiLayer.h"
 #include "glm/gtc/type_ptr.hpp"
 #include "imgui/imgui.h"
+#include "atg/Sampling.h"
 
 
 Scene::Scene(int p_viewportHeight, int p_viewportWidth) {
-    c_camera = std::make_unique<Camera>(p_viewportHeight, p_viewportWidth, glm::vec3(0.0f, 0.0f, 2.0f));
+    c_camera = std::make_unique<Camera>(p_viewportHeight, p_viewportWidth, glm::vec3(0.0, 0.0, 2.0));
 
     // default shaders
     c_shader = std::make_unique<Shader>("resource/Shaders/default.vert", "resource/Shaders/default.geom", "resource/Shaders/default.frag");
@@ -42,6 +43,20 @@ Scene::~Scene() {
 bool Scene::LoadModel(const std::string& p_filePath){
     try {
         c_sceneObjects.push_back(std::make_unique<Model>(p_filePath));
+
+        // ======================
+        // atg
+        // remove later
+        // debug REMOVE
+        //
+        // auto nani = atg::ExtractGeometry(c_sceneObjects.back());
+        atg::MeshData nani = atg::ExtractGeometry(*c_sceneObjects.back());
+        std::cout << "INFO nani has: \n" << nani << std::endl;
+        //
+        // ======================
+        
+        // c_camera->FrameBounds(c_camera->c_nearPlane, c_camera->c_farPlane);
+
         return true;
     } catch (std::exception& eee){ 
         std::cerr << "Scene::LoadModel failed on '" << p_filePath << "': " << eee.what() << std::endl;
@@ -56,7 +71,7 @@ void Scene::Update(const InputFrame& p_input, double p_deltaTime) {
 
     // ============================
     // surface pass
-    c_surfacePass->c_edgeWidth += p_input.edgeWidthAxis * 10.0f * m_deltaTime;
+    c_surfacePass->c_edgeWidth += p_input.edgeWidthAxis * 10.0 * m_deltaTime;
     c_surfacePass->c_edgeWidth = std::clamp( 
             c_surfacePass->c_edgeWidth, 
             c_surfacePass->c_edgeWidthMin, 
@@ -65,7 +80,7 @@ void Scene::Update(const InputFrame& p_input, double p_deltaTime) {
 
     // ============================
     // point overlay pass
-    c_pointOverlayPass->c_size += p_input.pointSizeAxis * 20.0f * m_deltaTime;
+    c_pointOverlayPass->c_size += p_input.pointSizeAxis * 20.0 * m_deltaTime;
     c_pointOverlayPass->c_size = std::clamp(c_pointOverlayPass->c_size, 1.0f, 64.0f);
 
     if (p_input.togglePoints) {
@@ -79,7 +94,7 @@ void Scene::Update(const InputFrame& p_input, double p_deltaTime) {
     // ============================
     // camera
     c_camera->Update(p_input.camera, p_deltaTime);
-    c_camera->UpdateMatrix( c_camera->c_fovDeg, 1.0f, 100.0f);
+    c_camera->UpdateMatrix( c_camera->c_fovDeg, c_camera->c_nearPlane, c_camera->c_farPlane); // clip start and clip end
 
 
     // ============================
@@ -156,9 +171,13 @@ void Scene::DrawUI() {
     ImGui::Begin("scene");
 
     if (ImGui::CollapsingHeader("camera", ImGuiTreeNodeFlags_DefaultOpen)) {
-        ImGui::SliderFloat("fov", &c_camera->c_fovDeg, 10.0f, 120.0f, "%.0f deg");
-        ImGui::SliderFloat("move speed", &c_camera->c_moveSpeed, 0.1f, 20.0f);
+        ImGui::SliderFloat("fov", &c_camera->c_fovDeg, 10.0, 120.0, "%.0f deg");
+        ImGui::SliderFloat("move speed", &c_camera->c_moveSpeed, 0.1f, 20.0);
         ImGui::DragFloat3("position", glm::value_ptr(c_camera->c_position), 0.05f);
+
+        // clipping
+        ImGui::DragFloat("near", &c_camera->c_nearPlane, 0.001f, 0.001f, c_camera->c_farPlane);
+        ImGui::DragFloat("far",  &c_camera->c_farPlane,  1.0, c_camera->c_nearPlane, 10000.0);
     }
 
     for (auto& iii_pass : c_passes) {
@@ -173,3 +192,9 @@ void Scene::DrawUI() {
     ImGui::ColorEdit4("background", bgColor);
     ImGui::End();
 }
+
+
+void Scene::Resize(int p_width, int p_height){
+    c_camera->SetViewport(p_width, p_height);
+}
+

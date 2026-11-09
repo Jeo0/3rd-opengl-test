@@ -1,5 +1,6 @@
 #include "core/FrameLimit.h"
 #include "GLFW/glfw3.h"
+#include <algorithm>
 #include <thread>
 
 FrameLimit::FrameLimit(float p_targetFPS) {
@@ -26,6 +27,8 @@ float FrameLimit::StartFrame() {
 
     float mDeltaTime = (float)(mNow - c_frameStart);
     c_frameStart = mNow; 
+    mDeltaTime = std::min(mDeltaTime, 0.1f);    // to prevent a huge delta-time when resizing
+
     return mDeltaTime;
 }
 
