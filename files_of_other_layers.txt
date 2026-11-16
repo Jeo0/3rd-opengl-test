@@ -1,0 +1,13 @@
+layer 2: ATG
+- "ext sources/OpenMPD/OpenMPD/OpenMPD_Engine/include/OpenMPD_Prerequisites.h" : describes the structure of descriptors
+- "ext sources/OpenMPD/OpenMPD_Client/OprimizedPaths/Fish_f.csv" : simple fish FOV. This should be the output of the layer 2
+
+
+layer 3: openmpd 
+- "ext sources/OpenMPD_Hardware/FPGA_3.4.2/src/CommandReader.vhd" : the structure of the 512 byte being sent from the PC to the FPGA
+- "ext sources/OpenMPD_Driver/AsierInho_DLLV2/src/AsierInhoImpl_V2.cpp" : same as above 
+
+
+layer 4: ftdi
+- "ext sources/OpenMPD_Driver/AsierInho_DLLV2/src/AsierInhoImpl_V2.cpp" : driver
+

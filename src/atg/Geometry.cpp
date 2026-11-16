@@ -4,28 +4,27 @@
 #include <cmath>
 #include <limits>
 #include <unordered_map>
-
 namespace atg {
 
-MeshData ExtractGeometry(const Model& p_model) {
-    MeshData m_out;
-
-    for (const auto& iii_mesh : p_model.GetMeshes()) {
-        // indices of this mesh start after everything merged so far
-        uint32_t t_base = (uint32_t)m_out.positions.size();
-
-        for (const Vertex& ii_vert : iii_mesh->c_vertices) {
-            glm::vec4 t_world = iii_mesh->c_modelPos * glm::vec4(ii_vert.position, 1.0f);
-            m_out.positions.push_back(glm::vec3(t_world));
-        }
-        for (GLuint ii_index : iii_mesh->c_indices) {
-            m_out.indices.push_back(t_base + (uint32_t)ii_index);
-        }
-    }
-
-    WeldVertices(m_out);
-    return m_out;
-}
+// MeshData ExtractGeometry(const Model& p_model) {
+//     MeshData m_out;
+//
+//     for (const auto& iii_mesh : p_model.GetMeshes()) {
+//         // indices of this mesh start after everything merged so far
+//         uint32_t t_base = (uint32_t)m_out.positions.size();
+//
+//         for (const Vertex& ii_vert : iii_mesh->c_vertices) {
+//             glm::vec4 t_world = iii_mesh->c_modelPos * glm::vec4(ii_vert.position, 1.0f);
+//             m_out.positions.push_back(glm::vec3(t_world));
+//         }
+//         for (GLuint ii_index : iii_mesh->c_indices) {
+//             m_out.indices.push_back(t_base + (uint32_t)ii_index);
+//         }
+//     }
+//
+//     WeldVertices(m_out);
+//     return m_out;
+// }
 
 void WeldVertices(MeshData& p_mesh, float p_epsilon) {
     // snap each position to an integer grid cell of size p_epsilon and hash the cell.
